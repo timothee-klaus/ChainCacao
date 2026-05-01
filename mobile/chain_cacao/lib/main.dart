@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/services/sync/sync_service.dart';
+import 'features/auth/presentation/pages/login_page.dart';
 
 void main() {
   runApp(
@@ -28,7 +29,7 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'ChainCacao Dashboard'),
+      home: const LoginPage(),
     );
   }
 }
