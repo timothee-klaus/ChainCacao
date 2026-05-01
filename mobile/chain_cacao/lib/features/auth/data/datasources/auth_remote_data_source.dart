@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../models/auth_response.dart';
 
 /// Source de données distante pour l'authentification.

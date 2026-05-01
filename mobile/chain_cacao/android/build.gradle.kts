@@ -20,10 +20,18 @@ subprojects {
 }
 
 subprojects {
-    afterEvaluate {
-        val android = project.extensions.findByType<com.android.build.gradle.BaseExtension>()
-        if (android != null && android.namespace == null) {
-            android.namespace = "dev.isar.isar_flutter_libs"
+    val isarNamespace = "dev.isar.isar_flutter_libs"
+    
+    plugins.withId("com.android.library") {
+        val extension = project.extensions.findByType<com.android.build.gradle.LibraryExtension>()
+        if (extension != null && extension.namespace == null) {
+            extension.namespace = isarNamespace
+        }
+    }
+    plugins.withId("com.android.application") {
+        val extension = project.extensions.findByType<com.android.build.gradle.AppExtension>()
+        if (extension != null && extension.namespace == null) {
+            extension.namespace = isarNamespace
         }
     }
 }
