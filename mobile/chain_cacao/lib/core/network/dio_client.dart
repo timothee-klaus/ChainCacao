@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/storage/local_storage_service.dart';
 
 final dioProvider = Provider<Dio>((ref) {
+  final storage = ref.watch(localStorageServiceProvider);
+  
   final dio = Dio(
     BaseOptions(
       baseUrl: 'https://chain-cacao-api.begeek.tg/api/v1', // URL fictive du backend FastAPI
@@ -17,9 +20,12 @@ final dioProvider = Provider<Dio>((ref) {
 
   // Intercepteur pour la gestion globale (Auth, Erreurs, etc.)
   dio.interceptors.add(InterceptorsWrapper(
-    onRequest: (options, handler) {
-      // TODO: Récupérer le token d'authentification (ex: depuis un SecureStorage)
-      // options.headers['Authorization'] = 'Bearer $token';
+    onRequest: (options, handler) async {
+      // Récupération du token d'authentification depuis le stockage sécurisé
+      final token = await storage.getToken();
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
       return handler.next(options);
     },
     onResponse: (response, handler) {

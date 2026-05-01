@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
-import '../models/user_model.dart';
+import '../models/auth_response.dart';
 
 /// Source de données distante pour l'authentification.
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String email, String password);
+  Future<AuthResponse> login(String email, String password);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -12,7 +11,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthResponse> login(String email, String password) async {
     try {
       final response = await dio.post('/auth/login', data: {
         'email': email,
@@ -20,7 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       });
 
       if (response.statusCode == 200) {
-        return UserModel.fromJson(response.data as Map<String, dynamic>);
+        return AuthResponse.fromJson(response.data as Map<String, dynamic>);
       } else {
         throw Exception('Identifiants invalides ou erreur serveur.');
       }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/services/sync/sync_service.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 
+import 'features/auth/presentation/providers/auth_provider.dart';
+
 void main() {
   runApp(
     // Indispensable pour Riverpod
@@ -17,6 +19,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
     // Initialisation du service de synchronisation dès le lancement de l'app
     ref.listen(syncServiceProvider, (previous, next) {
       // Le service commence à écouter la connectivité automatiquement
@@ -29,7 +33,9 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: authState.user != null 
+          ? const MyHomePage(title: 'ChainCacao Dashboard')
+          : const LoginPage(),
     );
   }
 }
@@ -54,6 +60,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             icon: const Icon(Icons.sync),
             onPressed: () {
               ref.read(syncServiceProvider).triggerSync();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
             },
           ),
         ],
