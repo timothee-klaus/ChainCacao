@@ -12,8 +12,8 @@ import '../../domain/usecases/login_usecase.dart';
 
 // Source de données
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  final dio = ref.watch(dioProvider);
-  return AuthRemoteDataSourceImpl(dio);
+  // Mode MOCK activé pour le moment comme demandé
+  return MockAuthRemoteDataSource();
 });
 
 // Repository (on l'expose via son interface pour respecter Clean Architecture)
