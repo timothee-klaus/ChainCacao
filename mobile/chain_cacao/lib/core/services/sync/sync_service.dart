@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../database/isar_service.dart';
 import '../../database/queue_item.dart';
 import '../../network/dio_client.dart';
-import '../../../features/cacao_lot/domain/entities/cacao_lot.dart';
+import '../../../features/cacao_lot/data/models/cacao_lot_model.dart';
 
 class SyncService {
   final IsarService _isarService;
@@ -72,7 +72,7 @@ class SyncService {
 
   Future<bool> _processQueueItem(QueueItem item, Isar isar) async {
     if (item.payloadType == 'create_lot') {
-      final lot = await isar.collection<CacaoLot>().filter().lotIdEqualTo(item.payloadRef).findFirst();
+      final lot = await isar.collection<CacaoLotModel>().filter().lotIdEqualTo(item.payloadRef).findFirst();
       if (lot == null) return true; // Lot introuvable, on considère l'item comme traité (ou erreur)
 
       try {
@@ -95,7 +95,7 @@ class SyncService {
           await isar.writeTxn(() async {
             lot.syncStatus = 'synced';
             lot.updatedAt = DateTime.now();
-            await isar.collection<CacaoLot>().put(lot);
+            await isar.collection<CacaoLotModel>().put(lot);
           });
           return true;
         }
