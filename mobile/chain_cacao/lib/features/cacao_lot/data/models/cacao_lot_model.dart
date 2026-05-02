@@ -1,65 +1,63 @@
 import 'package:isar/isar.dart';
-import '../../domain/entities/cacao_lot.dart';
+import '../../domain/entities/cacao_lot.dart' as entity;
 
 part 'cacao_lot_model.g.dart';
 
-@Collection()
+@collection
 class CacaoLotModel {
-  Id id = Isar.autoIncrement;
+  Id isarId = Isar.autoIncrement;
 
   @Index(unique: true, replace: true)
-  late String lotId;
+  String lotId = '';
 
   String? lotHashOnChain;
-  late String farmerId;
+  String farmerId = '';
   List<String> photoUrls = [];
   List<String> photoHashes = [];
   
   double? latitude;
   double? longitude;
   
-  late String region;
-  late double weightKg;
-  late String species;
-  late DateTime dateCollecte;
-  late String coopName;
+  String region = 'Plateaux';
+  double weightKg = 0;
+  String species = 'Cacao';
+  String variete = '';
+  DateTime dateCollecte = DateTime.now();
+  String coopName = '';
   
-  late String statut;
+  String statut = 'draft'; 
+  String syncStatus = 'pending'; 
   
-  @Index()
-  late String syncStatus;
-  
-  late String createdBy;
-  late DateTime createdAt;
-  late DateTime updatedAt;
+  String createdBy = '';
+  DateTime createdAt = DateTime.now();
+  DateTime updatedAt = DateTime.now();
 
   CacaoLotModel();
 
-  /// Crée un modèle à partir d'une entité du domaine
-  factory CacaoLotModel.fromEntity(CacaoLot entity) {
+  factory CacaoLotModel.fromEntity(entity.CacaoLot lot) {
     return CacaoLotModel()
-      ..lotId = entity.lotId
-      ..lotHashOnChain = entity.lotHashOnChain
-      ..farmerId = entity.farmerId
-      ..photoUrls = entity.photoUrls
-      ..photoHashes = entity.photoHashes
-      ..latitude = entity.latitude
-      ..longitude = entity.longitude
-      ..region = entity.region
-      ..weightKg = entity.weightKg
-      ..species = entity.species
-      ..dateCollecte = entity.dateCollecte
-      ..coopName = entity.coopName
-      ..statut = entity.statut
-      ..syncStatus = entity.syncStatus
-      ..createdBy = entity.createdBy
-      ..createdAt = entity.createdAt
-      ..updatedAt = entity.updatedAt;
+      ..lotId = lot.lotId
+      ..lotHashOnChain = lot.lotHashOnChain
+      ..farmerId = lot.farmerId
+      ..photoUrls = lot.photoUrls
+      ..photoHashes = lot.photoHashes
+      ..latitude = lot.latitude
+      ..longitude = lot.longitude
+      ..region = lot.region
+      ..weightKg = lot.weightKg
+      ..species = lot.species
+      ..variete = lot.variete
+      ..dateCollecte = lot.dateCollecte
+      ..coopName = lot.coopName
+      ..statut = lot.statut
+      ..syncStatus = lot.syncStatus
+      ..createdBy = lot.createdBy
+      ..createdAt = lot.createdAt
+      ..updatedAt = lot.updatedAt;
   }
 
-  /// Convertit le modèle en entité du domaine
-  CacaoLot toEntity() {
-    return CacaoLot(
+  entity.CacaoLot toEntity() {
+    return entity.CacaoLot(
       lotId: lotId,
       lotHashOnChain: lotHashOnChain,
       farmerId: farmerId,
@@ -70,6 +68,7 @@ class CacaoLotModel {
       region: region,
       weightKg: weightKg,
       species: species,
+      variete: variete,
       dateCollecte: dateCollecte,
       coopName: coopName,
       statut: statut,

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/dio_client.dart';
+import '../../../../core/services/storage/local_storage_service.dart';
+import '../../data/models/user_model.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user.dart';
@@ -9,14 +11,15 @@ import '../../domain/usecases/login_usecase.dart';
 
 // Source de données
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  final dio = ref.watch(dioProvider);
-  return AuthRemoteDataSourceImpl(dio);
+  // Mode MOCK activé pour le moment comme demandé
+  return MockAuthRemoteDataSource();
 });
 
 // Repository (on l'expose via son interface pour respecter Clean Architecture)
 final authRepositoryProvider = Provider<AuthRepositoryImpl>((ref) {
   final dataSource = ref.watch(authRemoteDataSourceProvider);
-  return AuthRepositoryImpl(dataSource);
+  final storage = ref.watch(localStorageServiceProvider);
+  return AuthRepositoryImpl(dataSource, storage);
 });
 
 // Use Case
@@ -45,8 +48,28 @@ class AuthState {
 /// Notifier gérant l'état UI et appelant obligatoirement le Use Case
 class AuthNotifier extends StateNotifier<AuthState> {
   final LoginUseCase loginUseCase;
+  final LocalStorageService localStorageService;
 
-  AuthNotifier(this.loginUseCase) : super(AuthState());
+  AuthNotifier(this.loginUseCase, this.localStorageService) : super(AuthState()) {
+    // Vérification automatique au démarrage
+    checkAuth();
+  }
+
+  /// Vérifie si une session existe localement
+  Future<void> checkAuth() async {
+    final token = await localStorageService.getToken();
+    final userData = await localStorageService.getUserData();
+
+    if (token != null && userData != null) {
+      try {
+        final user = UserModel.fromJson(jsonDecode(userData)).toEntity();
+        state = state.copyWith(user: user);
+      } catch (e) {
+        // En cas d'erreur de parsing, on nettoie tout
+        await logout();
+      }
+    }
+  }
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -59,10 +82,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       (user) => state = state.copyWith(isLoading: false, user: user),
     );
   }
+
+  /// Déconnexion et nettoyage du stockage
+  Future<void> logout() async {
+    await localStorageService.clearAll();
+    state = AuthState();
+  }
 }
 
 // Global Provider
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final loginUseCase = ref.watch(loginUseCaseProvider);
-  return AuthNotifier(loginUseCase);
+  final storage = ref.watch(localStorageServiceProvider);
+  return AuthNotifier(loginUseCase, storage);
 });
