@@ -1,7 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/cacao_lot/domain/entities/cacao_lot.dart';
+import '../../features/cacao_lot/data/models/cacao_lot_model.dart';
 import 'queue_item.dart';
 
 class IsarService {
@@ -15,7 +15,7 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [CacaoLotSchema, QueueItemSchema],
+        [CacaoLotModelSchema, QueueItemSchema],
         directory: dir.path,
       );
     }
