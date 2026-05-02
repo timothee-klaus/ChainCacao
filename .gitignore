@@ -43,7 +43,11 @@ htmlcov/
 .vscode/
 .idea/
 Thumbs.db
+*.db
 
 # Chaincode build artifacts
 blockchain/chaincode/dist/
 blockchain/chaincode/node_modules/
+
+backend/uploads/
+
