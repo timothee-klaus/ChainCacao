@@ -32,6 +32,11 @@ Le projet est structuré pour permettre une collaboration fluide entre les diff�
 * Backend : FastAPI, PostgreSQL (Données hors-chaîne), Docker.
 * Frontend Mobile : Flutter (Architecture Clean, Isar, Riverpod, Dio).
 * Frontend Web : React/Next.js.
+  
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![Hyperledger](https://img.shields.io/badge/Hyperledger_Fabric-2F3134?style=for-the-badge&logo=hyperledger&logoColor=white)
+![Status](https://img.shields.io/badge/Status-In_Development-orange?style=for-the-badge)
 
 ## Installation et Déploiement
 ### Prérequis
