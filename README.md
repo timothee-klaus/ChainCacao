@@ -41,8 +41,14 @@ Le projet est structuré pour permettre une collaboration fluide entre les diff�
 
 ### Instructions
 1. Cloner le dépôt.
-2. Exécuter le script de démarrage global : ./scripts/start_all.sh.
-3. Pour l'application mobile : 
+2. Pour l'application web :
+   ```bash
+   cd web
+   npm install # ou yarn install
+   npm run dev # ou yarn dev
+
+4. Exécuter le script de démarrage global : ./scripts/start_all.sh.
+5. Pour l'application mobile : 
    ```bash
    cd mobile/chain_cacao
    flutter pub get
