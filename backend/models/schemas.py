@@ -1,0 +1,199 @@
+from pydantic import BaseModel, Field, ConfigDict, field_validator, EmailStr
+from typing import List, Optional, Dict, Literal
+import re
+
+class GPSModel(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    latitude: float
+    longitude: float
+
+    @field_validator("latitude")
+    @classmethod
+    def validate_lat(cls, v: float) -> float:
+        if not -90 <= v <= 90:
+            raise ValueError("La latitude doit être entre -90 et 90")
+        return v
+
+    @field_validator("longitude")
+    @classmethod
+    def validate_lon(cls, v: float) -> float:
+        if not -180 <= v <= 180:
+            raise ValueError("La longitude doit être entre -180 et 180")
+        return v
+
+class LotCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    lot_hash: str = Field(alias="lotHash")
+    farmer_id: str = Field(alias="farmerId")
+    gps: GPSModel
+    poids_kg: float = Field(alias="poidsKg")
+    espece: str
+    date_collecte: str = Field(alias="dateCollecte")
+    media_hash: str = Field(alias="mediaHash")
+    coop_id: Optional[str] = Field(None, alias="coopId")
+
+    @field_validator("lot_hash", "media_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+    @field_validator("date_collecte")
+    @classmethod
+    def validate_date(cls, v: str) -> str:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", v):
+            raise ValueError("La date doit être au format YYYY-MM-DD")
+        return v
+
+class LotResponse(LotCreate):
+    statut: str
+
+class TransferCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    transfer_hash: str = Field(alias="transferHash")
+    lot_hashes: List[str] = Field(alias="lotHashes")
+    expediteur_id: str = Field(alias="expediteurId")
+    destinataire_id: str = Field(alias="destinataireId")
+    preuve_hash: str = Field(alias="preuveHash")
+
+    @field_validator("transfer_hash", "preuve_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class TransformationCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    transformation_hash: str = Field(alias="transformationHash")
+    lot_hashes: List[str] = Field(alias="lotHashes")
+    type_processus: str = Field(alias="typeProcessus")
+    preuve_hash: str = Field(alias="preuveHash")
+
+    @field_validator("transformation_hash", "preuve_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class ShipmentCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    shipment_hash: str = Field(alias="shipmentHash")
+    lot_hashes: List[str] = Field(alias="lotHashes")
+    exportateur_id: str = Field(alias="exportateurId")
+    destination: str
+    documents_hash: str = Field(alias="documentsHash")
+    date_depart_prevue: str = Field(alias="dateDepartPrevue")
+    date_arrivee_prevue: str = Field(alias="dateArriveePrevue")
+
+    @field_validator("shipment_hash", "documents_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+    @field_validator("date_depart_prevue", "date_arrivee_prevue")
+    @classmethod
+    def validate_date(cls, v: str) -> str:
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", v):
+            raise ValueError("La date doit être au format YYYY-MM-DD")
+        return v
+
+class TransportEventCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    event_hash: str = Field(alias="eventHash")
+    ref_hash: str = Field(alias="refHash")
+    transporteur_id_hash: str = Field(alias="transporteurIdHash")
+    type_evenement: str = Field(alias="typeEvenement")
+    gps: GPSModel
+    preuve_hash: str = Field(alias="preuveHash")
+
+    @field_validator("event_hash", "ref_hash", "preuve_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class CertificationCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    cert_hash: str = Field(alias="certHash")
+    ref_hash: str = Field(alias="refHash")
+    verificateur_id: str = Field(alias="verificateurId")
+    statut: str
+    rapport_hash: str = Field(alias="rapportHash")
+
+    @field_validator("cert_hash", "ref_hash", "rapport_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class ActorRegister(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    actor_id_hash: str = Field(alias="actorIdHash")
+    type_acteur: str = Field(alias="typeActeur")
+    cle_publique: str = Field(alias="clePublique")
+    org_name: str = Field(alias="orgName")
+
+    @field_validator("actor_id_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class BundleCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    bundle_hash: str = Field(alias="bundleHash")
+    lot_hashes: List[str] = Field(alias="lotHashes")
+    coop_id: str = Field(alias="coopId")
+
+    @field_validator("bundle_hash")
+    @classmethod
+    def validate_hashes(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Le hash doit comporter au moins 8 caractères")
+        return v
+
+class ActorResponse(ActorRegister):
+    date_enregistrement: str = Field(alias="dateEnregistrement")
+    revoque: bool
+
+ROLE_TO_ORG: Dict[str, str] = {
+    "PRODUCTEUR": "producteurs",
+    "COOPERATIVE": "producteurs",  # Les coopératives font partie de l'org producteurs
+    "EXPORTATEUR": "exportateurs",
+    "CERTIF": "certif",
+    "MINISTERE": "ministere",
+    "TRANSFORMATEUR": "transformateurs",
+}
+
+class UserRegister(BaseModel):
+    """Payload pour créer un compte utilisateur."""
+    model_config = ConfigDict(populate_by_name=True)
+
+    email: EmailStr
+    password: str = Field(min_length=8, description="Mot de passe (min 8 caractères)")
+    full_name: str = Field(min_length=2)
+    role: Literal["PRODUCTEUR", "COOPERATIVE", "EXPORTATEUR", "CERTIF", "MINISTERE", "TRANSFORMATEUR"]
+    is_admin: bool = False
+
+    @property
+    def org_name(self) -> str:
+        """Dérive automatiquement l'organisation Fabric depuis le rôle."""
+        return ROLE_TO_ORG[self.role]
+
+class UserPublicResponse(BaseModel):
+    """Profil utilisateur retourné après inscription / login (sans données sensibles)."""
+    model_config = ConfigDict(populate_by_name=True)
+
+    email: str
+    full_name: str
+    role: str
+    org_name: str
+    blockchain_id: str
