@@ -55,17 +55,33 @@ class ChainCacaoContract extends Contract {
         return JSON.stringify(result);
     }
 
+    async AddCertification(ctx, certHash, lotHash, verificateurId, statut, rapportHash) {
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.CERTIFICATEUR, AccessControl.ROLES.MINISTERE]);
+        const logic = new LotLogic(ctx);
+        const result = await logic.addCertification(certHash, lotHash, verificateurId, statut, rapportHash);
+        return JSON.stringify(result);
+    }
+
+    async CreateBundle(ctx, bundleHash, lotHashesStr, coopId) {
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR]);
+        const logic = new LotLogic(ctx);
+        const result = await logic.createBundle(bundleHash, JSON.parse(lotHashesStr), coopId);
+        return JSON.stringify(result);
+    }
+
     // =========================================================================
     // TRANSFERTS / TRANSFORMATIONS / EXPEDITIONS
     // =========================================================================
 
     async CreateTransfer(ctx, transferHash, lotHashesStr, expediteurId, destinataireId, preuveHash) {
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
         const logic = new TraceabilityLogic(ctx);
         const result = await logic.createTransfer(transferHash, JSON.parse(lotHashesStr), expediteurId, destinataireId, preuveHash);
         return JSON.stringify(result);
     }
 
     async CreateTransformation(ctx, transformationHash, lotHashesStr, typeProcessus, preuveHash) {
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
         const logic = new TraceabilityLogic(ctx);
         const result = await logic.createTransformation(transformationHash, JSON.parse(lotHashesStr), typeProcessus, preuveHash);
         return JSON.stringify(result);

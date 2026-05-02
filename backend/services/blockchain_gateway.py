@@ -16,7 +16,7 @@ class BlockchainGateway:
         self.chaincode_name = os.getenv("CHAINCODE_NAME", "chaincacao")
 
 
-    async def invoke_transaction(self, function_name: str, args: List[str], org_name: str = "producteurs", user_id: str = "admin") -> Dict[str, Any]:
+    async def invoke_transaction(self, function_name: str, args: List[str], org_name: str, user_id: str) -> Dict[str, Any]:
         """
         Calls the Node.js gateway to submit a transaction with specific identity.
         """
@@ -49,7 +49,7 @@ class BlockchainGateway:
             self.logger.error(f"Error invoking transaction: {error_msg}")
             return {"success": False, "error": error_msg}
 
-    async def query_ledger(self, function_name: str, args: List[str], org_name: str = "producteurs", user_id: str = "admin") -> Any:
+    async def query_ledger(self, function_name: str, args: List[str], org_name: str, user_id: str) -> Any:
         """
         Calls the Node.js gateway to evaluate a transaction (query) with specific identity.
         """
@@ -75,7 +75,18 @@ class BlockchainGateway:
                         return {"success": False, "error": response.content.decode('utf-8', errors='replace')}
                 
                 data = response.json()
-                return data.get("result") if data.get("success") else data
+                if not data.get("success"):
+                    return data
+                
+                result = data.get("result")
+                # Si le résultat est une chaîne JSON, on la parse automatiquement
+                if isinstance(result, str):
+                    try:
+                        import json as json_lib
+                        return json_lib.loads(result)
+                    except:
+                        return result
+                return result
         except Exception as e:
             error_msg = str(e).encode('utf-8', 'replace').decode('utf-8')
             self.logger.error(f"Error querying ledger: {error_msg}")
@@ -102,7 +113,7 @@ class BlockchainGateway:
     # --- Wrapper methods matching the chaincode ---
 
 
-    async def create_lot(self, data: Dict, org_name: str = "producteurs", user_id: str = "admin"):
+    async def create_lot(self, data: Dict, org_name: str, user_id: str):
         args = [
             data['lot_hash'], data['farmer_id'], json.dumps(data['gps']),
             str(data['poids_kg']), data['espece'], data['date_collecte'],
@@ -110,25 +121,29 @@ class BlockchainGateway:
         ]
         return await self.invoke_transaction("CreateLot", args, org_name, user_id)
 
-    async def get_lot(self, lot_hash: str, org_name: str = "producteurs", user_id: str = "admin"):
+    async def get_lot(self, lot_hash: str, org_name: str, user_id: str):
         return await self.query_ledger("GetLot", [lot_hash], org_name, user_id)
 
-    async def create_transfer(self, data: Dict, org_name: str = "producteurs", user_id: str = "admin"):
+    async def create_transfer(self, data: Dict, org_name: str, user_id: str):
+        # On supporte à la fois les clés Python et les clés d'alias (CamelCase)
         args = [
-            data['transfer_hash'], json.dumps(data['lot_hashes']),
-            data['expediteur_id'], data['destinataire_id'], data['preuve_hash']
+            data.get('transfer_hash') or data.get('transferHash'),
+            json.dumps(data.get('lot_hashes') or data.get('lotHashes')),
+            data.get('expediteur_id') or data.get('expediteurId'),
+            data.get('destinataire_id') or data.get('destinataireId'),
+            data.get('preuve_hash') or data.get('preuveHash')
         ]
         return await self.invoke_transaction("CreateTransfer", args, org_name, user_id)
 
-    async def get_history(self, asset_hash: str, org_name: str = "producteurs", user_id: str = "admin"):
+    async def get_history(self, asset_hash: str, org_name: str, user_id: str):
         return await self.query_ledger("GetHistoryForAsset", [asset_hash], org_name, user_id)
 
-    async def query_lots_by_status(self, status: str):
-        return await self.query_ledger("QueryLotsByStatus", [status])
+    async def query_lots_by_status(self, status: str, org_name: str, user_id: str):
+        return await self.query_ledger("QueryLotsByStatus", [status], org_name, user_id)
 
-    async def get_eudr_report(self, lot_hash: str, org_name: str = "ministere", user_id: str = "admin") -> Dict[str, Any]:
+    async def get_eudr_report(self, lot_hash: str, org_name: str, user_id: str) -> Dict[str, Any]:
         """
-        Aggregates data for EUDR. Defaulting to 'ministere' to ensure we get private GPS data if authorized.
+        Aggregates data for EUDR.
         """
         lot = await self.get_lot(lot_hash, org_name, user_id)
         if not lot or "error" in lot:
@@ -152,3 +167,14 @@ class BlockchainGateway:
             },
             "proof_hash": lot_hash
         }
+
+    async def add_certification(self, data: Dict, org_name: str, user_id: str):
+        args = [
+            data['cert_hash'], data['lot_hash'], data['verificateur_id'],
+            data['statut'], data['rapport_hash']
+        ]
+        return await self.invoke_transaction("AddCertification", args, org_name, user_id)
+
+    async def create_bundle(self, bundle_hash: str, lot_hashes: List[str], coop_id: str, org_name: str, user_id: str):
+        args = [bundle_hash, json.dumps(lot_hashes), coop_id]
+        return await self.invoke_transaction("CreateBundle", args, org_name, user_id)

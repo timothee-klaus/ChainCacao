@@ -12,8 +12,22 @@ class Schemas {
         SHIPMENT: 'shipment',
         EVENT: 'event',
         CERTIFICATION: 'certification',
-        ACTOR: 'actor'
+        ACTOR: 'actor',
+        BUNDLE: 'bundle'
     };
+
+    static createBundle(bundleHash, lotHashes, coopId, totalPoids, timestamp, details = {}) {
+        return {
+            docType: Schemas.DOC_TYPES.BUNDLE,
+            bundleHash,
+            lotHashes, // Array des IDs de lots individuels
+            coopId,
+            totalPoids,
+            timestamp,
+            statut: 'REGROUPE',
+            ...details
+        };
+    }
 
     static createLot(lotHash, farmerId, gps, poidsKg, espece, dateCollecte, mediaHash, coopId = null) {
         return {

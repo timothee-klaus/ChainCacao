@@ -72,6 +72,63 @@ class LotLogic {
         await this.ledger.putState(lotHash, lot);
         return lot;
     }
+
+    async addCertification(certHash, lotHash, verificateurId, statut, rapportHash) {
+        if (!(await this.ledger.exists(lotHash))) {
+            throw new Error(`LOT_NON_TROUVE: ${lotHash}`);
+        }
+
+        const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
+        const certification = {
+            docType: 'certification',
+            certHash: certHash,
+            lotHash: lotHash,
+            verificateurId: verificateurId,
+            statut: statut,
+            rapportHash: rapportHash,
+            dateCertification: timestamp
+        };
+
+        await this.ledger.putState(certHash, certification);
+
+        // Optionnel : Mettre à jour le statut du lot si la certification est validée
+        if (statut === 'VALIDE' || statut === 'COMPLIANT') {
+            const lot = await this.getLot(lotHash);
+            lot.statut = 'CERTIFIE';
+            await this.ledger.putState(lotHash, lot);
+        }
+
+        return certification;
+    }
+
+    async createBundle(bundleHash, lotHashes, coopId) {
+        if (await this.ledger.exists(bundleHash)) {
+            throw new Error(`BUNDLE_EXISTE: Le regroupement ${bundleHash} existe deja.`);
+        }
+
+        let totalPoids = 0;
+        const validatedLotHashes = [];
+
+        for (const lotHash of lotHashes) {
+            const lot = await this.getLot(lotHash);
+            if (lot.statut !== 'COLLECTE' && lot.statut !== 'CERTIFIE') {
+                throw new Error(`LOT_NON_DISPONIBLE: Le lot ${lotHash} est déjà regroupé ou transformé (Statut: ${lot.statut}).`);
+            }
+            totalPoids += lot.poidsKg;
+            validatedLotHashes.push(lotHash);
+
+            // Mettre à jour le statut du lot individuel
+            lot.statut = 'REGROUPE';
+            lot.bundleHash = bundleHash;
+            await this.ledger.putState(lotHash, lot);
+        }
+
+        const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
+        const bundle = Schemas.createBundle(bundleHash, validatedLotHashes, coopId, totalPoids, timestamp);
+
+        await this.ledger.putState(bundleHash, bundle);
+        return bundle;
+    }
 }
 
 module.exports = LotLogic;

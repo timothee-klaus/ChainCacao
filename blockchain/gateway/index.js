@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const IdentityService = require('./IdentityService');
+const networkConfig = require('./networkConfig');
 
 const app = express();
 app.use(express.json());
@@ -14,28 +15,20 @@ const CHANNEL_NAME = process.env.CHANNEL_NAME || 'chaincacaochannel';
 const CHAINCODE_NAME = process.env.CHAINCODE_NAME || 'chaincacao';
 const identityService = new IdentityService(ORGS_ROOT);
 
-// gRPC connection details from .env
 const crypto = require('crypto');
-
-const ORGS_CONFIG = {
-    'producteurs': { port: 7051, mspId: 'OrgProducteursMSP' },
-    'exportateurs': { port: 8051, mspId: 'OrgExportateursMSP' },
-    'certif': { port: 9051, mspId: 'OrgCertifMSP' },
-    'ministere': { port: 10051, mspId: 'OrgMinistereMSP' },
-    'transformateurs': { port: 11051, mspId: 'OrgTransformateursMSP' }
-};
 
 async function getGatewayConnection(orgName, userId = 'admin') {
     const identity = await identityService.getIdentity(orgName, userId);
     const privateKey = crypto.createPrivateKey(identity.credentials.privateKey);
 
-    // Primary connection (the one we use as entry point)
-    const primaryOrg = ORGS_CONFIG[orgName];
-    const tlsCertPath = path.join(ORGS_ROOT, 'peerOrganizations', `${orgName}.chaincacao.com`, 'peers', `peer0.${orgName}.chaincacao.com`, 'tls', 'ca.crt');
+    const orgConfig = networkConfig.organizations[orgName];
+    if (!orgConfig) throw new Error(`Configuration non trouvée pour l'organisation: ${orgName}`);
+
+    const tlsCertPath = path.join(ORGS_ROOT, 'peerOrganizations', `${orgName}.chaincacao.com`, 'peers', `${orgConfig.peerHost}`, 'tls', 'ca.crt');
     const tlsRootCert = fs.readFileSync(tlsCertPath);
 
-    const client = new grpc.Client(`localhost:${primaryOrg.port}`, grpc.credentials.createSsl(tlsRootCert), {
-        'grpc.ssl_target_name_override': `peer0.${orgName}.chaincacao.com`,
+    const client = new grpc.Client(`localhost:${orgConfig.peerPort}`, grpc.credentials.createSsl(tlsRootCert), {
+        'grpc.ssl_target_name_override': orgConfig.peerHost,
     });
 
     return {
@@ -46,9 +39,6 @@ async function getGatewayConnection(orgName, userId = 'admin') {
                 credentials: Buffer.from(identity.credentials.certificate) 
             },
             signer: signers.newPrivateKeySigner(privateKey),
-            // For production-ready: we trust the discovery but as we are in dev/localhost, 
-            // we ensure the primary client is used. 
-            // In a real production environment, 'client' would be a load balancer or we'd use Discovery with proper DNS.
             discovery: { enabled: true, asLocalhost: true },
             evaluateOptions: () => ({ deadline: Date.now() + 5000 }),
             endorseOptions: () => ({ deadline: Date.now() + 15000 }),

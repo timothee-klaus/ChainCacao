@@ -65,3 +65,43 @@ def client(db):
         yield c
     # Cleanup overrides after the test
     app.dependency_overrides.clear()
+
+@pytest.fixture
+def auth_token(client):
+    """
+    Fixture to provide a valid JWT token for a test producer.
+    """
+    client.post("/api/v1/auth/setup-test-user")
+    login_data = {
+        "username": "prod@test.com",
+        "password": "password123"
+    }
+    response = client.post("/api/v1/auth/login", data=login_data)
+    return response.json()["access_token"]
+
+@pytest.fixture
+def auth_headers(auth_token):
+    """
+    Fixture to provide Authorization headers.
+    """
+    return {"Authorization": f"Bearer {auth_token}"}
+
+@pytest.fixture
+def mock_blockchain():
+    """
+    Fixture to mock the BlockchainGateway methods.
+    """
+    from services.blockchain_gateway import BlockchainGateway
+    
+    # We use patch from unittest.mock if pytest-mock is not available
+    from unittest.mock import patch
+    
+    with patch("services.blockchain_gateway.BlockchainGateway.invoke_transaction") as mock_invoke:
+        with patch("services.blockchain_gateway.BlockchainGateway.query_ledger") as mock_query:
+            with patch("services.blockchain_gateway.BlockchainGateway.get_lot") as mock_get_lot:
+                yield {
+                    "invoke": mock_invoke,
+                    "query": mock_query,
+                    "get_lot": mock_get_lot
+                }
+

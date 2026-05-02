@@ -100,6 +100,7 @@ class StorageService:
         role: str,
         org_name: str,
         blockchain_id: str,
+        is_admin: bool = False,
     ) -> User:
         """Crée et persiste un nouvel utilisateur."""
         new_user = User(
@@ -109,6 +110,7 @@ class StorageService:
             role=role,
             org_name=org_name,
             blockchain_id=blockchain_id,
+            is_admin=is_admin,
         )
         db.add(new_user)
         db.commit()

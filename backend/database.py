@@ -41,6 +41,7 @@ class User(Base):
     role = Column(String) # PRODUCTEUR, EXPORTATEUR, etc.
     org_name = Column(String) # producteurs, exportateurs, etc.
     blockchain_id = Column(String, unique=True) # ID dans le wallet Fabric
+    is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 

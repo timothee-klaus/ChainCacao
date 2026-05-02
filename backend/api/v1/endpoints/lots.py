@@ -7,6 +7,7 @@ from services.storage import StorageService, get_storage
 import datetime
 import security
 import uuid
+from models.schemas import GPSModel, BundleCreate
 
 router = APIRouter()
 gateway = BlockchainGateway()
@@ -91,12 +92,43 @@ async def create_new_lot(
     }
 
 
+# ...
+@router.post("/regroup", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def regroup_lots(
+    bundle: BundleCreate,
+    current_user: User = Depends(security.get_current_user),
+):
+    """
+    Action réservée aux coopératives (rôle PRODUCTEUR) :
+    Regroupe plusieurs petits lots de producteurs en un seul lot consolidé (Bundle).
+    """
+    if current_user.role != "COOPERATIVE" or not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seul l'administrateur d'une coopérative peut regrouper des lots",
+        )
+
+    try:
+        result = await gateway.create_bundle(
+            bundle.bundle_hash,
+            bundle.lot_hashes,
+            bundle.coop_id,
+            current_user.org_name,
+            current_user.blockchain_id
+        )
+        return {"success": True, "bundle": result}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/{lot_hash}", response_model=dict)
-async def get_lot_details(lot_hash: str, org_name: str = "producteurs"):
+async def get_lot_details(
+    lot_hash: str,
+    current_user: User = Depends(security.get_current_user),
+):
     """
     Récupère l'état actuel d'un lot depuis le ledger Fabric.
     """
-    result = await gateway.get_lot(lot_hash, org_name)
+    result = await gateway.get_lot(lot_hash, current_user.org_name, current_user.blockchain_id)
     if result is None or (isinstance(result, dict) and result.get("success") is False):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
