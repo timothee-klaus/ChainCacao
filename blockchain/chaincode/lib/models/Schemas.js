@@ -57,12 +57,13 @@ class Schemas {
         };
     }
 
-    static createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash) {
+    static createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash, transformateurId) {
         return {
             docType: Schemas.DOC_TYPES.TRANSFORMATION,
             transformationHash,
             lotHashes,
             typeProcessus,
+            transformateurId,
             timestamp,
             preuveHash
         };
@@ -106,13 +107,14 @@ class Schemas {
         };
     }
 
-    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement) {
+    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement, enregistrePar) {
         return {
             docType: Schemas.DOC_TYPES.ACTOR,
             actorIdHash,
             typeActeur,
             clePublique,
             dateEnregistrement,
+            enregistrePar,
             revoque: false
         };
     }

@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from typing import Any
+from typing import Any, List, Optional
 
 import security
-from database import get_db
-from models.schemas import UserRegister, UserPublicResponse
+from database import get_db, User
+from models.schemas import UserRegister, UserPublicResponse, ProducerRegisterDelegated, AgentRegister
 from services.storage import StorageService, get_storage
 from services.blockchain_gateway import BlockchainGateway
 
@@ -33,54 +33,35 @@ async def register(
     storage: StorageService = Depends(get_storage),
 ) -> Any:
     """
-    Inscrit un nouvel utilisateur :
-
-    1. Vérifie que l'email n'est pas déjà pris.
-    2. Génère un `blockchain_id` unique (`<role>-<uuid8>`).
-    3. Tente l'enregistrement auprès de la CA Fabric via le gateway Node.js.
-       → En cas d'échec (réseau indisponible), l'inscription locale se fait quand même
-         et une alerte est loguée (`blockchain_enrolled: false`).
-    4. Persiste l'utilisateur en base SQLite.
-    5. Retourne le profil public (sans mot de passe).
+    Inscrit un nouvel utilisateur (Stockage local avant validation blockchain).
+    L'email est optionnel pour les producteurs si le téléphone est fourni.
     """
-    # ── 1. Unicité de l'email ──────────────────────────────────
-    if storage.get_user_by_email(db, payload.email):
+    # 1. Vérification qu'au moins l'email ou le téléphone est présent
+    if not payload.email and not payload.numero_telephone:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Un compte existe déjà avec cet email.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Un email ou un numéro de téléphone est requis pour l'inscription."
         )
 
-    # ── 2. Génération du blockchain_id ────────────────────────
-    #   Format : PRODUCTEUR-3f7a1b9c  (lisible + unique)
+    # 2. Vérification si l'utilisateur existe déjà
+    if payload.email and storage.get_user_by_email(db, payload.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cet email est déjà utilisé."
+        )
+    
+    if payload.numero_telephone and storage.get_user_by_phone(db, payload.numero_telephone):
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ce numéro de téléphone est déjà utilisé."
+        )
+
+    # ── 3. Détermination de l'organisation Fabric associée ────────
     short_uuid = uuid.uuid4().hex[:8]
     blockchain_id = f"{payload.role}-{short_uuid}"
-    org_name = payload.org_name   # dérivé du rôle via la property Pydantic
+    org_name = payload.org_name 
 
-    logger.info(f"Nouvelle inscription : {payload.email} → {blockchain_id} @ {org_name}")
-
-    # ── 3. Enregistrement CA Fabric ───────────────────────────
-    blockchain_enrolled = False
-    fabric_role = payload.role.lower()   # ex: "producteur"
-
-    try:
-        bc_result = await gateway.register_user(
-            user_id=blockchain_id,
-            org_name=org_name,
-            role=fabric_role,
-        )
-        if bc_result.get("success"):
-            blockchain_enrolled = True
-            logger.info(f"Fabric CA : {blockchain_id} enregistré avec succès dans {org_name}")
-        else:
-            logger.warning(
-                f"Fabric CA : échec pour {blockchain_id} — {bc_result.get('error')}. "
-                "L'utilisateur est créé localement."
-            )
-    except Exception as exc:
-        logger.warning(
-            f"Fabric CA injoignable ({exc}). "
-            f"{blockchain_id} créé localement uniquement."
-        )
+    logger.info(f"Nouvelle inscription locale : {payload.email or payload.numero_telephone} → {blockchain_id}")
 
     # ── 4. Persistance SQLite ─────────────────────────────────
     user = storage.create_user(
@@ -92,13 +73,15 @@ async def register(
         org_name=org_name,
         blockchain_id=blockchain_id,
         numero_telephone=payload.numero_telephone,
+        parent_id=payload.cooperative_id,
         is_admin=payload.is_admin,
+        blockchain_validated=False,
     )
 
     storage.log_action(
         db,
         user_id=blockchain_id,
-        action=f"REGISTER:blockchain_enrolled={blockchain_enrolled}",
+        action="REGISTER_PENDING_VALIDATION",
     )
 
     # ── 5. Réponse publique ───────────────────────────────────
@@ -109,6 +92,7 @@ async def register(
         role=user.role,
         org_name=user.org_name,
         blockchain_id=user.blockchain_id,
+        blockchain_validated=user.blockchain_validated,
     )
 
 
@@ -123,11 +107,11 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
     """Authentifie un utilisateur et retourne un JWT Bearer Token."""
-    user = storage.authenticate_user(db, email=form_data.username, password=form_data.password)
+    user = storage.authenticate_user(db, identifier=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou mot de passe incorrect",
+            detail="Email/Téléphone ou mot de passe incorrect",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -166,6 +150,7 @@ async def read_users_me(
         role=current_user.role,
         org_name=current_user.org_name,
         blockchain_id=current_user.blockchain_id,
+        blockchain_validated=current_user.blockchain_validated,
     )
 
 
@@ -201,3 +186,129 @@ async def setup_test_user(
         "message": "Test user created: prod@test.com / password123",
         "blockchain_id": user.blockchain_id,
     }
+
+@router.get("/users", response_model=List[UserPublicResponse], summary="Lister les utilisateurs")
+async def list_users(
+    role: Optional[str] = None,
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
+    current_user: User = Depends(security.get_current_user)
+) -> Any:
+    """
+    Liste les utilisateurs inscrits. 
+    - Le Ministère peut tout voir.
+    - Une Coopérative peut voir les comptes à valider.
+    """
+    if current_user.role not in ["MINISTERE", "COOPERATIVE"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès réservé au Ministère et aux Coopératives."
+        )
+    
+    # Sécurité : un administrateur ne voit que "ses" membres (agents ou producteurs)
+    parent_id_filter = None
+    if current_user.is_admin and current_user.role != "MINISTERE":
+        parent_id_filter = current_user.blockchain_id
+        # Si aucun rôle n'est spécifié, on montre tout ce qui est lié à cette organisation
+        if not role:
+            role = None 
+
+    users = storage.get_users(db, role=role, parent_id=parent_id_filter)
+    return users
+
+@router.post("/register-producer", response_model=UserPublicResponse, summary="Inscrire un producteur (Délégué)")
+async def register_producer_delegated(
+    payload: ProducerRegisterDelegated,
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
+    current_user: User = Depends(security.get_current_user)
+) -> Any:
+    """
+    Permet à une coopérative d'inscrire directement un producteur.
+    - Le mot de passe par défaut est le numéro de téléphone.
+    - Le lien de parenté est automatiquement établi.
+    """
+    if current_user.role != "COOPERATIVE":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seules les coopératives peuvent enrôler des producteurs."
+        )
+
+    # 1. Vérification si le téléphone existe déjà
+    if storage.get_user_by_phone(db, payload.numero_telephone):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ce numéro de téléphone est déjà enregistré."
+        )
+
+    # 2. Préparation des données (Déléguées)
+    short_uuid = uuid.uuid4().hex[:8]
+    blockchain_id = f"PRODUCTEUR-{short_uuid}"
+    
+    # 3. Création locale
+    user = storage.create_user(
+        db=db,
+        email=None,
+        password=payload.numero_telephone, # Mot de passe par défaut = téléphone
+        full_name=payload.full_name,
+        role="PRODUCTEUR",
+        org_name="producteurs",
+        blockchain_id=blockchain_id,
+        numero_telephone=payload.numero_telephone,
+        parent_id=current_user.blockchain_id,
+        is_admin=False,
+        blockchain_validated=False,
+    )
+    
+    return user
+
+@router.post("/register-agent", response_model=UserPublicResponse, summary="Inscrire un agent (Générique)")
+async def register_agent(
+    payload: AgentRegister,
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
+    current_user: User = Depends(security.get_current_user)
+) -> Any:
+    """
+    Permet à l'administrateur d'une organisation (Coop, Export, Transfo, Ministère) d'inscrire ses agents.
+    Les agents héritent du rôle, de l'organisation et du parent_id de l'administrateur.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seul un compte administrateur peut inscrire des agents."
+        )
+
+    if current_user.role == "PRODUCTEUR":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Les producteurs ne peuvent pas avoir d'agents délégués."
+        )
+
+    # 1. Vérification email ou téléphone
+    if not payload.email and not payload.numero_telephone:
+        raise HTTPException(status_code=400, detail="Email ou Téléphone requis.")
+
+    if payload.email and storage.get_user_by_email(db, payload.email):
+        raise HTTPException(status_code=400, detail="Email déjà utilisé.")
+
+    # 2. Création de l'agent
+    short_uuid = uuid.uuid4().hex[:4]
+    # Format de l'ID blockchain pour l'agent
+    blockchain_id = f"AGENT-{current_user.role}-{short_uuid}"
+
+    user = storage.create_user(
+        db=db,
+        email=payload.email,
+        password=payload.password,
+        full_name=payload.full_name,
+        role=current_user.role, # Héritage du rôle
+        org_name=current_user.org_name, # Héritage de l'organisation
+        blockchain_id=blockchain_id,
+        numero_telephone=payload.numero_telephone,
+        parent_id=current_user.blockchain_id,
+        is_admin=False, # L'agent n'est pas admin par défaut
+        blockchain_validated=False,
+    )
+    
+    return user

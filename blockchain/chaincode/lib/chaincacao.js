@@ -19,9 +19,22 @@ class ChainCacaoContract extends Contract {
     // =========================================================================
 
     async RegisterActor(ctx, actorIdHash, typeActeur, clePublique) {
-        AccessControl.checkRole(ctx, [AccessControl.ROLES.MINISTERE]);
+        const callerMSP = ctx.clientIdentity.getMSPID();
+        const callerId = AccessControl.getCallerId(ctx);
+
+        if (callerMSP === AccessControl.ROLES.MINISTERE) {
+            // Le Ministère peut tout enregistrer
+        } else if (callerMSP === AccessControl.ROLES.PRODUCTEUR) {
+            // Une Coopérative ne peut enregistrer que des producteurs
+            if (typeActeur !== 'PRODUCTEUR') {
+                throw new Error(`ACCES_REFUSE: Une coopérative ne peut enregistrer que des producteurs.`);
+            }
+        } else {
+            throw new Error(`ACCES_REFUSE: Votre organisation (${callerMSP}) n'est pas autorisée à enregistrer des acteurs.`);
+        }
+
         const logic = new ActorLogic(ctx);
-        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique);
+        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique, callerId);
         return JSON.stringify(result);
     }
 
@@ -82,8 +95,11 @@ class ChainCacaoContract extends Contract {
 
     async CreateTransformation(ctx, transformationHash, lotHashesStr, typeProcessus, preuveHash) {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
+        
+        const callerId = AccessControl.getCallerId(ctx);
+        const lotHashes = JSON.parse(lotHashesStr);
         const logic = new TraceabilityLogic(ctx);
-        const result = await logic.createTransformation(transformationHash, JSON.parse(lotHashesStr), typeProcessus, preuveHash);
+        const result = await logic.createTransformation(transformationHash, lotHashes, typeProcessus, preuveHash, callerId);
         return JSON.stringify(result);
     }
 

@@ -179,11 +179,12 @@ class UserRegister(BaseModel):
     """Payload pour créer un compte utilisateur."""
     model_config = ConfigDict(populate_by_name=True)
 
-    email: EmailStr
+    email: Optional[EmailStr] = None
     password: str = Field(min_length=8, description="Mot de passe (min 8 caractères)")
     full_name: str = Field(min_length=2)
     role: Literal["PRODUCTEUR", "COOPERATIVE", "EXPORTATEUR", "CERTIF", "MINISTERE", "TRANSFORMATEUR"]
     numero_telephone: Optional[str] = Field(None, description="Requis pour les producteurs")
+    cooperative_id: Optional[str] = Field(None, alias="coopId", description="ID de la coopérative choisie")
     is_admin: bool = False
 
     @property
@@ -199,7 +200,7 @@ class UserRegister(BaseModel):
 
 class UserPublicResponse(BaseModel):
     """Profil utilisateur retourné après inscription / login (sans données sensibles)."""
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
     email: str
     full_name: str
@@ -207,3 +208,17 @@ class UserPublicResponse(BaseModel):
     role: str
     org_name: str
     blockchain_id: str
+    blockchain_validated: bool = False
+
+class ProducerRegisterDelegated(BaseModel):
+    """Payload pour qu'une coopérative inscrive un producteur."""
+    full_name: str = Field(..., min_length=2, alias="fullName")
+    numero_telephone: str = Field(..., alias="numeroTelephone")
+    location: Optional[str] = None
+
+class AgentRegister(BaseModel):
+    """Payload pour qu'un administrateur de coopérative inscrive un agent."""
+    email: Optional[EmailStr] = None
+    numero_telephone: Optional[str] = Field(None, alias="numeroTelephone")
+    password: str = Field(min_length=8)
+    full_name: str = Field(..., min_length=2, alias="fullName")

@@ -35,13 +35,15 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=True)
     hashed_password = Column(String)
     full_name = Column(String)
     role = Column(String) # PRODUCTEUR, EXPORTATEUR, etc.
     numero_telephone = Column(String, nullable=True) # Ajout du numéro de téléphone
+    parent_id = Column(String, nullable=True) # ID de la coopérative parente
     org_name = Column(String) # producteurs, exportateurs, etc.
     blockchain_id = Column(String, unique=True) # ID dans le wallet Fabric
+    blockchain_validated = Column(Boolean, default=False) # True si enregistré sur le ledger
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)

@@ -182,3 +182,30 @@ class BlockchainGateway:
     async def create_bundle(self, bundle_hash: str, lot_hashes: List[str], coop_id: str, org_name: str, user_id: str):
         args = [bundle_hash, json.dumps(lot_hashes), coop_id]
         return await self.invoke_transaction("CreateBundle", args, org_name, user_id)
+
+    async def get_shipment_eudr_report(self, shipment_hash: str, org_name: str, user_id: str) -> Dict[str, Any]:
+        """
+        Génère un rapport de conformité pour une expédition (regroupe tous les lots).
+        """
+        # 1. Get shipment details
+        shipment = await self.query_ledger("GetShipment", [shipment_hash], org_name, user_id)
+        if not shipment or "error" in shipment:
+            return {"success": False, "error": "SHIPMENT_NOT_FOUND"}
+            
+        lot_hashes = shipment.get("lotHashes", [])
+        lot_reports = []
+        
+        # 2. Get report for each lot
+        for lot_hash in lot_hashes:
+            report = await self.get_eudr_report(lot_hash, org_name, user_id)
+            lot_reports.append(report)
+            
+        return {
+            "success": True,
+            "shipment_hash": shipment_hash,
+            "destination": shipment.get("destination"),
+            "exportateur_id": shipment.get("exportateurId"),
+            "lots_count": len(lot_hashes),
+            "lot_reports": lot_reports,
+            "compliance_summary": "ALL_COMPLIANT" if all(r.get("compliance_status") == "COMPLIANT" for r in lot_reports) else "ACTION_REQUIRED"
+        }

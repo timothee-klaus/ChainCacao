@@ -58,9 +58,15 @@ async def create_transformation(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Record an industrial transformation process.
-    Requires uploading a transformation certificate.
+    Enregistre un processus de transformation industrielle.
+    Rôles autorisés : TRANSFORMATEUR, EXPORTATEUR.
     """
+    if current_user.role not in ["TRANSFORMATEUR", "EXPORTATEUR"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seuls les transformateurs et exportateurs peuvent enregistrer une transformation."
+        )
+
     try:
         lot_hashes_list = json.loads(lot_hashes)
         content = await file.read()
@@ -95,10 +101,15 @@ async def create_shipment(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Register a new international shipment.
-    Requires uploading a bill of lading or export manifest.
-    Role: EXPORTATEUR
+    Enregistre un nouvel envoi international.
+    Rôle autorisé : EXPORTATEUR.
     """
+    if current_user.role != "EXPORTATEUR":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seuls les exportateurs peuvent enregistrer un envoi."
+        )
+
     try:
         lot_hashes_list = json.loads(lot_hashes)
         content = await file.read()

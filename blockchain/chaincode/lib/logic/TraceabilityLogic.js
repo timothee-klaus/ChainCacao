@@ -18,26 +18,42 @@ class TraceabilityLogic {
         }
 
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
-        const transfer = Schemas.createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash, transporteurId);
         
-        // Update lots
+        // 1. Données Publiques du Transfert
+        const publicTransfer = {
+            docType: 'transfer',
+            transferHash: transferHash,
+            lotHashes: lotHashes,
+            timestamp: timestamp,
+            transporteurId: transporteurId
+        };
+        await this.ledger.putState(transferHash, publicTransfer);
+
+        // 2. Données Privées du Transfert (Identités)
+        const privateTransfer = {
+            transferHash: transferHash,
+            expediteurId: expediteurId,
+            destinataireId: destinataireId,
+            preuveHash: preuveHash
+        };
+        await this.ctx.stub.putPrivateData('collectionPrivateLots', transferHash, Buffer.from(JSON.stringify(privateTransfer)));
+        
+        // Update lots status (Public)
         for (const hash of lotHashes) {
             const lot = await this.ledger.getState(hash);
-            lot.statut = `TRANSFERE_VERS_${destinataireId}`;
-            lot.dernierTransfertHash = transferHash;
-            if (transporteurId) {
-                lot.transporteurId = transporteurId;
+            if (lot) {
+                lot.statut = `TRANSFERE`;
+                lot.dernierTransfertHash = transferHash;
+                await this.ledger.putState(hash, lot);
             }
-            await this.ledger.putState(hash, lot);
         }
 
-        await this.ledger.putState(transferHash, transfer);
-        return transfer;
+        return publicTransfer;
     }
 
-    async createTransformation(transformationHash, lotHashes, typeProcessus, preuveHash) {
+    async createTransformation(transformationHash, lotHashes, typeProcessus, preuveHash, transformateurId) {
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
-        const transformation = Schemas.createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash);
+        const transformation = Schemas.createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash, transformateurId);
         
         for (const hash of lotHashes) {
             const lot = await this.ledger.getState(hash);

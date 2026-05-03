@@ -27,15 +27,15 @@ class LotLogic {
             espece: espece,
             poidsKg: parseFloat(poidsKg),
             dateCollecte: dateCollecte,
-            statut: 'COLLECTE',
-            coopId: coopId
+            statut: 'COLLECTE'
         };
         await this.ledger.putState(lotHash, publicLot);
 
-        // 2. Données Privées (GPS, Farmer ID, etc.)
+        // 2. Données Privées (GPS, Farmer ID, Coop ID, etc.)
         const privateDetails = {
             lotHash: lotHash,
             farmerId: farmerId,
+            coopId: coopId,
             gps: gps,
             mediaHash: mediaHash
         };
@@ -124,10 +124,26 @@ class LotLogic {
         }
 
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
-        const bundle = Schemas.createBundle(bundleHash, validatedLotHashes, coopId, totalPoids, timestamp);
+        
+        // 1. Données Publiques du Bundle
+        const publicBundle = {
+            docType: 'bundle',
+            bundleHash: bundleHash,
+            lotHashes: validatedLotHashes,
+            totalPoids: totalPoids,
+            timestamp: timestamp,
+            statut: 'REGROUPE'
+        };
+        await this.ledger.putState(bundleHash, publicBundle);
 
-        await this.ledger.putState(bundleHash, bundle);
-        return bundle;
+        // 2. Données Privées du Bundle (Coop ID)
+        const privateBundle = {
+            bundleHash: bundleHash,
+            coopId: coopId
+        };
+        await this.ctx.stub.putPrivateData('collectionPrivateLots', bundleHash, Buffer.from(JSON.stringify(privateBundle)));
+
+        return publicBundle;
     }
 }
 

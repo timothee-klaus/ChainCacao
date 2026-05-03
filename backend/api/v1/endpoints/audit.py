@@ -187,3 +187,61 @@ async def verify_lot_public(
         }
     except Exception as e:
         raise HTTPException(status_code=404, detail="Traceability info not found for this QR code")
+
+@router.get("/shipment-report/{shipment_hash}")
+async def generate_shipment_report(
+    shipment_hash: str,
+    current_user: User = Depends(security.get_current_user)
+):
+    """
+    Rapport de conformité agrégé pour une expédition entière.
+    """
+    if current_user.role != "EXPORTATEUR" and current_user.role != "MINISTERE":
+        raise HTTPException(status_code=403, detail="Accès réservé aux exportateurs et au ministère.")
+    
+    return await gateway.get_shipment_eudr_report(shipment_hash, current_user.org_name, current_user.blockchain_id)
+
+@router.get("/shipment-report/{shipment_hash}/pdf")
+async def generate_shipment_report_pdf(
+    shipment_hash: str,
+    current_user: User = Depends(security.get_current_user)
+):
+    """
+    Génère un PDF récapitulatif de conformité pour l'exportation.
+    """
+    report = await gateway.get_shipment_eudr_report(shipment_hash, current_user.org_name, current_user.blockchain_id)
+    if not report.get("success"):
+        raise HTTPException(status_code=404, detail=report.get("error"))
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("helvetica", "B", 16)
+    pdf.cell(w=0, h=10, txt=f"Manifeste de Conformite Export - {shipment_hash}", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font("helvetica", size=12)
+    pdf.ln(10)
+    pdf.cell(w=0, h=8, txt=f"Destination: {report.get('destination')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(w=0, h=8, txt=f"Exportateur ID: {report.get('exportateur_id')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(w=0, h=8, txt=f"Nombre de Lots: {report.get('lots_count')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(w=0, h=8, txt=f"Statut Global: {report.get('compliance_summary')}", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.ln(10)
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(w=0, h=10, txt="Detail des points GPS (EUDR):", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("helvetica", size=10)
+    
+    for lot_rep in report.get("lot_reports", []):
+        lot_data = lot_rep.get("data", {}).get("lot", {})
+        gps = lot_data.get("gps", {})
+        txt = f"- Lot {lot_data.get('lotHash')}: Lat {gps.get('latitude')}, Lon {gps.get('longitude')} | {lot_rep.get('compliance_status')}"
+        pdf.cell(w=0, h=7, txt=txt, new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.ln(15)
+    pdf.set_font("helvetica", "I", 8)
+    pdf.multi_cell(w=0, h=5, txt="Ce document atteste que tous les lots inclus dans cette expedition ont fait l'objet d'un suivi blockchain de la parcelle jusqu'au port d'embarquement.")
+    
+    fd, path = tempfile.mkstemp(suffix=".pdf")
+    os.close(fd)
+    pdf.output(path)
+    
+    return FileResponse(path, media_type="application/pdf", filename=f"Shipment_EUDR_{shipment_hash}.pdf")

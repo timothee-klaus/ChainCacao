@@ -68,6 +68,9 @@ async def create_new_lot(
     storage.log_action(db, user_id=current_user.blockchain_id, action=f"CREATE_LOT:{generated_lot_id}")
 
     # 5. Préparation et envoi vers la blockchain
+    # On utilise automatiquement le parent_id de l'utilisateur si c'est un producteur
+    effective_coop_id = coop_id if coop_id else (current_user.parent_id or "")
+
     lot_data = {
         "lot_hash": generated_lot_id,
         "farmer_id": current_user.blockchain_id,
@@ -76,7 +79,7 @@ async def create_new_lot(
         "espece": espece,
         "date_collecte": date_collecte,
         "media_hash": sha256_hash,
-        "coop_id": coop_id,
+        "coop_id": effective_coop_id,
     }
 
     blockchain_result = await gateway.create_lot(
