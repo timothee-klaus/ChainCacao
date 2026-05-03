@@ -8,6 +8,10 @@ import datetime
 import security
 import uuid
 from models.schemas import GPSModel, BundleCreate
+from pydantic import BaseModel
+
+class LotStatusUpdate(BaseModel):
+    nouveau_statut: str
 
 router = APIRouter()
 gateway = BlockchainGateway()
@@ -32,11 +36,11 @@ async def create_new_lot(
     - Sauvegarde l'image via StorageService
     - Inscrit le lot sur le ledger Fabric
     """
-    # 0. Contrôle d'accès : rôle PRODUCTEUR requis
-    if current_user.role != "PRODUCTEUR":
+    # 0. Contrôle d'accès : rôle PRODUCTEUR ou COOPERATIVE requis
+    if current_user.role not in ["PRODUCTEUR", "COOPERATIVE"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Seuls les producteurs peuvent créer des lots",
+            detail="Seuls les producteurs et coopératives peuvent créer des lots",
         )
 
     # 1. Génération de l'ID du lot
@@ -64,6 +68,9 @@ async def create_new_lot(
     storage.log_action(db, user_id=current_user.blockchain_id, action=f"CREATE_LOT:{generated_lot_id}")
 
     # 5. Préparation et envoi vers la blockchain
+    # On utilise automatiquement le parent_id de l'utilisateur si c'est un producteur
+    effective_coop_id = coop_id if coop_id else (current_user.parent_id or "")
+
     lot_data = {
         "lot_hash": generated_lot_id,
         "farmer_id": current_user.blockchain_id,
@@ -72,7 +79,7 @@ async def create_new_lot(
         "espece": espece,
         "date_collecte": date_collecte,
         "media_hash": sha256_hash,
-        "coop_id": coop_id,
+        "coop_id": effective_coop_id,
     }
 
     blockchain_result = await gateway.create_lot(
@@ -84,6 +91,7 @@ async def create_new_lot(
     return {
         "success": True,
         "lot_id": generated_lot_id,
+        "statut": "COLLECTE",
         "blockchain": blockchain_result,
         "media": {
             "hash": sha256_hash,
@@ -138,6 +146,28 @@ async def get_lot_details(
         )
     return {"success": True, "data": result}
 
+
+@router.put("/{lot_hash}/status", response_model=dict)
+async def update_lot_status(
+    lot_hash: str,
+    payload: LotStatusUpdate,
+    current_user: User = Depends(security.get_current_user),
+):
+    """
+    Met à jour le statut d'un lot existant sur la blockchain.
+    """
+    result = await gateway.update_lot_status(
+        lot_hash,
+        payload.nouveau_statut,
+        current_user.org_name,
+        current_user.blockchain_id
+    )
+    if not result or (isinstance(result, dict) and result.get("success") is False):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("error", "Erreur lors de la mise à jour") if isinstance(result, dict) else "Erreur"
+        )
+    return {"success": True, "data": result}
 
 @router.get("/media/{media_hash}")
 async def get_lot_media(

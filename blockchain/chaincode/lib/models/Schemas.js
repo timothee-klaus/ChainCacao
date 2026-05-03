@@ -44,24 +44,26 @@ class Schemas {
         };
     }
 
-    static createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash) {
+    static createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash, transporteurId = null) {
         return {
             docType: Schemas.DOC_TYPES.TRANSFER,
             transferHash,
             lotHashes, // Array
             expediteurId,
             destinataireId,
+            transporteurId,
             timestamp,
             preuveHash
         };
     }
 
-    static createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash) {
+    static createTransformation(transformationHash, lotHashes, typeProcessus, timestamp, preuveHash, transformateurId) {
         return {
             docType: Schemas.DOC_TYPES.TRANSFORMATION,
             transformationHash,
             lotHashes,
             typeProcessus,
+            transformateurId,
             timestamp,
             preuveHash
         };
@@ -105,13 +107,14 @@ class Schemas {
         };
     }
 
-    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement) {
+    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement, enregistrePar) {
         return {
             docType: Schemas.DOC_TYPES.ACTOR,
             actorIdHash,
             typeActeur,
             clePublique,
             dateEnregistrement,
+            enregistrePar,
             revoque: false
         };
     }

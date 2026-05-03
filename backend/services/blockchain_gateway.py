@@ -124,6 +124,9 @@ class BlockchainGateway:
     async def get_lot(self, lot_hash: str, org_name: str, user_id: str):
         return await self.query_ledger("GetLot", [lot_hash], org_name, user_id)
 
+    async def update_lot_status(self, lot_hash: str, nouveau_statut: str, org_name: str, user_id: str):
+        return await self.invoke_transaction("UpdateLotStatus", [lot_hash, nouveau_statut], org_name, user_id)
+
     async def create_transfer(self, data: Dict, org_name: str, user_id: str):
         # On supporte à la fois les clés Python et les clés d'alias (CamelCase)
         args = [
@@ -131,7 +134,8 @@ class BlockchainGateway:
             json.dumps(data.get('lot_hashes') or data.get('lotHashes')),
             data.get('expediteur_id') or data.get('expediteurId'),
             data.get('destinataire_id') or data.get('destinataireId'),
-            data.get('preuve_hash') or data.get('preuveHash')
+            data.get('preuve_hash') or data.get('preuveHash'),
+            data.get('transporteur_id') or data.get('transporteurId') or ""
         ]
         return await self.invoke_transaction("CreateTransfer", args, org_name, user_id)
 
@@ -178,3 +182,30 @@ class BlockchainGateway:
     async def create_bundle(self, bundle_hash: str, lot_hashes: List[str], coop_id: str, org_name: str, user_id: str):
         args = [bundle_hash, json.dumps(lot_hashes), coop_id]
         return await self.invoke_transaction("CreateBundle", args, org_name, user_id)
+
+    async def get_shipment_eudr_report(self, shipment_hash: str, org_name: str, user_id: str) -> Dict[str, Any]:
+        """
+        Génère un rapport de conformité pour une expédition (regroupe tous les lots).
+        """
+        # 1. Get shipment details
+        shipment = await self.query_ledger("GetShipment", [shipment_hash], org_name, user_id)
+        if not shipment or "error" in shipment:
+            return {"success": False, "error": "SHIPMENT_NOT_FOUND"}
+            
+        lot_hashes = shipment.get("lotHashes", [])
+        lot_reports = []
+        
+        # 2. Get report for each lot
+        for lot_hash in lot_hashes:
+            report = await self.get_eudr_report(lot_hash, org_name, user_id)
+            lot_reports.append(report)
+            
+        return {
+            "success": True,
+            "shipment_hash": shipment_hash,
+            "destination": shipment.get("destination"),
+            "exportateur_id": shipment.get("exportateurId"),
+            "lots_count": len(lot_hashes),
+            "lot_reports": lot_reports,
+            "compliance_summary": "ALL_COMPLIANT" if all(r.get("compliance_status") == "COMPLIANT" for r in lot_reports) else "ACTION_REQUIRED"
+        }

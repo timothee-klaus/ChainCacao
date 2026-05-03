@@ -19,9 +19,22 @@ class ChainCacaoContract extends Contract {
     // =========================================================================
 
     async RegisterActor(ctx, actorIdHash, typeActeur, clePublique) {
-        AccessControl.checkRole(ctx, [AccessControl.ROLES.MINISTERE]);
+        const callerMSP = ctx.clientIdentity.getMSPID();
+        const callerId = AccessControl.getCallerId(ctx);
+
+        if (callerMSP === AccessControl.ROLES.MINISTERE) {
+            // Le Ministère peut tout enregistrer
+        } else if (callerMSP === AccessControl.ROLES.PRODUCTEUR) {
+            // Une Coopérative ne peut enregistrer que des producteurs
+            if (typeActeur !== 'PRODUCTEUR') {
+                throw new Error(`ACCES_REFUSE: Une coopérative ne peut enregistrer que des producteurs.`);
+            }
+        } else {
+            throw new Error(`ACCES_REFUSE: Votre organisation (${callerMSP}) n'est pas autorisée à enregistrer des acteurs.`);
+        }
+
         const logic = new ActorLogic(ctx);
-        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique);
+        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique, callerId);
         return JSON.stringify(result);
     }
 
@@ -73,17 +86,20 @@ class ChainCacaoContract extends Contract {
     // TRANSFERTS / TRANSFORMATIONS / EXPEDITIONS
     // =========================================================================
 
-    async CreateTransfer(ctx, transferHash, lotHashesStr, expediteurId, destinataireId, preuveHash) {
+    async CreateTransfer(ctx, transferHash, lotHashesStr, expediteurId, destinataireId, preuveHash, transporteurId = "") {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
         const logic = new TraceabilityLogic(ctx);
-        const result = await logic.createTransfer(transferHash, JSON.parse(lotHashesStr), expediteurId, destinataireId, preuveHash);
+        const result = await logic.createTransfer(transferHash, JSON.parse(lotHashesStr), expediteurId, destinataireId, preuveHash, transporteurId);
         return JSON.stringify(result);
     }
 
     async CreateTransformation(ctx, transformationHash, lotHashesStr, typeProcessus, preuveHash) {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
+        
+        const callerId = AccessControl.getCallerId(ctx);
+        const lotHashes = JSON.parse(lotHashesStr);
         const logic = new TraceabilityLogic(ctx);
-        const result = await logic.createTransformation(transformationHash, JSON.parse(lotHashesStr), typeProcessus, preuveHash);
+        const result = await logic.createTransformation(transformationHash, lotHashes, typeProcessus, preuveHash, callerId);
         return JSON.stringify(result);
     }
 
@@ -91,6 +107,14 @@ class ChainCacaoContract extends Contract {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.EXPORTATEUR]);
         const logic = new TraceabilityLogic(ctx);
         const result = await logic.createShipment(shipmentHash, JSON.parse(lotHashesStr), exportateurId, destination, documentsHash, dateDepart, dateArrivee);
+        return JSON.stringify(result);
+    }
+
+    async CreateTransportEvent(ctx, eventHash, refHash, transporteurIdHash, typeEvenement, gpsStr, preuveHash) {
+        // Transport can be logged by Producers, Exporters, Transformers or a dedicated role if added later.
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
+        const logic = new TraceabilityLogic(ctx);
+        const result = await logic.createTransportEvent(eventHash, refHash, transporteurIdHash, typeEvenement, gpsStr, preuveHash);
         return JSON.stringify(result);
     }
 

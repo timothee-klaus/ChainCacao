@@ -27,17 +27,17 @@ echo -e "${GREEN}3. Déploiement du Smart Contract...${NC}"
 ./deploy-chaincode.sh >> setup.log 2>&1
 if [ $? -ne 0 ]; then echo "Erreur déploiement (voir blockchain/scripts/setup.log)"; exit 1; fi
 
-# 4. Lancement de la Gateway Node.js
+# # 4. Lancement de la Gateway Node.js
 echo -e "${GREEN}4. Lancement de la Gateway API...${NC}"
 cd ../gateway
 npm install --quiet
 npm start > gateway.log 2>&1 &
 GATEWAY_PID=$!
 
-# 5. Lancement du Backend FastAPI (Mode Production)
+# # 5. Lancement du Backend FastAPI (Mode Production)
 echo -e "${GREEN}5. Lancement du Backend FastAPI...${NC}"
 cd ../../backend
-# Activation de l'environnement virtuel (créé via Git Bash)
+# # Activation de l'environnement virtuel (créé via Git Bash)
 source ../env/Scripts/activate
 python -m pip install -r requirements.txt --quiet
 python -m uvicorn main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
