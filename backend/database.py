@@ -39,6 +39,7 @@ class User(Base):
     hashed_password = Column(String)
     full_name = Column(String)
     role = Column(String) # PRODUCTEUR, EXPORTATEUR, etc.
+    numero_telephone = Column(String, nullable=True) # Ajout du numéro de téléphone
     org_name = Column(String) # producteurs, exportateurs, etc.
     blockchain_id = Column(String, unique=True) # ID dans le wallet Fabric
     is_admin = Column(Boolean, default=False)

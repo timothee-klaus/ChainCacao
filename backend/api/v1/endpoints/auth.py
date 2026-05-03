@@ -91,6 +91,7 @@ async def register(
         role=payload.role,
         org_name=org_name,
         blockchain_id=blockchain_id,
+        numero_telephone=payload.numero_telephone,
         is_admin=payload.is_admin,
     )
 
@@ -104,6 +105,7 @@ async def register(
     return UserPublicResponse(
         email=user.email,
         full_name=user.full_name,
+        numero_telephone=user.numero_telephone,
         role=user.role,
         org_name=user.org_name,
         blockchain_id=user.blockchain_id,
@@ -160,6 +162,7 @@ async def read_users_me(
     return UserPublicResponse(
         email=current_user.email,
         full_name=current_user.full_name,
+        numero_telephone=current_user.numero_telephone,
         role=current_user.role,
         org_name=current_user.org_name,
         blockchain_id=current_user.blockchain_id,
@@ -190,6 +193,7 @@ async def setup_test_user(
         password="password123",
         full_name="Producteur de Test",
         role="PRODUCTEUR",
+        numero_telephone="0123456789",
         org_name="producteurs",
         blockchain_id="admin",
     )

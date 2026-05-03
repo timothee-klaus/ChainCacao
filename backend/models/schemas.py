@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict, field_validator, EmailStr
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, EmailStr
 from typing import List, Optional, Dict, Literal
 import re
 
@@ -31,6 +31,7 @@ class LotCreate(BaseModel):
     date_collecte: str = Field(alias="dateCollecte")
     media_hash: str = Field(alias="mediaHash")
     coop_id: Optional[str] = Field(None, alias="coopId")
+    statut: str = Field(default="COLLECTE")
 
     @field_validator("lot_hash", "media_hash")
     @classmethod
@@ -47,7 +48,7 @@ class LotCreate(BaseModel):
         return v
 
 class LotResponse(LotCreate):
-    statut: str
+    pass
 
 class TransferCreate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
@@ -166,7 +167,8 @@ class ActorResponse(ActorRegister):
 
 ROLE_TO_ORG: Dict[str, str] = {
     "PRODUCTEUR": "producteurs",
-    "COOPERATIVE": "producteurs",  # Les coopératives font partie de l'org producteurs
+    "COOPERATIVE": "producteurs",
+    "TRANSPORTEUR": "producteurs", # Les transporteurs opèrent sous l'égide des producteurs/coopératives pour le moment
     "EXPORTATEUR": "exportateurs",
     "CERTIF": "certif",
     "MINISTERE": "ministere",
@@ -181,6 +183,7 @@ class UserRegister(BaseModel):
     password: str = Field(min_length=8, description="Mot de passe (min 8 caractères)")
     full_name: str = Field(min_length=2)
     role: Literal["PRODUCTEUR", "COOPERATIVE", "EXPORTATEUR", "CERTIF", "MINISTERE", "TRANSFORMATEUR"]
+    numero_telephone: Optional[str] = Field(None, description="Requis pour les producteurs")
     is_admin: bool = False
 
     @property
@@ -188,12 +191,19 @@ class UserRegister(BaseModel):
         """Dérive automatiquement l'organisation Fabric depuis le rôle."""
         return ROLE_TO_ORG[self.role]
 
+    @model_validator(mode='after')
+    def validate_producer_phone(self) -> 'UserRegister':
+        if self.role == "PRODUCTEUR" and not self.numero_telephone:
+            raise ValueError("Le numéro de téléphone est requis pour un profil producteur")
+        return self
+
 class UserPublicResponse(BaseModel):
     """Profil utilisateur retourné après inscription / login (sans données sensibles)."""
     model_config = ConfigDict(populate_by_name=True)
 
     email: str
     full_name: str
+    numero_telephone: Optional[str] = None
     role: str
     org_name: str
     blockchain_id: str

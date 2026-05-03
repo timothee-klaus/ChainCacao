@@ -1,23 +1,46 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from models.schemas import TransferCreate, TransformationCreate, ShipmentCreate
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from sqlalchemy.orm import Session
+from database import get_db, User
+from services.storage import StorageService, get_storage
 from services.blockchain_gateway import BlockchainGateway
-from database import User
 import security
+import json
 
 router = APIRouter()
 gateway = BlockchainGateway()
 
 @router.post("/transfers", status_code=status.HTTP_201_CREATED)
 async def create_transfer(
-    transfer: TransferCreate,
+    transfer_hash: str = Form(..., alias="transferHash"),
+    lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
+    expediteur_id: str = Form(..., alias="expediteurId"),
+    destinataire_id: str = Form(..., alias="destinataireId"),
+    transporteur_id: str = Form("", alias="transporteurId", description="ID of the transport company (optional)"),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
     current_user: User = Depends(security.get_current_user)
 ):
     """
     Record a ownership transfer between two actors.
+    Requires uploading a proof document. Optionally associate a transporteur.
     """
     try:
+        lot_hashes_list = json.loads(lot_hashes)
+        content = await file.read()
+        media = storage.save_media(db, lot_hash=transfer_hash, filename=file.filename, content=content)
+        
+        data = {
+            "transfer_hash": transfer_hash,
+            "lot_hashes": lot_hashes_list,
+            "expediteur_id": expediteur_id,
+            "destinataire_id": destinataire_id,
+            "transporteur_id": transporteur_id,
+            "preuve_hash": media["sha256_hash"]
+        }
+        
         return await gateway.create_transfer(
-            transfer.model_dump(by_alias=True), 
+            data, 
             current_user.org_name, 
             current_user.blockchain_id
         )
@@ -26,19 +49,28 @@ async def create_transfer(
 
 @router.post("/transformations", status_code=status.HTTP_201_CREATED)
 async def create_transformation(
-    transformation: TransformationCreate,
+    transformation_hash: str = Form(..., alias="transformationHash"),
+    lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
+    type_processus: str = Form(..., alias="typeProcessus"),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
     current_user: User = Depends(security.get_current_user)
 ):
     """
     Record an industrial transformation process.
+    Requires uploading a transformation certificate.
     """
     try:
-        data = transformation.model_dump(by_alias=True)
+        lot_hashes_list = json.loads(lot_hashes)
+        content = await file.read()
+        media = storage.save_media(db, lot_hash=transformation_hash, filename=file.filename, content=content)
+        
         args = [
-            data['transformationHash'], 
-            str(data['lotHashes']), 
-            data['typeProcessus'], 
-            data['preuveHash']
+            transformation_hash, 
+            json.dumps(lot_hashes_list), 
+            type_processus, 
+            media["sha256_hash"]
         ]
         return await gateway.invoke_transaction(
             "CreateTransformation", 
@@ -51,19 +83,31 @@ async def create_transformation(
 
 @router.post("/shipments", status_code=status.HTTP_201_CREATED)
 async def create_shipment(
-    shipment: ShipmentCreate,
+    shipment_hash: str = Form(..., alias="shipmentHash"),
+    lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
+    exportateur_id: str = Form(..., alias="exportateurId"),
+    destination: str = Form(...),
+    date_depart_prevue: str = Form(..., alias="dateDepartPrevue"),
+    date_arrivee_prevue: str = Form(..., alias="dateArriveePrevue"),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
     current_user: User = Depends(security.get_current_user)
 ):
     """
     Register a new international shipment.
+    Requires uploading a bill of lading or export manifest.
     Role: EXPORTATEUR
     """
     try:
-        data = shipment.model_dump(by_alias=True)
+        lot_hashes_list = json.loads(lot_hashes)
+        content = await file.read()
+        media = storage.save_media(db, lot_hash=shipment_hash, filename=file.filename, content=content)
+        
         args = [
-            data['shipmentHash'], str(data['lotHashes']), data['exportateurId'],
-            data['destination'], data['documentsHash'], data['dateDepartPrevue'],
-            data['dateArriveePrevue']
+            shipment_hash, json.dumps(lot_hashes_list), exportateur_id,
+            destination, media["sha256_hash"], date_depart_prevue,
+            date_arrivee_prevue
         ]
         return await gateway.invoke_transaction(
             "CreateShipment", 
@@ -73,3 +117,5 @@ async def create_shipment(
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+

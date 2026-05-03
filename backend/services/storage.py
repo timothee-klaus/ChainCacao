@@ -100,6 +100,7 @@ class StorageService:
         role: str,
         org_name: str,
         blockchain_id: str,
+        numero_telephone: str | None = None,
         is_admin: bool = False,
     ) -> User:
         """Crée et persiste un nouvel utilisateur."""
@@ -108,6 +109,7 @@ class StorageService:
             hashed_password=security.get_password_hash(password),
             full_name=full_name,
             role=role,
+            numero_telephone=numero_telephone,
             org_name=org_name,
             blockchain_id=blockchain_id,
             is_admin=is_admin,

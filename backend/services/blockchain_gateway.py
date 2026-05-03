@@ -124,6 +124,9 @@ class BlockchainGateway:
     async def get_lot(self, lot_hash: str, org_name: str, user_id: str):
         return await self.query_ledger("GetLot", [lot_hash], org_name, user_id)
 
+    async def update_lot_status(self, lot_hash: str, nouveau_statut: str, org_name: str, user_id: str):
+        return await self.invoke_transaction("UpdateLotStatus", [lot_hash, nouveau_statut], org_name, user_id)
+
     async def create_transfer(self, data: Dict, org_name: str, user_id: str):
         # On supporte à la fois les clés Python et les clés d'alias (CamelCase)
         args = [
@@ -131,7 +134,8 @@ class BlockchainGateway:
             json.dumps(data.get('lot_hashes') or data.get('lotHashes')),
             data.get('expediteur_id') or data.get('expediteurId'),
             data.get('destinataire_id') or data.get('destinataireId'),
-            data.get('preuve_hash') or data.get('preuveHash')
+            data.get('preuve_hash') or data.get('preuveHash'),
+            data.get('transporteur_id') or data.get('transporteurId') or ""
         ]
         return await self.invoke_transaction("CreateTransfer", args, org_name, user_id)
 
