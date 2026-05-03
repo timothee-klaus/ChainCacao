@@ -9,7 +9,7 @@ class TraceabilityLogic {
         this.ledger = new LedgerService(ctx);
     }
 
-    async createTransfer(transferHash, lotHashes, expediteurId, destinataireId, preuveHash) {
+    async createTransfer(transferHash, lotHashes, expediteurId, destinataireId, preuveHash, transporteurId = null) {
         // Validation existence
         for (const hash of lotHashes) {
             if (!(await this.ledger.exists(hash))) {
@@ -18,13 +18,16 @@ class TraceabilityLogic {
         }
 
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
-        const transfer = Schemas.createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash);
+        const transfer = Schemas.createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash, transporteurId);
         
         // Update lots
         for (const hash of lotHashes) {
             const lot = await this.ledger.getState(hash);
             lot.statut = `TRANSFERE_VERS_${destinataireId}`;
             lot.dernierTransfertHash = transferHash;
+            if (transporteurId) {
+                lot.transporteurId = transporteurId;
+            }
             await this.ledger.putState(hash, lot);
         }
 

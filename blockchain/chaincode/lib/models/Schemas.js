@@ -44,13 +44,14 @@ class Schemas {
         };
     }
 
-    static createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash) {
+    static createTransfer(transferHash, lotHashes, expediteurId, destinataireId, timestamp, preuveHash, transporteurId = null) {
         return {
             docType: Schemas.DOC_TYPES.TRANSFER,
             transferHash,
             lotHashes, // Array
             expediteurId,
             destinataireId,
+            transporteurId,
             timestamp,
             preuveHash
         };
