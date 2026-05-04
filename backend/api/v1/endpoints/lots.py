@@ -19,8 +19,7 @@ gateway = BlockchainGateway()
 
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def create_new_lot(
-    latitude: str = Form(...),
-    longitude: str = Form(...),
+    parcelle_id: str = Form(...),
     poids_kg: str = Form(...),
     espece: str = Form(...),
     date_collecte: str = Form(...),
@@ -28,11 +27,12 @@ async def create_new_lot(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     storage: StorageService = Depends(get_storage),
-    current_user: User = Depends(security.get_current_user),
+    current_user: User = Depends(security.get_validated_user),
 ):
     """
     Crée un nouveau lot de récolte (opération unifiée) :
     - Génère un ID unique (LOT-YYYYMMDD-XXXXXXXX)
+    - Utilise la parcelle sélectionnée pour les coordonnées GPS
     - Sauvegarde l'image via StorageService
     - Inscrit le lot sur le ledger Fabric
     """
@@ -48,10 +48,8 @@ async def create_new_lot(
     short_id = str(uuid.uuid4())[:8].upper()
     generated_lot_id = f"LOT-{today}-{short_id}"
 
-    # 2. Conversion et validation des coordonnées
+    # 2. Conversion et validation des données numériques
     try:
-        f_lat = float(latitude)
-        f_lon = float(longitude)
         f_poids = float(poids_kg)
     except ValueError as ve:
         raise HTTPException(
@@ -74,7 +72,7 @@ async def create_new_lot(
     lot_data = {
         "lot_hash": generated_lot_id,
         "farmer_id": current_user.blockchain_id,
-        "gps": {"latitude": f_lat, "longitude": f_lon},
+        "parcelle_id": parcelle_id,
         "poids_kg": f_poids,
         "espece": espece,
         "date_collecte": date_collecte,
@@ -87,10 +85,17 @@ async def create_new_lot(
         current_user.org_name,
         current_user.blockchain_id,
     )
+    
+    if not blockchain_result.get("success"):
+         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=blockchain_result.get("error", "Erreur blockchain lors de la création du lot"),
+        )
 
     return {
         "success": True,
         "lot_id": generated_lot_id,
+        "parcelle_id": parcelle_id,
         "statut": "COLLECTE",
         "blockchain": blockchain_result,
         "media": {

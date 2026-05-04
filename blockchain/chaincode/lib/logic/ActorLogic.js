@@ -9,13 +9,20 @@ class ActorLogic {
         this.ledger = new LedgerService(ctx);
     }
 
-    async registerActor(actorIdHash, typeActeur, clePublique, callerId) {
+    async registerActor(actorIdHash, typeActeur, clePublique, callerId, metadata = '{}') {
         if (await this.ledger.exists(actorIdHash)) {
             throw new Error(`ACTEUR_EXISTE: L'acteur ${actorIdHash} est deja enregistre.`);
         }
 
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
-        const actor = Schemas.createActor(actorIdHash, typeActeur, clePublique, timestamp, callerId);
+        let metadataObj = {};
+        try {
+            metadataObj = JSON.parse(metadata);
+        } catch (e) {
+            // metadata fallback
+        }
+
+        const actor = Schemas.createActor(actorIdHash, typeActeur, clePublique, timestamp, callerId, metadataObj);
         
         await this.ledger.putState(actorIdHash, actor);
         return actor;

@@ -13,8 +13,21 @@ class Schemas {
         EVENT: 'event',
         CERTIFICATION: 'certification',
         ACTOR: 'actor',
-        BUNDLE: 'bundle'
+        BUNDLE: 'bundle',
+        PARCELLE: 'parcelle'
     };
+
+    static createParcelle(parcelleId, farmerId, gps, culture, surface, details = {}) {
+        return {
+            docType: Schemas.DOC_TYPES.PARCELLE,
+            parcelleId,
+            farmerId,
+            gps, // { latitude, longitude }
+            culture,
+            surface,
+            ...details
+        };
+    }
 
     static createBundle(bundleHash, lotHashes, coopId, totalPoids, timestamp, details = {}) {
         return {
@@ -29,16 +42,17 @@ class Schemas {
         };
     }
 
-    static createLot(lotHash, farmerId, gps, poidsKg, espece, dateCollecte, mediaHash, coopId = null) {
+    static createLot(lotHash, farmerId, parcelleId, gps, poidsKg, espece, dateCollecte, mediaHash, coopId = null) {
         return {
             docType: Schemas.DOC_TYPES.LOT,
             lotHash,
             farmerId,
+            parcelleId,
             gps, // { latitude, longitude }
             poidsKg,
             espece,
             dateCollecte,
-            coopId,
+            coop_id: coopId,
             mediaHash,
             statut: 'COLLECTE'
         };
@@ -107,7 +121,7 @@ class Schemas {
         };
     }
 
-    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement, enregistrePar) {
+    static createActor(actorIdHash, typeActeur, clePublique, dateEnregistrement, enregistrePar, metadata = {}) {
         return {
             docType: Schemas.DOC_TYPES.ACTOR,
             actorIdHash,
@@ -115,7 +129,8 @@ class Schemas {
             clePublique,
             dateEnregistrement,
             enregistrePar,
-            revoque: false
+            revoque: false,
+            metadata
         };
     }
 }

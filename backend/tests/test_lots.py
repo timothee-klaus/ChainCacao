@@ -5,8 +5,7 @@ import os
 def test_create_lot_unauthorized(client):
     """Should fail if no token is provided."""
     data = {
-        "latitude": "6.1234",
-        "longitude": "1.1234",
+        "parcelle_id": "PARC-01",
         "poids_kg": "120.5",
         "espece": "Forastero",
         "date_collecte": "2026-05-02"
@@ -18,10 +17,14 @@ def test_create_lot_success(client, auth_headers, mock_blockchain):
     """Full lot creation flow with mocked blockchain."""
     # Setup mock return value
     mock_blockchain["invoke"].return_value = {"success": True, "txId": "mock-tx-123"}
+    mock_blockchain["get_parcelle"].return_value = {
+        "parcelleId": "PARC-01",
+        "gps": {"latitude": 6.1234, "longitude": 1.1234},
+        "farmerId": "admin"
+    }
     
     data = {
-        "latitude": "6.1234",
-        "longitude": "1.1234",
+        "parcelle_id": "PARC-01",
         "poids_kg": "120.5",
         "espece": "Forastero",
         "date_collecte": "2026-05-02"

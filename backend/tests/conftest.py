@@ -99,9 +99,11 @@ def mock_blockchain():
     with patch("services.blockchain_gateway.BlockchainGateway.invoke_transaction") as mock_invoke:
         with patch("services.blockchain_gateway.BlockchainGateway.query_ledger") as mock_query:
             with patch("services.blockchain_gateway.BlockchainGateway.get_lot") as mock_get_lot:
-                yield {
-                    "invoke": mock_invoke,
-                    "query": mock_query,
-                    "get_lot": mock_get_lot
-                }
+                with patch("services.blockchain_gateway.BlockchainGateway.get_parcelle") as mock_get_parc:
+                    yield {
+                        "invoke": mock_invoke,
+                        "query": mock_query,
+                        "get_lot": mock_get_lot,
+                        "get_parcelle": mock_get_parc
+                    }
 

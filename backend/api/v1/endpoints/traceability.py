@@ -19,7 +19,7 @@ async def create_transfer(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     storage: StorageService = Depends(get_storage),
-    current_user: User = Depends(security.get_current_user)
+    current_user: User = Depends(security.get_validated_user)
 ):
     """
     Record a ownership transfer between two actors.
@@ -55,7 +55,7 @@ async def create_transformation(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     storage: StorageService = Depends(get_storage),
-    current_user: User = Depends(security.get_current_user)
+    current_user: User = Depends(security.get_validated_user)
 ):
     """
     Enregistre un processus de transformation industrielle.
@@ -98,7 +98,7 @@ async def create_shipment(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     storage: StorageService = Depends(get_storage),
-    current_user: User = Depends(security.get_current_user)
+    current_user: User = Depends(security.get_validated_user)
 ):
     """
     Enregistre un nouvel envoi international.

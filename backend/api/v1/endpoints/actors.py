@@ -43,13 +43,23 @@ async def register_actor(
         )
 
     try:
+        # 0. Récupération des métadonnées locales (ex: Hash du document de légalité)
+        target_user = storage.get_user_by_blockchain_id(db, actor.actor_id_hash)
+        metadata = "{}"
+        if target_user and target_user.document_legalite_hash:
+            import json
+            metadata = json.dumps({
+                "preuve_legalite_hash": target_user.document_legalite_hash,
+                "full_name": target_user.full_name
+            })
+
         # 1. CA Registration (Identity)
         ca_result = await gateway.register_user(actor.actor_id_hash, actor.org_name)
         if not ca_result.get("success"):
             raise HTTPException(status_code=500, detail=f"CA Registration failed: {ca_result.get('error')}")
 
         # 2. Chaincode Registration (Business Logic)
-        args = [actor.actor_id_hash, actor.type_acteur, actor.cle_publique]
+        args = [actor.actor_id_hash, actor.type_acteur, actor.cle_publique, metadata]
         cc_result = await gateway.invoke_transaction(
             "RegisterActor", 
             args, 
@@ -57,8 +67,13 @@ async def register_actor(
             current_user.blockchain_id
         )
         
-        # 3. Mark as validated in local DB
+        # 3. Mark as validated in local DB and set as admin if institutional
         storage.set_user_blockchain_validated(db, actor.actor_id_hash, True)
+        
+        if actor.type_acteur in ["COOPERATIVE", "EXPORTATEUR", "CERTIF", "TRANSFORMATEUR", "MINISTERE"]:
+            if target_user:
+                target_user.is_admin = True
+                db.commit()
         
         # 4. If a Cooperative registers a Producer, link them
         if current_user.role == "COOPERATIVE" and actor.type_acteur == "PRODUCTEUR":

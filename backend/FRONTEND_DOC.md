@@ -13,23 +13,53 @@ Ce document fournit les détails techniques nécessaires pour l'intégration du 
 
 ---
 
+## 🧭 Résumé des Endpoints & Rôles
+
+| Module | Endpoint | Méthode | Rôle Autorisé |
+| :--- | :--- | :--- | :--- |
+| **🔐 Auth** | `/api/v1/auth/register` | `POST` | **Public** (Requête) |
+| | `/api/v1/auth/login` | `POST` | **Public** |
+| | `/api/v1/auth/pending-registrations`| `GET` | **MINISTERE** |
+| | `/api/v1/auth/users` | `GET` | **MINISTERE, COOPERATIVE** |
+| | `/api/v1/auth/register-producer` | `POST` | **COOPERATIVE** (Admin) |
+| | `/api/v1/auth/register-agent` | `POST` | **Toute Orgue (Admin)** |
+| **👤 Acteurs**| `/api/v1/actors/register` | `POST` | **MINISTERE, COOPERATIVE** |
+| **📦 Lots** | `/api/v1/lots/` | `POST` | **PRODUCTEUR, COOPERATIVE** (Validé) |
+| | `/api/v1/lots/regroup` | `POST` | **COOPERATIVE** (Admin + Validé) |
+| **🗺️ Parcelles**| `/api/v1/parcelles/` | `POST` | **PRODUCTEUR, COOPERATIVE** (Validé) |
+| **🔗 Trace** | `/api/v1/traceability/transfers` | `POST` | **Tous les acteurs Validés** |
+| | `/api/v1/traceability/transformations`| `POST` | **TRANSFO, EXPORT** (Validé) |
+| | `/api/v1/traceability/shipments` | `POST` | **EXPORTATEUR** (Validé) |
+| **📊 Audit** | `/api/v1/audit/verify/{hash}` | `GET` | **Public** (QR Code) |
+
+---
+
 ## 🔐 Authentification
 
 ### 1. Inscription
 `POST /api/v1/auth/register`
 
-**Request Body :**
-```json
-{
-  "email": "jean@exemple.com",     // Optionnel si téléphone présent
-  "password": "password123",
-  "full_name": "Jean Dupont",
-  "role": "PRODUCTEUR", // [PRODUCTEUR, COOPERATIVE, EXPORTATEUR, CERTIF, MINISTERE, TRANSFORMATEUR]
-  "numero_telephone": "+228 90 00 00 00", // Obligatoire si pas d'email
-  "coopId": "COOP-blockchain-id",         // Requis si PRODUCTEUR pour validation
-  "is_admin": false
-}
-```
+**Content-Type :** `multipart/form-data`
+
+**Form Fields :**
+| Champ | Type | Obligatoire | Description |
+| :--- | :--- | :--- | :--- |
+| `email` | string | Optionnel | Email (requis si pas de téléphone) |
+| `numero_telephone` | string | Optionnel | Téléphone (requis si pas d'email) |
+| `password` | string | Oui | Mot de passe (min 8 car.) |
+| `full_name` | string | Oui | Nom complet |
+| `role` | string | Oui | Rôle (PRODUCTEUR, COOPERATIVE, EXPORTATEUR, etc.) |
+| `org_name` | string | Oui | Nom de l'organisation (ex: "producteurs") |
+| `cooperative_id` | string | Non | ID de la coopérative parente |
+| `is_admin` | boolean | Non | Flag administrateur (default: false) |
+| `file` | file (Binary) | **Oui*** | **Preuve de légalité** (Requis pour COOPERATIVE, EXPORTATEUR, CERTIF) |
+
+> [!IMPORTANT]
+> **Hiérarchie de Création :**
+> - **PRODUCTEUR** : Inscription libre (publique).
+> - **ADMIN de Coop/Export/Certif** : Doit être créé par un agent du **MINISTERE**. L'appelant doit être authentifié avec un token valide du Ministère.
+
+*\*Pour les PRODUCTEURS, le document est recommandé mais pas bloquant.*
 
 ### 2. Connexion
 `POST /api/v1/auth/login`
@@ -80,7 +110,15 @@ Ce document fournit les détails techniques nécessaires pour l'intégration du 
 ]
 ```
 
-### 5. Enrôlement Délégué (Coopérative)
+### 5. Demandes en Attente (Ministère)
+`GET /api/v1/auth/pending-registrations`
+*Retourne uniquement les acteurs institutionnels non encore validés sur la blockchain.*
+
+**Permissions :** MINISTERE uniquement.
+
+**Response Body :** Même format que `/users`, mais inclut toujours `document_legalite_hash`.
+
+### 6. Enrôlement Délégué (Coopérative)
 `POST /api/v1/auth/register-producer`
 *Réservé aux coopératives pour inscrire leurs producteurs sans email.*
 
@@ -141,12 +179,13 @@ Cet endpoint permet d'officialiser un compte utilisateur sur la Blockchain. Sans
 
 **Form Fields :**
 - `file`: (Binary) Image de la récolte
-- `latitude`: (String) ex: "6.1234"
-- `longitude`: (String) ex: "1.1234"
+- `parcelle_id`: (String) ID de la parcelle enregistrée (ex: "PARC-001")
 - `poids_kg`: (String) ex: "50.5"
 - `espece`: (String) ex: "Forastero"
 - `date_collecte`: (String) "YYYY-MM-DD"
 - `coop_id`: (String, Optionnel) Rempli automatiquement si le producteur est rattaché à une coopérative.
+
+**Note :** Le système récupère automatiquement les coordonnées GPS de la parcelle liée.
 
 ### 2. Récupérer un Lot
 `GET /api/v1/lots/{lot_hash}`

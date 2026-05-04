@@ -1,6 +1,6 @@
 import logging
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -25,66 +25,78 @@ gateway = BlockchainGateway()
     "/register",
     response_model=UserPublicResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Créer un compte utilisateur",
+    summary="Créer un compte utilisateur avec preuve de légalité",
 )
 async def register(
-    payload: UserRegister,
+    email: Optional[str] = Form(None),
+    password: str = Form(...),
+    full_name: str = Form(...),
+    role: str = Form(...),
+    numero_telephone: Optional[str] = Form(None),
+    org_name: str = Form(...),
+    coop_id: Optional[str] = Form(None, alias="cooperative_id"),
+    is_admin: bool = Form(False),
+    file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    storage: StorageService = Depends(get_storage),
+    storage: StorageService = Depends(get_storage)
 ) -> Any:
     """
-    Inscrit un nouvel utilisateur (Stockage local avant validation blockchain).
-    L'email est optionnel pour les producteurs si le téléphone est fourni.
+    Inscrit un nouvel utilisateur (Requête d'inscription).
+    L'utilisateur ne sera actif sur la blockchain qu'après validation par le Ministère.
     """
-    # 1. Vérification qu'au moins l'email ou le téléphone est présent
-    if not payload.email and not payload.numero_telephone:
+    # 1. Validation de la présence du document pour les rôles institutionnels
+    if role in ["COOPERATIVE", "EXPORTATEUR", "CERTIF"] and not file:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Un email ou un numéro de téléphone est requis pour l'inscription."
+            detail=f"Le document de preuve de légalité est obligatoire pour le rôle {role}."
         )
 
-    # 2. Vérification si l'utilisateur existe déjà
-    if payload.email and storage.get_user_by_email(db, payload.email):
+    # 2. Vérification qu'au moins l'email ou le téléphone est présent
+    if not email and not numero_telephone:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cet email est déjà utilisé."
+            detail="Un email ou un numéro de téléphone est requis."
         )
+
+    # 3. Vérification existence
+    if email and storage.get_user_by_email(db, email):
+        raise HTTPException(status_code=400, detail="Email déjà utilisé.")
     
-    if payload.numero_telephone and storage.get_user_by_phone(db, payload.numero_telephone):
-         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ce numéro de téléphone est déjà utilisé."
-        )
+    if numero_telephone and storage.get_user_by_phone(db, numero_telephone):
+         raise HTTPException(status_code=400, detail="Téléphone déjà utilisé.")
 
-    # ── 3. Détermination de l'organisation Fabric associée ────────
+    # 4. Traitement du document si présent
+    doc_path = None
+    doc_hash = None
+    if file:
+        content = await file.read()
+        media_info = storage.save_media(db, lot_hash="REGISTRATION", filename=file.filename, content=content)
+        doc_path = media_info["file_path"]
+        doc_hash = media_info["sha256_hash"]
+
+    # 5. Détermination ID Blockchain
     short_uuid = uuid.uuid4().hex[:8]
-    blockchain_id = f"{payload.role}-{short_uuid}"
-    org_name = payload.org_name 
+    blockchain_id = f"{role}-{short_uuid}"
 
-    logger.info(f"Nouvelle inscription locale : {payload.email or payload.numero_telephone} → {blockchain_id}")
-
-    # ── 4. Persistance SQLite ─────────────────────────────────
+    # 6. Création locale
     user = storage.create_user(
         db,
-        email=payload.email,
-        password=payload.password,
-        full_name=payload.full_name,
-        role=payload.role,
+        email=email,
+        password=password,
+        full_name=full_name,
+        role=role,
         org_name=org_name,
         blockchain_id=blockchain_id,
-        numero_telephone=payload.numero_telephone,
-        parent_id=payload.cooperative_id,
-        is_admin=payload.is_admin,
+        numero_telephone=numero_telephone,
+        parent_id=coop_id,
+        is_admin=is_admin,
         blockchain_validated=False,
+        document_legalite_path=doc_path,
+        document_legalite_hash=doc_hash
     )
 
-    storage.log_action(
-        db,
-        user_id=blockchain_id,
-        action="REGISTER_PENDING_VALIDATION",
-    )
+    storage.log_action(db, user_id=blockchain_id, action=f"REGISTER_PENDING_VAL (DocHash: {doc_hash})")
 
-    # ── 5. Réponse publique ───────────────────────────────────
     return UserPublicResponse(
         email=user.email,
         full_name=user.full_name,
@@ -93,6 +105,7 @@ async def register(
         org_name=user.org_name,
         blockchain_id=user.blockchain_id,
         blockchain_validated=user.blockchain_validated,
+        document_legalite_hash=user.document_legalite_hash,
     )
 
 
@@ -151,6 +164,7 @@ async def read_users_me(
         org_name=current_user.org_name,
         blockchain_id=current_user.blockchain_id,
         blockchain_validated=current_user.blockchain_validated,
+        document_legalite_hash=current_user.document_legalite_hash,
     )
 
 
@@ -215,6 +229,32 @@ async def list_users(
 
     users = storage.get_users(db, role=role, parent_id=parent_id_filter)
     return users
+
+@router.get("/pending-registrations", response_model=List[UserPublicResponse], summary="Lister les inscriptions en attente")
+async def list_pending_registrations(
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage),
+    current_user: User = Depends(security.get_current_user)
+) -> Any:
+    """
+    Retourne la liste des acteurs (Coop, Export, etc.) en attente de validation par le Ministère.
+    Seul le Ministère peut accéder à cette liste.
+    """
+    if current_user.role != "MINISTERE":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seul le Ministère peut consulter les demandes d'inscription en attente."
+        )
+    
+    # On filtre les utilisateurs qui ne sont pas validés et qui ont un document de légalité
+    # (Ou simplement tous les non-validés institutionnels)
+    all_users = storage.get_users(db)
+    pending = [
+        u for u in all_users 
+        if not u.blockchain_validated 
+        and u.role in ["COOPERATIVE", "EXPORTATEUR", "CERTIF", "TRANSFORMATEUR"]
+    ]
+    return pending
 
 @router.post("/register-producer", response_model=UserPublicResponse, summary="Inscrire un producteur (Délégué)")
 async def register_producer_delegated(
