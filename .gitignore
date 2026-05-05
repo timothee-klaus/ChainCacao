@@ -2,7 +2,7 @@
 node_modules/
 jspm_packages/
 web_archiver/
-frontend/
+
 
 # Environment files
 .env
@@ -20,6 +20,8 @@ blockchain/network/system-genesis-block/
 blockchain/network/channel-artifacts/
 blockchain/network/organizations/
 blockchain/bin/
+blockchain/config/
+blockchain/builders/
 *.tar.gz
 *.block
 *.tx

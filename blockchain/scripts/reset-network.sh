@@ -94,7 +94,8 @@
         MAX_RETRY=15
         COUNT=0
         while [ $COUNT -lt $MAX_RETRY ]; do
-            if nc -z 127.0.0.1 7054 2>/dev/null; then
+            # Using curl instead of nc because nc might not be installed on Windows Git Bash
+            if curl -s -k https://127.0.0.1:7054/cainfo > /dev/null; then
                 success "CAs are up!"
                 sleep 2 # Extra safety
                 break
