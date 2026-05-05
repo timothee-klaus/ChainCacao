@@ -98,10 +98,24 @@ Authentifie un utilisateur et retourne un JWT.
 }
 ```
 
-**Erreurs :**
-| Code | Cause |
-| :--- | :---- |
-| 401  | Email ou mot de passe incorrect |
+#### `POST /api/v1/auth/register`
+Inscrit un nouvel utilisateur et stocke ses preuves de légalité.
+
+- **Content-Type** : `multipart/form-data`
+- **Auth requise** : Non
+
+**Champs du formulaire :**
+| Champ | Type | Obligatoire | Description |
+| :--- | :--- | :--- | :--- |
+| `email` | string | Non* | Email (*requis si pas de téléphone) |
+| `numero_telephone` | string | Non* | Téléphone (*requis si pas d'email) |
+| `password` | string | Oui | Min 8 caractères |
+| `full_name` | string | Oui | Nom complet de la personne ou entité |
+| `role` | string | Oui | [PRODUCTEUR, COOPERATIVE, EXPORTATEUR, etc.] |
+| `org_name` | string | Oui | Org Fabric associée |
+| `file` | file | **Oui** | **Preuve de légalité** (Requis pour COOPERATIVE, EXPORTATEUR, CERTIF) |
+
+**Réponse 201 :** Identique à `UserPublicResponse`.
 
 ---
 
@@ -140,13 +154,14 @@ Crée un nouveau lot de récolte. Opération complète en une seule requête :
 **Corps de la requête :**
 | Champ          | Type   | Requis | Description                        |
 | :------------- | :----- | :----- | :--------------------------------- |
-| `latitude`     | string | ✅     | Latitude GPS (ex: `"6.1234"`)      |
-| `longitude`    | string | ✅     | Longitude GPS (ex: `"1.1234"`)     |
+| `parcelle_id`  | string | ✅     | ID de la parcelle (ex: `"PARC-01"`) |
 | `poids_kg`     | string | ✅     | Poids du lot en kg (ex: `"120.5"`) |
-| `espece`       | string | ✅     | Espèce de cacao (ex: `"Forastero Togo"`) |
+| `espece`       | string | ✅     | Espèce de cacao (ex: `"Forastero"`) |
 | `date_collecte`| string | ✅     | Date ISO 8601 (ex: `"2026-05-02"`) |
 | `coop_id`      | string | ❌     | Identifiant de la coopérative      |
 | `file`         | file   | ✅     | Photo de la récolte (image)        |
+
+**Note :** Les coordonnées GPS sont héritées de la parcelle.
 
 **Réponse 201 :**
 ```json

@@ -44,6 +44,8 @@ class User(Base):
     org_name = Column(String) # producteurs, exportateurs, etc.
     blockchain_id = Column(String, unique=True) # ID dans le wallet Fabric
     blockchain_validated = Column(Boolean, default=False) # True si enregistré sur le ledger
+    document_legalite_path = Column(String, nullable=True) # Chemin vers le document de preuve
+    document_legalite_hash = Column(String, nullable=True) # Hash SHA-256 du document
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)

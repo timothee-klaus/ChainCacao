@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from api.v1.endpoints import lots, traceability, actors, audit, auth
+from api.v1.endpoints import lots, traceability, actors, audit, auth, parcelles
 from database import init_db
 
 # Initialize Database tables
@@ -62,6 +62,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(actors.router, prefix="/api/v1/actors", tags=["Actors"])
 app.include_router(lots.router, prefix="/api/v1/lots", tags=["Lots"])
 app.include_router(traceability.router, prefix="/api/v1/traceability", tags=["Traceability"])
+app.include_router(parcelles.router, prefix="/api/v1/parcelles", tags=["Parcelles"])
 app.include_router(audit.router, prefix="/api/v1/audit", tags=["Audit & Queries"])
 
 @app.get("/")

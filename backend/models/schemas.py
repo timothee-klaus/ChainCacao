@@ -21,11 +21,22 @@ class GPSModel(BaseModel):
             raise ValueError("La longitude doit être entre -180 et 180")
         return v
 
+class ParcelleCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    parcelle_id: str = Field(alias="parcelleId")
+    farmer_id: str = Field(alias="farmerId")
+    gps: GPSModel
+    culture: str
+    surface: float
+
+class ParcelleResponse(ParcelleCreate):
+    date_enregistrement: str = Field(alias="dateEnregistrement")
+
 class LotCreate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     lot_hash: str = Field(alias="lotHash")
     farmer_id: str = Field(alias="farmerId")
-    gps: GPSModel
+    parcelle_id: str = Field(alias="parcelleId")
     poids_kg: float = Field(alias="poidsKg")
     espece: str
     date_collecte: str = Field(alias="dateCollecte")
@@ -209,6 +220,7 @@ class UserPublicResponse(BaseModel):
     org_name: str
     blockchain_id: str
     blockchain_validated: bool = False
+    document_legalite_hash: Optional[str] = None
 
 class ProducerRegisterDelegated(BaseModel):
     """Payload pour qu'une coopérative inscrive un producteur."""

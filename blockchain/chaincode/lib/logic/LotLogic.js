@@ -10,20 +10,31 @@ class LotLogic {
         this.ledger = new LedgerService(ctx);
     }
 
-    async createLot(lotHash, farmerId, gpsStr, poidsKg, espece, dateCollecte, mediaHash, coopId) {
-        const gps = JSON.parse(gpsStr);
-        Validation.checkGPS(gps);
-        Validation.checkNumber(parseFloat(poidsKg), 'poidsKg');
-        Validation.checkTimestamp(dateCollecte, 'dateCollecte');
-
+    async createLot(lotHash, farmerId, parcelleId, poidsKg, espece, dateCollecte, mediaHash, coopId) {
         if (await this.ledger.exists(lotHash)) {
             throw new Error(`LOT_EXISTE: Le lot ${lotHash} existe deja.`);
         }
 
-        // 1. Données Publiques (visibles par tous)
+        // 1. Récupérer les infos de la parcelle pour le GPS
+        const parcelle = await this.ledger.getState(parcelleId);
+        if (!parcelle || parcelle.docType !== 'parcelle') {
+            throw new Error(`PARCELLE_NON_TROUVE: La parcelle ${parcelleId} n'existe pas.`);
+        }
+        
+        // Vérifier que le fermier est bien le propriétaire de la parcelle
+        if (parcelle.farmerId !== farmerId) {
+             throw new Error(`ACCES_REFUSE: Le fermier ${farmerId} n'est pas le propriétaire de la parcelle ${parcelleId}.`);
+        }
+
+        const gps = parcelle.gps;
+        Validation.checkNumber(parseFloat(poidsKg), 'poidsKg');
+        Validation.checkTimestamp(dateCollecte, 'dateCollecte');
+
+        // 2. Données Publiques (visibles par tous)
         const publicLot = {
             docType: 'lot',
             lotHash: lotHash,
+            parcelleId: parcelleId,
             espece: espece,
             poidsKg: parseFloat(poidsKg),
             dateCollecte: dateCollecte,
@@ -31,7 +42,7 @@ class LotLogic {
         };
         await this.ledger.putState(lotHash, publicLot);
 
-        // 2. Données Privées (GPS, Farmer ID, Coop ID, etc.)
+        // 3. Données Privées (GPS, Farmer ID, Coop ID, etc.)
         const privateDetails = {
             lotHash: lotHash,
             farmerId: farmerId,

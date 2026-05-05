@@ -54,3 +54,25 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     return user
+
+async def get_optional_current_user(token: Optional[str] = Depends(OAuth2PasswordBearer(tokenUrl="api/v1/auth/login", auto_error=False)), db: Session = Depends(get_db)) -> Optional[User]:
+    """Version optionnelle de get_current_user qui ne lève pas d'erreur si le token est absent."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+        return db.query(User).filter(User.email == email).first()
+    except:
+        return None
+
+async def get_validated_user(current_user: User = Depends(get_current_user)) -> User:
+    """Vérifie que l'utilisateur a été validé par le Ministère sur la Blockchain."""
+    if not current_user.blockchain_validated and current_user.role != "MINISTERE":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Votre compte est en attente de validation par le Ministère. Vous ne pouvez pas encore effectuer d'actions sur la blockchain."
+        )
+    return current_user

@@ -37,14 +37,19 @@
 
         export FABRIC_CFG_PATH="$NETWORK_DIR"
 
-        if ! command -v fabric-ca-client &> /dev/null; then
-            error "fabric-ca-client not found. Please install Fabric CA binaries."
+        if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
+            println "Fabric binaries not found. Installing..."
+            cd "$BLOCKCHAIN_DIR"
+            curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
+            chmod +x install-fabric.sh
+            ./install-fabric.sh binary
+            export PATH="$BLOCKCHAIN_DIR/bin:$PATH"
+            rm install-fabric.sh
+            if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
+                error "Failed to install Fabric binaries."
+            fi
+            cd - > /dev/null
         fi
-
-        if ! command -v configtxgen &> /dev/null; then
-            error "configtxgen not found. Please install Fabric binaries."
-        fi
-
         }
 
         # Clean up existing containers and artifacts

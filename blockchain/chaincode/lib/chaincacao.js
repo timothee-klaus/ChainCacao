@@ -7,6 +7,7 @@ const ActorLogic = require('./logic/ActorLogic');
 const LotLogic = require('./logic/LotLogic');
 const TraceabilityLogic = require('./logic/TraceabilityLogic');
 const AuditLogic = require('./logic/AuditLogic');
+const ParcelleLogic = require('./logic/ParcelleLogic');
 
 class ChainCacaoContract extends Contract {
 
@@ -18,23 +19,26 @@ class ChainCacaoContract extends Contract {
     // ACTEURS
     // =========================================================================
 
-    async RegisterActor(ctx, actorIdHash, typeActeur, clePublique) {
+    async RegisterActor(ctx, actorIdHash, typeActeur, clePublique, metadata = '{}') {
         const callerMSP = ctx.clientIdentity.getMSPID();
         const callerId = AccessControl.getCallerId(ctx);
 
+        // Hiérarchie de contrôle
         if (callerMSP === AccessControl.ROLES.MINISTERE) {
-            // Le Ministère peut tout enregistrer
+            // Le Ministère peut enregistrer n'importe qui (Coopératives, Exportateurs, etc.)
         } else if (callerMSP === AccessControl.ROLES.PRODUCTEUR) {
-            // Une Coopérative ne peut enregistrer que des producteurs
+            // Une Coopérative (MSP Producteur) ne peut enregistrer que des producteurs
             if (typeActeur !== 'PRODUCTEUR') {
                 throw new Error(`ACCES_REFUSE: Une coopérative ne peut enregistrer que des producteurs.`);
             }
+        } else if (callerMSP === AccessControl.ROLES.CERTIFICATEUR) {
+            // Un certificateur peut enregistrer des entités s'il a reçu mandat
         } else {
             throw new Error(`ACCES_REFUSE: Votre organisation (${callerMSP}) n'est pas autorisée à enregistrer des acteurs.`);
         }
 
         const logic = new ActorLogic(ctx);
-        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique, callerId);
+        const result = await logic.registerActor(actorIdHash, typeActeur, clePublique, callerId, metadata);
         return JSON.stringify(result);
     }
 
@@ -45,13 +49,36 @@ class ChainCacaoContract extends Contract {
     }
 
     // =========================================================================
+    // PARCELLES
+    // =========================================================================
+
+    async RegisterParcelle(ctx, parcelleId, farmerId, gpsStr, culture, surface) {
+        AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR]);
+        const logic = new ParcelleLogic(ctx);
+        const result = await logic.registerParcelle(parcelleId, farmerId, gpsStr, culture, surface);
+        return JSON.stringify(result);
+    }
+
+    async GetParcelle(ctx, parcelleId) {
+        const logic = new ParcelleLogic(ctx);
+        const result = await logic.getParcelle(parcelleId);
+        return JSON.stringify(result);
+    }
+
+    async GetFarmerParcelles(ctx, farmerId) {
+        const logic = new ParcelleLogic(ctx);
+        const result = await logic.queryParcellesByFarmer(farmerId);
+        return JSON.stringify(result);
+    }
+
+    // =========================================================================
     // LOTS
     // =========================================================================
 
-    async CreateLot(ctx, lotHash, farmerId, gpsStr, poidsKg, espece, dateCollecte, mediaHash, coopId) {
+    async CreateLot(ctx, lotHash, farmerId, parcelleId, poidsKg, espece, dateCollecte, mediaHash, coopId) {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.CERTIFICATEUR]);
         const logic = new LotLogic(ctx);
-        const result = await logic.createLot(lotHash, farmerId, gpsStr, poidsKg, espece, dateCollecte, mediaHash, coopId);
+        const result = await logic.createLot(lotHash, farmerId, parcelleId, poidsKg, espece, dateCollecte, mediaHash, coopId);
         return JSON.stringify(result);
     }
 
@@ -60,6 +87,7 @@ class ChainCacaoContract extends Contract {
         const result = await logic.getLot(lotHash);
         return JSON.stringify(result);
     }
+
 
     async UpdateLotStatus(ctx, lotHash, nouveauStatut) {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.CERTIFICATEUR, AccessControl.ROLES.EXPORTATEUR]);

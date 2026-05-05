@@ -115,11 +115,24 @@ class BlockchainGateway:
 
     async def create_lot(self, data: Dict, org_name: str, user_id: str):
         args = [
-            data['lot_hash'], data['farmer_id'], json.dumps(data['gps']),
+            data['lot_hash'], data['farmer_id'], data['parcelle_id'],
             str(data['poids_kg']), data['espece'], data['date_collecte'],
             data['media_hash'], data.get('coop_id', "")
         ]
         return await self.invoke_transaction("CreateLot", args, org_name, user_id)
+
+    async def register_parcelle(self, data: Dict, org_name: str, user_id: str):
+        args = [
+            data['parcelle_id'], data['farmer_id'], json.dumps(data['gps']),
+            data['culture'], str(data['surface'])
+        ]
+        return await self.invoke_transaction("RegisterParcelle", args, org_name, user_id)
+
+    async def get_parcelle(self, parcelle_id: str, org_name: str, user_id: str):
+        return await self.query_ledger("GetParcelle", [parcelle_id], org_name, user_id)
+
+    async def get_farmer_parcelles(self, farmer_id: str, org_name: str, user_id: str):
+        return await self.query_ledger("GetFarmerParcelles", [farmer_id], org_name, user_id)
 
     async def get_lot(self, lot_hash: str, org_name: str, user_id: str):
         return await self.query_ledger("GetLot", [lot_hash], org_name, user_id)

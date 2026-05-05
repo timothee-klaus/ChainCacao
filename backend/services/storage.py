@@ -113,6 +113,8 @@ class StorageService:
         parent_id: str | None = None,
         is_admin: bool = False,
         blockchain_validated: bool = False,
+        document_legalite_path: str | None = None,
+        document_legalite_hash: str | None = None,
     ) -> User:
         """Crée et persiste un nouvel utilisateur."""
         new_user = User(
@@ -126,6 +128,8 @@ class StorageService:
             blockchain_id=blockchain_id,
             is_admin=is_admin,
             blockchain_validated=blockchain_validated,
+            document_legalite_path=document_legalite_path,
+            document_legalite_hash=document_legalite_hash,
         )
         db.add(new_user)
         db.commit()
