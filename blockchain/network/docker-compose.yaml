@@ -28,7 +28,7 @@ services:
       - "7054:7054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:7054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:7054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,7 +54,7 @@ services:
       - "8054:8054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:8054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:8054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -80,7 +80,7 @@ services:
       - "9054:9054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:9054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:9054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -106,7 +106,7 @@ services:
       - "10054:10054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:10054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:10054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -132,7 +132,7 @@ services:
       - "11054:11054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:11054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:11054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -158,7 +158,7 @@ services:
       - "12054:12054"
     command: fabric-ca-server start -b ${CA_ADMIN_NAME}:${CA_ADMIN_PASSWORD} -d
     healthcheck:
-      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "http://localhost:12054"]
+      test: ["CMD", "fabric-ca-client", "getcacert", "-u", "https://localhost:12054", "--tls.certfiles", "/etc/hyperledger/fabric-ca-server/tls-cert.pem"]
       interval: 10s
       timeout: 5s
       retries: 5

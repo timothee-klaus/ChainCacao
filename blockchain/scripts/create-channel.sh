@@ -5,7 +5,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 ROOT_DIR="$(cd "$DIR/.." && pwd)"
 
-export PATH="$ROOT_DIR/../bin:$PATH"
+export PATH="$ROOT_DIR/bin:$PATH"
 export FABRIC_CFG_PATH="$ROOT_DIR/network"
 CHANNEL_NAME="chaincacaochannel"
 
