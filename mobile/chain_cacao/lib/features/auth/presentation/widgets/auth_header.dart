@@ -12,9 +12,9 @@ class AuthHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
+            color: Colors.white.withValues(alpha: 0.5),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.brown.withOpacity(0.2)),
+            border: Border.all(color: Colors.brown.withValues(alpha: 0.2)),
           ),
           child: Image.asset(
             'assets/images/logo.png',

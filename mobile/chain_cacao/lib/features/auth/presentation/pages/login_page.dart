@@ -40,6 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Background Image
@@ -58,8 +59,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.5),
+                  Colors.black.withValues(alpha: 0.3),
+                  Colors.black.withValues(alpha: 0.5),
                 ],
               ),
             ),
@@ -146,7 +147,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.brown.withOpacity(0.3)),
+                                      border: Border.all(color: Colors.brown.withValues(alpha: 0.3)),
                                     ),
                                     child: IconButton(
                                       icon: const Icon(Icons.fingerprint, color: Colors.brown, size: 28),
@@ -227,7 +228,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               'PARTENAIRE DU MINISTÈRE DE L\'AGRICULTURE DU TOGO',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
@@ -264,7 +265,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.6),
+          color: Colors.white.withValues(alpha: 0.6),
           fontSize: 11,
           fontWeight: FontWeight.w500,
           decoration: TextDecoration.underline,
@@ -278,7 +279,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
         "|",
-        style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 11),
+        style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 11),
       ),
     );
   }

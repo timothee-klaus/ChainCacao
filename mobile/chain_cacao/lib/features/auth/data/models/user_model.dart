@@ -1,7 +1,5 @@
 import '../../domain/entities/user.dart';
 
-/// Modèle de données pour l'utilisateur, utilisé dans la couche Data.
-/// Permet la conversion JSON et la transformation vers l'entité du Domaine.
 class UserModel extends User {
   const UserModel({
     required super.userId,

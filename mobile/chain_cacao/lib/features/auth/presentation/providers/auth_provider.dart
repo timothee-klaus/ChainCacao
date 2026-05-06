@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/services/storage/local_storage_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/datasources/auth_remote_data_source.dart';

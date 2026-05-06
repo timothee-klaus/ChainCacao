@@ -43,15 +43,15 @@ class AuthTextField extends StatelessWidget {
             hintText: hintText,
             hintStyle: const TextStyle(color: Colors.black26),
             filled: true,
-            fillColor: Colors.black.withOpacity(0.05),
+            fillColor: Colors.black.withValues(alpha: 0.05),
             suffixIcon: suffixIcon,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black.withOpacity(0.1)),
+              borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black.withOpacity(0.1)),
+              borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.1)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
