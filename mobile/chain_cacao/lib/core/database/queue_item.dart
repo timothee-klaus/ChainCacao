@@ -7,18 +7,18 @@ class QueueItem {
   Id isarId = Isar.autoIncrement;
 
   @Index(unique: true, replace: true)
-  late String queueId;
+  String queueId = '';
 
-  late String payloadType; // create_lot, transfer, etc.
-  late String payloadRef; // Référence à l'identifiant de l'objet (ex: lotId)
+  String payloadType = ''; // create_lot, transfer, etc.
+  String payloadRef = ''; // Référence à l'identifiant de l'objet (ex: lotId)
   List<String> mediaRefs = [];
   
-  late int tentatives;
+  int tentatives = 0;
   
   @Index()
-  late String statut; // pending, failed, sent
+  String statut = 'pending'; // pending, failed, sent
   
-  late DateTime dateCreation;
+  DateTime dateCreation = DateTime.now();
 
   QueueItem();
 

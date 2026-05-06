@@ -1,16 +1,16 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/database/isar_service.dart';
-import '../../data/repositories/isar_cacao_lot_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import '../entities/cacao_lot.dart';
 
-/// Contrat pour le stockage des lots de cacao
 abstract class CacaoLotRepository {
-  Future<void> saveLot(CacaoLot lot);
-  Future<List<CacaoLot>> getLots();
-}
+  /// Enregistre un nouveau lot localement
+  Future<Either<String, CacaoLot>> saveLot(CacaoLot lot);
 
-/// Provider pour le repository utilisant Isar
-final cacaoLotRepositoryProvider = Provider<CacaoLotRepository>((ref) {
-  final isarService = ref.read(isarServiceProvider);
-  return IsarCacaoLotRepository(isarService);
-});
+  /// Récupère tous les lots (locaux)
+  Future<Either<String, List<CacaoLot>>> getAllLots();
+
+  /// Récupère les lots en attente de synchronisation
+  Future<Either<String, List<CacaoLot>>> getPendingLots();
+
+  /// Marque un lot comme synchronisé
+  Future<Either<String, Unit>> markAsSynced(String lotId, String txHash);
+}

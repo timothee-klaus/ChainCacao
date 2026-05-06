@@ -1,67 +1,83 @@
-import 'package:isar/isar.dart';
-
-part 'cacao_lot.g.dart';
-
-@collection
 class CacaoLot {
-  Id isarId = Isar.autoIncrement;
+  final String lotId;
+  final String? lotHashOnChain;
+  final String farmerId;
+  final List<String> photoUrls;
+  final List<String> photoHashes;
+  final double? latitude;
+  final double? longitude;
+  final String region;
+  final double weightKg;
+  final String species;
+  final String variete;
+  final DateTime dateCollecte;
+  final String coopName;
+  final String statut;
+  final String syncStatus;
+  final String createdBy;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  @Index(unique: true, replace: true)
-  late String lotId;
+  const CacaoLot({
+    required this.lotId,
+    this.lotHashOnChain,
+    required this.farmerId,
+    this.photoUrls = const [],
+    this.photoHashes = const [],
+    this.latitude,
+    this.longitude,
+    required this.region,
+    required this.weightKg,
+    required this.species,
+    required this.variete,
+    required this.dateCollecte,
+    required this.coopName,
+    required this.statut,
+    required this.syncStatus,
+    required this.createdBy,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
-  String? lotHashOnChain;
-  late String farmerId;
-  List<String> photoUrls = [];
-  List<String> photoHashes = [];
-  
-  double? latitude;
-  double? longitude;
-  
-  late String region;
-  late double weightKg;
-  late String species;
-  late DateTime dateCollecte;
-  late String coopName;
-  
-  late String statut; // draft, pending, transferred, transformed, exported
-  
-  @Index()
-  late String syncStatus; // synced, pending, error
-  
-  late String createdBy;
-  late DateTime createdAt;
-  late DateTime updatedAt;
-
-  CacaoLot();
-
-  // On garde un constructeur nommé ou une méthode factory pour faciliter la création
-  factory CacaoLot.create({
-    required String lotId,
-    required String farmerId,
-    required String region,
-    required double weightKg,
-    required String species,
-    required DateTime dateCollecte,
-    required String coopName,
-    required String createdBy,
+  CacaoLot copyWith({
+    String? lotId,
+    String? lotHashOnChain,
+    String? farmerId,
+    List<String>? photoUrls,
+    List<String>? photoHashes,
     double? latitude,
     double? longitude,
+    String? region,
+    double? weightKg,
+    String? species,
+    String? variete,
+    DateTime? dateCollecte,
+    String? coopName,
+    String? statut,
+    String? syncStatus,
+    String? createdBy,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
-    final now = DateTime.now();
-    return CacaoLot()
-      ..lotId = lotId
-      ..farmerId = farmerId
-      ..region = region
-      ..weightKg = weightKg
-      ..species = species
-      ..dateCollecte = dateCollecte
-      ..coopName = coopName
-      ..createdBy = createdBy
-      ..latitude = latitude
-      ..longitude = longitude
-      ..statut = 'draft'
-      ..syncStatus = 'pending'
-      ..createdAt = now
-      ..updatedAt = now;
+    return CacaoLot(
+      lotId: lotId ?? this.lotId,
+      lotHashOnChain: lotHashOnChain ?? this.lotHashOnChain,
+      farmerId: farmerId ?? this.farmerId,
+      photoUrls: photoUrls ?? this.photoUrls,
+      photoHashes: photoHashes ?? this.photoHashes,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      region: region ?? this.region,
+      weightKg: weightKg ?? this.weightKg,
+      species: species ?? this.species,
+      variete: variete ?? this.variete,
+      dateCollecte: dateCollecte ?? this.dateCollecte,
+      coopName: coopName ?? this.coopName,
+      statut: statut ?? this.statut,
+      syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }
