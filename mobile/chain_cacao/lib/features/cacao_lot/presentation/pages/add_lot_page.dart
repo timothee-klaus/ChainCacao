@@ -70,7 +70,7 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
 
     ref.listen(cacaoLotFormControllerProvider, (previous, next) {
       if (next.success && next.savedLot != null) {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => LotSuccessPage(lot: next.savedLot!),

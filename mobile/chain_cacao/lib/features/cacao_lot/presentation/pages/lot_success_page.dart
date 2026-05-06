@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../domain/entities/cacao_lot.dart';
-import 'lot_list_page.dart';
+import '../../../../core/presentation/providers/nav_provider.dart';
 
-class LotSuccessPage extends StatelessWidget {
+class LotSuccessPage extends ConsumerWidget {
   final CacaoLot lot;
 
   const LotSuccessPage({super.key, required this.lot});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       body: Stack(
@@ -98,11 +99,10 @@ class LotSuccessPage extends StatelessWidget {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LotListPage()),
-                          (route) => route.isFirst,
-                        );
+                        // On change d'onglet d'abord
+                        ref.read(navIndexProvider.notifier).state = 2;
+                        // On retourne à l'accueil (MainNavigationShell)
+                        Navigator.of(context).popUntil((route) => route.isFirst);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.brown[900],
@@ -184,7 +184,7 @@ class LotSuccessPage extends StatelessWidget {
       children: [
         _buildStatItem('POIDS', '${lot.weightKg} Kg'),
         Container(width: 1, height: 30, color: Colors.grey[300]),
-        _buildStatItem('ESPÈCE', lot.species),
+        _buildStatItem('ESPÈCE', '${lot.species} (${lot.variete.isEmpty ? "Non spécifiée" : lot.variete})'),
         Container(width: 1, height: 30, color: Colors.grey[300]),
         _buildStatItem('RÉGION', lot.region),
       ],

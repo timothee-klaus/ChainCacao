@@ -1,71 +1,55 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/isar_service.dart';
-import '../../data/datasources/cacao_lot_local_data_source.dart';
 import '../../data/repositories/cacao_lot_repository_impl.dart';
+import '../../domain/repositories/cacao_lot_repository.dart';
+import '../../domain/usecases/save_cacao_lot_usecase.dart';
 import '../../domain/entities/cacao_lot.dart';
-import '../../domain/usecases/create_lot_usecase.dart';
-import '../../domain/usecases/get_lots_usecase.dart';
 
-/// Providers pour l'injection de dépendances et la gestion d'état UI
-
-// Source de données locale
-final cacaoLotLocalDataSourceProvider = Provider<CacaoLotLocalDataSource>((ref) {
+final cacaoLotRepositoryProvider = Provider<CacaoLotRepository>((ref) {
   final isarService = ref.watch(isarServiceProvider);
-  return CacaoLotLocalDataSourceImpl(isarService);
+  return CacaoLotRepositoryImpl(isarService);
 });
 
-// Repository (exposé par son implémentation pour Riverpod, mais utilisé via son interface)
-final cacaoLotRepositoryProvider = Provider<CacaoLotRepositoryImpl>((ref) {
-  final localDataSource = ref.watch(cacaoLotLocalDataSourceProvider);
-  return CacaoLotRepositoryImpl(localDataSource);
-});
-
-// Use Cases
-final createLotUseCaseProvider = Provider<CreateLotUseCase>((ref) {
+final saveCacaoLotUseCaseProvider = Provider<SaveCacaoLotUseCase>((ref) {
   final repository = ref.watch(cacaoLotRepositoryProvider);
-  return CreateLotUseCase(repository);
+  return SaveCacaoLotUseCase(repository);
 });
 
-final getLotsUseCaseProvider = Provider<GetLotsUseCase>((ref) {
-  final repository = ref.watch(cacaoLotRepositoryProvider);
-  return GetLotsUseCase(repository);
-});
+/// State pour la gestion de l'UI
+class CacaoLotState {
+  final bool isLoading;
+  final String? error;
+  final bool success;
 
-/// État de la liste des lots
-class CacaoLotListController extends AsyncNotifier<List<CacaoLot>> {
-  @override
-  Future<List<CacaoLot>> build() async {
-    final getLotsUseCase = ref.watch(getLotsUseCaseProvider);
-    final result = await getLotsUseCase();
-    
-    return result.fold(
-      (error) => throw Exception(error),
-      (lots) => lots,
-    );
-  }
+  CacaoLotState({this.isLoading = false, this.error, this.success = false});
 
-  /// Création d'un lot via le Use Case
-  Future<void> addLot(CacaoLot lot) async {
-    state = const AsyncLoading();
-    
-    final createLotUseCase = ref.read(createLotUseCaseProvider);
-    final result = await createLotUseCase(lot);
-    
-    result.fold(
-      (error) => state = AsyncError(error, StackTrace.current),
-      (_) async {
-        // Rafraîchissement de la liste locale après succès
-        state = await AsyncValue.guard(() async {
-          final getLotsUseCase = ref.read(getLotsUseCaseProvider);
-          final fetchResult = await getLotsUseCase();
-          return fetchResult.fold((e) => throw Exception(e), (l) => l);
-        });
-      },
+  CacaoLotState copyWith({bool? isLoading, String? error, bool? success}) {
+    return CacaoLotState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+      success: success ?? this.success,
     );
   }
 }
 
-// Global Controller Provider
-final cacaoLotListProvider = AsyncNotifierProvider<CacaoLotListController, List<CacaoLot>>(() {
-  return CacaoLotListController();
+class CacaoLotNotifier extends StateNotifier<CacaoLotState> {
+  final SaveCacaoLotUseCase saveCacaoLotUseCase;
+
+  CacaoLotNotifier(this.saveCacaoLotUseCase) : super(CacaoLotState());
+
+  Future<void> saveLot(CacaoLot lot) async {
+    state = state.copyWith(isLoading: true, error: null, success: false);
+    
+    final result = await saveCacaoLotUseCase(lot);
+    
+    result.fold(
+      (error) => state = state.copyWith(isLoading: false, error: error),
+      (lot) => state = state.copyWith(isLoading: false, success: true),
+    );
+  }
+}
+
+final cacaoLotControllerProvider = StateNotifierProvider<CacaoLotNotifier, CacaoLotState>((ref) {
+  final saveUseCase = ref.watch(saveCacaoLotUseCaseProvider);
+  return CacaoLotNotifier(saveUseCase);
 });
