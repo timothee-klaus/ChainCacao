@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/cacao_lot.dart';
 import '../providers/cacao_lot_provider.dart';
 
-class CacaoLotListController extends AsyncNotifier<List<CacaoLot>> {
+class CacaoLotListNotifier extends AsyncNotifier<List<CacaoLot>> {
   @override
   Future<List<CacaoLot>> build() async {
     return _fetchLots();
@@ -23,6 +23,6 @@ class CacaoLotListController extends AsyncNotifier<List<CacaoLot>> {
   }
 }
 
-final cacaoLotListControllerProvider = AsyncNotifierProvider<CacaoLotListController, List<CacaoLot>>(() {
-  return CacaoLotListController();
+final cacaoLotListNotifierProvider = AsyncNotifierProvider<CacaoLotListNotifier, List<CacaoLot>>(() {
+  return CacaoLotListNotifier();
 });

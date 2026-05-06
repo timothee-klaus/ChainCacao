@@ -6,15 +6,15 @@ import '../../domain/entities/cacao_lot.dart';
 import '../../domain/usecases/save_cacao_lot_usecase.dart';
 import '../providers/cacao_lot_provider.dart';
 import 'cacao_lot_form_state.dart';
-import 'cacao_lot_list_controller.dart';
+import 'cacao_lot_list_provider.dart';
 
-class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
+class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
   final SaveCacaoLotUseCase _saveUseCase;
   final LocationService _locationService;
   final MediaService _mediaService;
   final Ref ref;
 
-  CacaoLotFormController({
+  CacaoLotFormNotifier({
     required SaveCacaoLotUseCase saveUseCase,
     required LocationService locationService,
     required MediaService mediaService,
@@ -55,6 +55,10 @@ class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
     state = state.copyWith(photos: newPhotos);
   }
 
+  void setParcelleId(String? id) {
+    state = state.copyWith(parcelleId: id);
+  }
+
   Future<void> submitLot(CacaoLot lot) async {
     state = state.copyWith(isLoading: true, error: null, success: false);
     
@@ -63,6 +67,7 @@ class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
       latitude: state.latitude,
       longitude: state.longitude,
       photoUrls: state.photos,
+      parcelleId: state.parcelleId,
     );
 
     final result = await _saveUseCase(finalLot);
@@ -76,14 +81,14 @@ class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
           savedLot: successLot,
         );
         // On rafraîchit la liste des lots automatiquement
-        ref.invalidate(cacaoLotListControllerProvider);
+        ref.invalidate(cacaoLotListNotifierProvider);
       },
     );
   }
 }
 
-final cacaoLotFormControllerProvider = StateNotifierProvider.autoDispose<CacaoLotFormController, CacaoLotFormState>((ref) {
-  return CacaoLotFormController(
+final cacaoLotFormNotifierProvider = StateNotifierProvider.autoDispose<CacaoLotFormNotifier, CacaoLotFormState>((ref) {
+  return CacaoLotFormNotifier(
     saveUseCase: ref.watch(saveCacaoLotUseCaseProvider),
     locationService: ref.watch(locationServiceProvider),
     mediaService: ref.watch(mediaServiceProvider),

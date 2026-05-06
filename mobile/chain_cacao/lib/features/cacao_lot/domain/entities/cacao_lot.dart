@@ -2,6 +2,7 @@ class CacaoLot {
   final String lotId;
   final String? lotHashOnChain;
   final String farmerId;
+  final String? parcelleId;
   final List<String> photoUrls;
   final List<String> photoHashes;
   final double? latitude;
@@ -22,6 +23,7 @@ class CacaoLot {
     required this.lotId,
     this.lotHashOnChain,
     required this.farmerId,
+    this.parcelleId,
     this.photoUrls = const [],
     this.photoHashes = const [],
     this.latitude,
@@ -43,6 +45,7 @@ class CacaoLot {
     String? lotId,
     String? lotHashOnChain,
     String? farmerId,
+    String? parcelleId,
     List<String>? photoUrls,
     List<String>? photoHashes,
     double? latitude,
@@ -63,6 +66,7 @@ class CacaoLot {
       lotId: lotId ?? this.lotId,
       lotHashOnChain: lotHashOnChain ?? this.lotHashOnChain,
       farmerId: farmerId ?? this.farmerId,
+      parcelleId: parcelleId ?? this.parcelleId,
       photoUrls: photoUrls ?? this.photoUrls,
       photoHashes: photoHashes ?? this.photoHashes,
       latitude: latitude ?? this.latitude,

@@ -8,6 +8,6 @@ class GetLotsUseCase {
   GetLotsUseCase(this.repository);
 
   Future<Either<String, List<CacaoLot>>> call() async {
-    return await repository.getLots();
+    return await repository.getAllLots();
   }
 }

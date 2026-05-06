@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../database/isar_service.dart';
 import '../../database/queue_item.dart';
 import '../../../features/cacao_lot/data/models/cacao_lot_model.dart';
-import '../../../features/cacao_lot/presentation/controllers/cacao_lot_list_controller.dart';
+import '../../../features/cacao_lot/presentation/providers/cacao_lot_list_provider.dart';
 
 class SyncService {
   final IsarService _isarService;
@@ -64,7 +64,7 @@ class SyncService {
       }
       
       // Rafraîchir la liste des lots pour l'UI
-      _ref.invalidate(cacaoLotListControllerProvider);
+      _ref.invalidate(cacaoLotListNotifierProvider);
       
     } catch (e) {
       // Log error

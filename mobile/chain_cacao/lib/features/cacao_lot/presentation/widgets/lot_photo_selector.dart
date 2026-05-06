@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../controllers/cacao_lot_form_controller.dart';
+import '../providers/cacao_lot_form_provider.dart';
 
 class LotPhotoSelector extends ConsumerWidget {
   const LotPhotoSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final photos = ref.watch(cacaoLotFormControllerProvider).photos;
-    final controller = ref.read(cacaoLotFormControllerProvider.notifier);
+    final photos = ref.watch(cacaoLotFormNotifierProvider).photos;
+    final controller = ref.read(cacaoLotFormNotifierProvider.notifier);
 
     return Container(
       width: double.infinity,

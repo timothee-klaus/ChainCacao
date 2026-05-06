@@ -1,9 +1,10 @@
+import 'package:chain_cacao/features/parcelle/presentation/providers/parcelle_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/cacao_lot.dart';
-import '../controllers/cacao_lot_form_controller.dart';
+import '../providers/cacao_lot_form_provider.dart';
 import '../widgets/lot_photo_selector.dart';
 import '../widgets/lot_location_card.dart';
 import 'lot_success_page.dart';
@@ -60,15 +61,15 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
         updatedAt: DateTime.now(),
       );
 
-      ref.read(cacaoLotFormControllerProvider.notifier).submitLot(lot);
+      ref.read(cacaoLotFormNotifierProvider.notifier).submitLot(lot);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(cacaoLotFormControllerProvider);
+    final state = ref.watch(cacaoLotFormNotifierProvider);
 
-    ref.listen(cacaoLotFormControllerProvider, (previous, next) {
+    ref.listen(cacaoLotFormNotifierProvider, (previous, next) {
       if (next.success && next.savedLot != null) {
         Navigator.push(
           context,
@@ -115,6 +116,59 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
                   children: [
                     // Widget modulaire pour la localisation
                     const LotLocationCard(),
+
+                    const SizedBox(height: 32),
+                    _buildSectionTitle('Sélection de la parcelle'),
+                    const SizedBox(height: 16),
+                    
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final parcelleState = ref.watch(parcelleNotifierProvider);
+                        if (parcelleState.isLoading) {
+                          return const LinearProgressIndicator();
+                        }
+                        if (parcelleState.parcelles.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.orange[50],
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.orange[100]!),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Aucune parcelle trouvée. Vous devez d\'abord enregistrer votre parcelle.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context), // Should go back to dashboard
+                                  child: const Text('Retourner à l\'accueil'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return DropdownButtonFormField<String>(
+                          value: state.parcelleId,
+                          decoration: _buildInputDecoration(
+                            'Choisir la parcelle',
+                            Icons.map_outlined,
+                          ),
+                          items: parcelleState.parcelles
+                              .map(
+                                (p) => DropdownMenuItem(
+                                  value: p.id,
+                                  child: Text('${p.name} (${p.area.toStringAsFixed(2)} ha)'),
+                                ),
+                              )
+                              .toList(),
+                          validator: (value) => value == null ? 'Veuillez sélectionner une parcelle' : null,
+                          onChanged: (value) => ref.read(cacaoLotFormNotifierProvider.notifier).setParcelleId(value),
+                        );
+                      },
+                    ),
 
                     const SizedBox(height: 32),
                     _buildSectionTitle('Détails techniques'),

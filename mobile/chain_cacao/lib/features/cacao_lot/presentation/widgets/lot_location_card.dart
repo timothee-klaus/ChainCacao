@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../controllers/cacao_lot_form_controller.dart';
+import '../providers/cacao_lot_form_provider.dart';
 
 class LotLocationCard extends ConsumerWidget {
   const LotLocationCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cacaoLotFormControllerProvider);
-    final controller = ref.read(cacaoLotFormControllerProvider.notifier);
+    final state = ref.watch(cacaoLotFormNotifierProvider);
+    final controller = ref.read(cacaoLotFormNotifierProvider.notifier);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

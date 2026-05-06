@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../cacao_lot/presentation/pages/lot_list_page.dart';
 import '../../../../core/services/sync/sync_service.dart';
+import '../../../parcelle/presentation/pages/parcelle_list_page.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -201,10 +202,13 @@ class DashboardPage extends ConsumerWidget {
           children: [
             _buildActionCard(
               context,
-              'Ma Parcelle',
+              'Mes Parcelles',
               Icons.map_outlined,
               const Color(0xFF27AE60),
-              () {}, // À implémenter
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ParcelleListPage()),
+              ),
             ),
             const SizedBox(width: 16),
             const Expanded(child: SizedBox()),

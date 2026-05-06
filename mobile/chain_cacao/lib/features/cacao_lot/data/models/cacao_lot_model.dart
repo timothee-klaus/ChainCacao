@@ -12,6 +12,7 @@ class CacaoLotModel {
 
   String? lotHashOnChain;
   String farmerId = '';
+  String? parcelleId;
   List<String> photoUrls = [];
   List<String> photoHashes = [];
   
@@ -39,6 +40,7 @@ class CacaoLotModel {
       ..lotId = lot.lotId
       ..lotHashOnChain = lot.lotHashOnChain
       ..farmerId = lot.farmerId
+      ..parcelleId = lot.parcelleId
       ..photoUrls = lot.photoUrls
       ..photoHashes = lot.photoHashes
       ..latitude = lot.latitude
@@ -61,6 +63,7 @@ class CacaoLotModel {
       lotId: lotId,
       lotHashOnChain: lotHashOnChain,
       farmerId: farmerId,
+      parcelleId: parcelleId,
       photoUrls: photoUrls,
       photoHashes: photoHashes,
       latitude: latitude,

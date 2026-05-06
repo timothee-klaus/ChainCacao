@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../controllers/cacao_lot_list_controller.dart';
+import '../providers/cacao_lot_list_provider.dart';
 import '../../domain/entities/cacao_lot.dart';
 import 'lot_detail_page.dart';
 import '../../../../core/services/sync/sync_providers.dart';
@@ -13,7 +13,7 @@ class LotListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lotsAsync = ref.watch(cacaoLotListControllerProvider);
+    final lotsAsync = ref.watch(cacaoLotListNotifierProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,7 +26,7 @@ class LotListPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(cacaoLotListControllerProvider.notifier).refresh(),
+            onPressed: () => ref.read(cacaoLotListNotifierProvider.notifier).refresh(),
           ),
         ],
       ),

@@ -49,7 +49,7 @@ class CacaoLotNotifier extends StateNotifier<CacaoLotState> {
   }
 }
 
-final cacaoLotControllerProvider = StateNotifierProvider<CacaoLotNotifier, CacaoLotState>((ref) {
+final cacaoLotNotifierProvider = StateNotifierProvider<CacaoLotNotifier, CacaoLotState>((ref) {
   final saveUseCase = ref.watch(saveCacaoLotUseCaseProvider);
   return CacaoLotNotifier(saveUseCase);
 });

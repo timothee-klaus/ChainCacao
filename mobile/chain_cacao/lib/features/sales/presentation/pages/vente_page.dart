@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../transfer/presentation/controllers/transfer_controller.dart';
-import '../../../cacao_lot/presentation/controllers/cacao_lot_list_controller.dart';
+import '../../../transfer/presentation/providers/transfer_provider.dart';
+import '../../../cacao_lot/presentation/providers/cacao_lot_list_provider.dart';
 import '../../../cacao_lot/domain/entities/cacao_lot.dart';
 
 class VentePage extends ConsumerWidget {
@@ -9,11 +9,11 @@ class VentePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transferState = ref.watch(transferControllerProvider);
-    final lotsAsync = ref.watch(cacaoLotListControllerProvider);
+    final transferState = ref.watch(transferNotifierProvider);
+    final lotsAsync = ref.watch(cacaoLotListNotifierProvider);
 
     // Écouter les changements d'état pour les effets de bord (Snackbars)
-    ref.listen(transferControllerProvider, (previous, next) {
+    ref.listen(transferNotifierProvider, (previous, next) {
       if (next.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -22,7 +22,7 @@ class VentePage extends ConsumerWidget {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        ref.read(transferControllerProvider.notifier).reset();
+        ref.read(transferNotifierProvider.notifier).reset();
       }
       if (next.error != null && next.error != previous?.error) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +175,7 @@ class VentePage extends ConsumerWidget {
           final isSelected = state.selectedLots.any((l) => l.lotId == lot.lotId);
 
           return GestureDetector(
-            onTap: () => ref.read(transferControllerProvider.notifier).toggleLot(lot),
+            onTap: () => ref.read(transferNotifierProvider.notifier).toggleLot(lot),
             child: Container(
               width: 140,
               margin: const EdgeInsets.only(right: 12),
@@ -242,7 +242,7 @@ class VentePage extends ConsumerWidget {
               child: Text(coop, style: const TextStyle(fontWeight: FontWeight.bold)),
             );
           }).toList(),
-          onChanged: (val) => ref.read(transferControllerProvider.notifier).setCoop(val),
+          onChanged: (val) => ref.read(transferNotifierProvider.notifier).setCoop(val),
         ),
       ),
     );
@@ -261,7 +261,7 @@ class VentePage extends ConsumerWidget {
               child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold)),
             );
           }).toList(),
-          onChanged: (val) => ref.read(transferControllerProvider.notifier).setTransporter(val),
+          onChanged: (val) => ref.read(transferNotifierProvider.notifier).setTransporter(val),
         ),
       ),
     );
@@ -336,6 +336,6 @@ class VentePage extends ConsumerWidget {
   }
 
   void _handleSubmit(WidgetRef ref) async {
-    await ref.read(transferControllerProvider.notifier).submitTransfer();
+    await ref.read(transferNotifierProvider.notifier).submitTransfer();
   }
 }

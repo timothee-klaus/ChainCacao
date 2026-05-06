@@ -62,48 +62,53 @@ const CacaoLotModelSchema = CollectionSchema(
       name: r'lotId',
       type: IsarType.string,
     ),
-    r'photoHashes': PropertySchema(
+    r'parcelleId': PropertySchema(
       id: 9,
+      name: r'parcelleId',
+      type: IsarType.string,
+    ),
+    r'photoHashes': PropertySchema(
+      id: 10,
       name: r'photoHashes',
       type: IsarType.stringList,
     ),
     r'photoUrls': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'photoUrls',
       type: IsarType.stringList,
     ),
     r'region': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'region',
       type: IsarType.string,
     ),
     r'species': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'species',
       type: IsarType.string,
     ),
     r'statut': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'statut',
       type: IsarType.string,
     ),
     r'syncStatus': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'syncStatus',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
     r'variete': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'variete',
       type: IsarType.string,
     ),
     r'weightKg': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'weightKg',
       type: IsarType.double,
     )
@@ -152,6 +157,12 @@ int _cacaoLotModelEstimateSize(
     }
   }
   bytesCount += 3 + object.lotId.length * 3;
+  {
+    final value = object.parcelleId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.photoHashes.length * 3;
   {
     for (var i = 0; i < object.photoHashes.length; i++) {
@@ -189,15 +200,16 @@ void _cacaoLotModelSerialize(
   writer.writeDouble(offsets[6], object.longitude);
   writer.writeString(offsets[7], object.lotHashOnChain);
   writer.writeString(offsets[8], object.lotId);
-  writer.writeStringList(offsets[9], object.photoHashes);
-  writer.writeStringList(offsets[10], object.photoUrls);
-  writer.writeString(offsets[11], object.region);
-  writer.writeString(offsets[12], object.species);
-  writer.writeString(offsets[13], object.statut);
-  writer.writeString(offsets[14], object.syncStatus);
-  writer.writeDateTime(offsets[15], object.updatedAt);
-  writer.writeString(offsets[16], object.variete);
-  writer.writeDouble(offsets[17], object.weightKg);
+  writer.writeString(offsets[9], object.parcelleId);
+  writer.writeStringList(offsets[10], object.photoHashes);
+  writer.writeStringList(offsets[11], object.photoUrls);
+  writer.writeString(offsets[12], object.region);
+  writer.writeString(offsets[13], object.species);
+  writer.writeString(offsets[14], object.statut);
+  writer.writeString(offsets[15], object.syncStatus);
+  writer.writeDateTime(offsets[16], object.updatedAt);
+  writer.writeString(offsets[17], object.variete);
+  writer.writeDouble(offsets[18], object.weightKg);
 }
 
 CacaoLotModel _cacaoLotModelDeserialize(
@@ -217,15 +229,16 @@ CacaoLotModel _cacaoLotModelDeserialize(
   object.longitude = reader.readDoubleOrNull(offsets[6]);
   object.lotHashOnChain = reader.readStringOrNull(offsets[7]);
   object.lotId = reader.readString(offsets[8]);
-  object.photoHashes = reader.readStringList(offsets[9]) ?? [];
-  object.photoUrls = reader.readStringList(offsets[10]) ?? [];
-  object.region = reader.readString(offsets[11]);
-  object.species = reader.readString(offsets[12]);
-  object.statut = reader.readString(offsets[13]);
-  object.syncStatus = reader.readString(offsets[14]);
-  object.updatedAt = reader.readDateTime(offsets[15]);
-  object.variete = reader.readString(offsets[16]);
-  object.weightKg = reader.readDouble(offsets[17]);
+  object.parcelleId = reader.readStringOrNull(offsets[9]);
+  object.photoHashes = reader.readStringList(offsets[10]) ?? [];
+  object.photoUrls = reader.readStringList(offsets[11]) ?? [];
+  object.region = reader.readString(offsets[12]);
+  object.species = reader.readString(offsets[13]);
+  object.statut = reader.readString(offsets[14]);
+  object.syncStatus = reader.readString(offsets[15]);
+  object.updatedAt = reader.readDateTime(offsets[16]);
+  object.variete = reader.readString(offsets[17]);
+  object.weightKg = reader.readDouble(offsets[18]);
   return object;
 }
 
@@ -255,11 +268,11 @@ P _cacaoLotModelDeserializeProp<P>(
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
       return (reader.readStringList(offset) ?? []) as P;
     case 11:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
@@ -267,10 +280,12 @@ P _cacaoLotModelDeserializeProp<P>(
     case 14:
       return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readDateTime(offset)) as P;
-    case 16:
       return (reader.readString(offset)) as P;
+    case 16:
+      return (reader.readDateTime(offset)) as P;
     case 17:
+      return (reader.readString(offset)) as P;
+    case 18:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1501,6 +1516,160 @@ extension CacaoLotModelQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'lotId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'parcelleId',
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'parcelleId',
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'parcelleId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'parcelleId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'parcelleId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'parcelleId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+      parcelleIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'parcelleId',
         value: '',
       ));
     });
@@ -2885,6 +3054,19 @@ extension CacaoLotModelQuerySortBy
     });
   }
 
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy> sortByParcelleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parcelleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
+      sortByParcelleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parcelleId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy> sortByRegion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'region', Sort.asc);
@@ -3105,6 +3287,19 @@ extension CacaoLotModelQuerySortThenBy
     });
   }
 
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy> thenByParcelleId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parcelleId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
+      thenByParcelleIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'parcelleId', Sort.desc);
+    });
+  }
+
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy> thenByRegion() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'region', Sort.asc);
@@ -3256,6 +3451,13 @@ extension CacaoLotModelQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByParcelleId(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'parcelleId', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct>
       distinctByPhotoHashes() {
     return QueryBuilder.apply(this, (query) {
@@ -3378,6 +3580,12 @@ extension CacaoLotModelQueryProperty
   QueryBuilder<CacaoLotModel, String, QQueryOperations> lotIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lotId');
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, String?, QQueryOperations> parcelleIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'parcelleId');
     });
   }
 

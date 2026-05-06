@@ -6,7 +6,7 @@ import '../../../cacao_lot/domain/entities/cacao_lot.dart';
 import '../../../cacao_lot/data/models/cacao_lot_model.dart';
 import '../../../../core/database/isar_service.dart';
 import '../../../../core/database/queue_item.dart';
-import '../../../cacao_lot/presentation/controllers/cacao_lot_list_controller.dart';
+import '../../../cacao_lot/presentation/providers/cacao_lot_list_provider.dart';
 
 class TransferFormState {
   final List<CacaoLot> selectedLots;
@@ -46,11 +46,11 @@ class TransferFormState {
   }
 }
 
-class TransferController extends StateNotifier<TransferFormState> {
+class TransferNotifier extends StateNotifier<TransferFormState> {
   final Ref _ref;
   final IsarService _isarService;
 
-  TransferController(this._ref, this._isarService) : super(TransferFormState());
+  TransferNotifier(this._ref, this._isarService) : super(TransferFormState());
 
   void toggleLot(CacaoLot lot) {
     final isSelected = state.selectedLots.any((l) => l.lotId == lot.lotId);
@@ -135,7 +135,7 @@ class TransferController extends StateNotifier<TransferFormState> {
       await Future.delayed(const Duration(seconds: 1));
       
       // Rafraîchir les listes
-      _ref.invalidate(cacaoLotListControllerProvider);
+      _ref.invalidate(cacaoLotListNotifierProvider);
       
       state = state.copyWith(isLoading: false, success: true);
     } catch (e) {
@@ -148,7 +148,7 @@ class TransferController extends StateNotifier<TransferFormState> {
   }
 }
 
-final transferControllerProvider = StateNotifierProvider.autoDispose<TransferController, TransferFormState>((ref) {
+final transferNotifierProvider = StateNotifierProvider.autoDispose<TransferNotifier, TransferFormState>((ref) {
   final isarService = ref.read(isarServiceProvider);
-  return TransferController(ref, isarService);
+  return TransferNotifier(ref, isarService);
 });

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../cacao_lot/presentation/controllers/cacao_lot_list_controller.dart';
+import '../../../cacao_lot/presentation/providers/cacao_lot_list_provider.dart';
 import '../../../cacao_lot/domain/entities/cacao_lot.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -11,7 +11,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
-    final lotsAsync = ref.watch(cacaoLotListControllerProvider);
+    final lotsAsync = ref.watch(cacaoLotListNotifierProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),

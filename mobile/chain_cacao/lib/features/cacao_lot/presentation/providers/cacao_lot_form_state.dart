@@ -8,6 +8,7 @@ class CacaoLotFormState {
   final CacaoLot? savedLot;
   
   // Données du formulaire
+  final String? parcelleId;
   final List<String> photos;
   final double? latitude;
   final double? longitude;
@@ -19,6 +20,7 @@ class CacaoLotFormState {
     this.error,
     this.success = false,
     this.savedLot,
+    this.parcelleId,
     this.photos = const [],
     this.latitude,
     this.longitude,
@@ -31,6 +33,7 @@ class CacaoLotFormState {
     String? error,
     bool? success,
     CacaoLot? savedLot,
+    String? parcelleId,
     List<String>? photos,
     double? latitude,
     double? longitude,
@@ -42,6 +45,7 @@ class CacaoLotFormState {
       error: error,
       success: success ?? this.success,
       savedLot: savedLot ?? this.savedLot,
+      parcelleId: parcelleId ?? this.parcelleId,
       photos: photos ?? this.photos,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
