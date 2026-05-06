@@ -93,9 +93,31 @@ class _LotDetailPageState extends State<LotDetailPage> {
                   fit: BoxFit.cover,
                 ),
               )
-            : Image.network(
-                'https://images.unsplash.com/photo-1582131503261-fca1d1c058d3?q=80&w=1000&auto=format&fit=crop',
-                fit: BoxFit.cover,
+            : Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.brown[100]!, Colors.brown[50]!],
+                  ),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.image_not_supported_outlined, size: 48, color: Colors.brown[300]),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Aucune photo disponible',
+                        style: TextStyle(
+                          color: Colors.brown[400],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
         ),
         // Page Indicator
@@ -150,9 +172,20 @@ class _LotDetailPageState extends State<LotDetailPage> {
                     style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    widget.lot.species,
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        widget.lot.species,
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${widget.lot.variete.isEmpty ? "Non spécifiée" : widget.lot.variete})',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.brown[400]),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -189,12 +222,6 @@ class _LotDetailPageState extends State<LotDetailPage> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          _buildSmallInfoCard(
-            Icons.category_outlined,
-            'VARIÉTÉ',
-            widget.lot.variete.isEmpty ? "Non spécifiée" : widget.lot.variete,
           ),
           const SizedBox(height: 16),
           _buildLocationWideCard(),

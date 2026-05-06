@@ -1,38 +1,26 @@
 import 'package:geolocator/geolocator.dart';
 
-/// Interface abstraite pour le service de localisation
-abstract class ILocationService {
-  Future<Position> getCurrentPosition();
-}
+class LocationService {
+  Future<bool> isServiceEnabled() => Geolocator.isLocationServiceEnabled();
 
-/// Implémentation concrète utilisant le package geolocator
-class GeolocatorLocationService implements ILocationService {
-  @override
-  Future<Position> getCurrentPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  Future<LocationPermission> checkPermission() => Geolocator.checkPermission();
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw Exception('Les services de localisation sont désactivés.');
-    }
+  Future<LocationPermission> requestPermission() => Geolocator.requestPermission();
 
-    permission = await Geolocator.checkPermission();
+  Future<Position?> getCurrentPosition() async {
+    bool serviceEnabled = await isServiceEnabled();
+    if (!serviceEnabled) return null;
+
+    LocationPermission permission = await checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Les permissions de localisation sont refusées.');
-      }
+      permission = await requestPermission();
+      if (permission == LocationPermission.denied) return null;
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      throw Exception(
-        'Les permissions de localisation sont définitivement refusées.',
-      );
-    }
+    if (permission == LocationPermission.deniedForever) return null;
 
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   }
 }

@@ -6,16 +6,19 @@ import '../../domain/entities/cacao_lot.dart';
 import '../../domain/usecases/save_cacao_lot_usecase.dart';
 import '../providers/cacao_lot_provider.dart';
 import 'cacao_lot_form_state.dart';
+import 'cacao_lot_list_controller.dart';
 
 class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
   final SaveCacaoLotUseCase _saveUseCase;
   final LocationService _locationService;
   final MediaService _mediaService;
+  final Ref ref;
 
   CacaoLotFormController({
     required SaveCacaoLotUseCase saveUseCase,
     required LocationService locationService,
     required MediaService mediaService,
+    required this.ref,
   })  : _saveUseCase = saveUseCase,
         _locationService = locationService,
         _mediaService = mediaService,
@@ -66,11 +69,15 @@ class CacaoLotFormController extends StateNotifier<CacaoLotFormState> {
     
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error),
-      (successLot) => state = state.copyWith(
-        isLoading: false, 
-        success: true,
-        savedLot: successLot,
-      ),
+      (successLot) {
+        state = state.copyWith(
+          isLoading: false, 
+          success: true,
+          savedLot: successLot,
+        );
+        // On rafraîchit la liste des lots automatiquement
+        ref.invalidate(cacaoLotListControllerProvider);
+      },
     );
   }
 }
@@ -80,5 +87,6 @@ final cacaoLotFormControllerProvider = StateNotifierProvider.autoDispose<CacaoLo
     saveUseCase: ref.watch(saveCacaoLotUseCaseProvider),
     locationService: ref.watch(locationServiceProvider),
     mediaService: ref.watch(mediaServiceProvider),
+    ref: ref,
   );
 });
