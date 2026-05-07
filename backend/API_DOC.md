@@ -115,6 +115,8 @@ Inscrit un nouvel utilisateur et stocke ses preuves de légalité.
 | `org_name` | string | Oui | Org Fabric associée |
 | `file` | file | **Oui** | **Preuve de légalité** (Requis pour COOPERATIVE, EXPORTATEUR, CERTIF) |
 
+> **Note importante :** Le compte est créé localement et marqué `blockchain_validated = false`. Une coopérative (pour les producteurs) ou le Ministère (pour les institutions) doit ensuite valider le compte pour l'enregistrer officiellement sur la Blockchain (via `/api/v1/actors/register`).
+
 **Réponse 201 :** Identique à `UserPublicResponse`.
 
 ---
@@ -134,6 +136,34 @@ Retourne le profil complet de l'utilisateur connecté.
   "blockchain_id": "admin"
 }
 ```
+
+---
+
+#### `GET /api/v1/auth/users`
+Liste les utilisateurs inscrits. Le Ministère voit tout, une Coopérative ne voit que ses membres.
+
+- **Auth requise** : ✅ Bearer Token (MINISTERE ou COOPERATIVE)
+
+---
+
+#### `GET /api/v1/auth/pending-registrations`
+Liste les acteurs institutionnels en attente de validation.
+
+- **Auth requise** : ✅ Bearer Token (MINISTERE)
+
+---
+
+#### `POST /api/v1/auth/register-producer`
+Permet à une coopérative d'inscrire directement un producteur sans email (délégué).
+
+- **Auth requise** : ✅ Bearer Token (COOPERATIVE)
+
+---
+
+#### `POST /api/v1/auth/register-agent`
+Permet à un administrateur d'organisation de créer des comptes pour ses employés.
+
+- **Auth requise** : ✅ Bearer Token (Admin de Coop, Export, Transfo, etc.)
 
 ---
 
@@ -250,7 +280,11 @@ Enregistre un nouvel acteur en deux étapes :
 2. Inscription des métadonnées métier dans le **Smart Contract** (`RegisterActor`)
 
 - **Content-Type** : `application/json`
-- **Auth requise** : Non (endpoint interne, sécuriser en prod)
+- **Auth requise** : ✅ Bearer Token (MINISTERE ou COOPERATIVE)
+
+**Règles de hiérarchie :**
+- Le **MINISTERE** peut valider et enregistrer n'importe quel acteur.
+- Une **COOPERATIVE** ne peut valider et enregistrer que ses propres **PRODUCTEURS**.
 
 **Corps de la requête :**
 ```json
@@ -445,11 +479,16 @@ Agrège : état du lot, historique complet, et certifications. Accès aux donné
 | :---------------- | :------- | :------------------------------------ |
 | `id`              | Integer  | Clé primaire auto-incrémentée         |
 | `email`           | String   | Email unique (sert de login)          |
+| `numero_telephone`| String   | Téléphone de contact                  |
 | `hashed_password` | String   | Mot de passe hashé (bcrypt)           |
 | `full_name`       | String   | Nom complet                           |
 | `role`            | String   | `PRODUCTEUR`, `EXPORTATEUR`, etc.     |
 | `org_name`        | String   | Org Fabric : `producteurs`, `exportateurs`… |
 | `blockchain_id`   | String   | Identifiant unique dans le wallet Fabric |
+| `parent_id`       | String   | ID du parent (ex: ID de la coopérative)|
+| `is_admin`        | Boolean  | Est admin de son organisation ?       |
+| `blockchain_validated`| Boolean| Validé sur la Blockchain ?          |
+| `document_legalite_hash`| String | Hash du document de preuve        |
 | `is_active`       | Boolean  | Compte actif (défaut: `true`)         |
 | `created_at`      | DateTime | Date de création                      |
 
