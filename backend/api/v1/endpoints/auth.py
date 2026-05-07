@@ -8,7 +8,7 @@ from typing import Any, List, Optional
 
 import security
 from database import get_db, User
-from models.schemas import UserRegister, UserPublicResponse, ProducerRegisterDelegated, AgentRegister
+from models.schemas import UserRegister, UserPublicResponse, ProducerRegisterDelegated, AgentRegister, ROLE_TO_ORG
 from services.storage import StorageService, get_storage
 from services.blockchain_gateway import BlockchainGateway
 
@@ -33,7 +33,6 @@ async def register(
     full_name: str = Form(...),
     role: str = Form(...),
     numero_telephone: Optional[str] = Form(None),
-    org_name: str = Form(...),
     coop_id: Optional[str] = Form(None, alias="cooperative_id"),
     is_admin: bool = Form(False),
     file: Optional[UploadFile] = File(None),
@@ -44,6 +43,9 @@ async def register(
     Inscrit un nouvel utilisateur (Requête d'inscription).
     L'utilisateur ne sera actif sur la blockchain qu'après validation par le Ministère.
     """
+    # Auto-calcul de l'organisation
+    org_name = ROLE_TO_ORG.get(role, "producteurs")
+
     # 1. Validation de la présence du document pour les rôles institutionnels
     if role in ["COOPERATIVE", "EXPORTATEUR", "CERTIF"] and not file:
         raise HTTPException(
