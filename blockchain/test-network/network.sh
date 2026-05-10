@@ -32,10 +32,10 @@ function networkUp() {
   # In a real scenario, use CA scripts. Here we use cryptogen for the "ultra-light" requirement.
   if [ ! -d "organizations/peerOrganizations" ]; then
     echo "### Generating crypto material ###"
-    ../bin/cryptogen.exe generate --config=./crypto-config.yaml --output="organizations"
+    cryptogen generate --config=./crypto-config.yaml --output="organizations"
   fi
-  # Fix Windows backslashes in config.yaml for Linux containers (Always run to be safe)
-  powershell.exe -Command 'Get-ChildItem -Path organizations -Filter "config.yaml" -Recurse | ForEach-Object { $content = Get-Content $_.FullName; $content.Replace([char]92, [char]47) | Set-Content $_.FullName }'
+  # Fix Windows backslashes in config.yaml for Linux containers
+  find organizations -name "config.yaml" -exec sed -i 's/\\/\//g' {} +
 
   # 2. Generate genesis block
   if [ ! -d "system-genesis-block" ]; then
