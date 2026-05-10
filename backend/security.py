@@ -71,8 +71,14 @@ async def get_optional_current_user(token: Optional[str] = Depends(OAuth2Passwor
 async def get_validated_user(current_user: User = Depends(get_current_user)) -> User:
     """Vérifie que l'utilisateur a été validé par le Ministère sur la Blockchain."""
     if not current_user.blockchain_validated and current_user.role != "MINISTERE":
+        detail_msg = "Votre compte est en attente de validation. "
+        if current_user.role == "PRODUCTEUR":
+            detail_msg += "Veuillez contacter votre coopérative pour activer votre compte."
+        else:
+            detail_msg += "Veuillez attendre la validation du Ministère."
+            
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Votre compte est en attente de validation par le Ministère. Vous ne pouvez pas encore effectuer d'actions sur la blockchain."
+            detail=detail_msg
         )
     return current_user
