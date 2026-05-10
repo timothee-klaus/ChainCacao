@@ -197,11 +197,23 @@ async def setup_test_user(
         numero_telephone="0123456789",
         org_name="producteurs",
         blockchain_id="admin",
+        blockchain_validated=True,
     )
     return {
         "message": "Test user created: prod@test.com / password123",
         "blockchain_id": user.blockchain_id,
     }
+
+@router.get("/cooperatives/public", response_model=List[UserPublicResponse], summary="Lister les coopératives publiques")
+async def list_public_cooperatives(
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage)
+) -> Any:
+    """Retourne la liste de toutes les coopératives pour l'inscription."""
+    all_coops = storage.get_users(db, role="COOPERATIVE")
+    # Optionnel: on pourrait filtrer uniquement celles qui sont validées
+    # return [u for u in all_coops if u.blockchain_validated]
+    return all_coops
 
 @router.get("/users", response_model=List[UserPublicResponse], summary="Lister les utilisateurs")
 async def list_users(

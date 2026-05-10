@@ -65,9 +65,10 @@
         # Stop and remove containers via compose
         docker-compose -f "$NETWORK_DIR/docker-compose.yaml" down --volumes --remove-orphans 2>/dev/null || true
 
-        # Remove crypto materials and genesis block
-        rm -rf "$BLOCKCHAIN_DIR/organizations"
-        rm -rf "$NETWORK_DIR/system-genesis-block"
+        # Remove crypto materials and genesis block (sudo required because docker volumes are owned by root)
+        sudo rm -rf "$BLOCKCHAIN_DIR/organizations"
+        sudo rm -rf "$NETWORK_DIR/system-genesis-block"
+        sudo rm -rf "$NETWORK_DIR/channel-artifacts"
 
         # Remove Docker volumes
         docker volume rm $(docker volume ls -q | grep chaincacao) 2>/dev/null || true
@@ -78,6 +79,10 @@
         # Generate crypto materials using Fabric CA
         generate_crypto() {
         println "Generating crypto material using Fabric CA..."
+
+        # Create organizations and channel-artifacts directories before Docker starts to ensure the current user owns them
+        mkdir -p "$BLOCKCHAIN_DIR/organizations"
+        mkdir -p "$NETWORK_DIR/channel-artifacts"
 
         # 1. Start CAs first
         docker-compose -f "$NETWORK_DIR/docker-compose.yaml" up -d \

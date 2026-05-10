@@ -50,9 +50,43 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-# Create tables
+# Create tables and seed initial data
 def init_db():
     Base.metadata.create_all(bind=engine)
+    
+    # Seeding : Créer le compte Ministère s'il n'existe pas
+    from sqlalchemy.orm import Session
+    db = SessionLocal()
+    try:
+        # On vérifie si un compte MINISTERE existe déjà
+        ministere = db.query(User).filter(User.role == "MINISTERE").first()
+        if not ministere:
+            import bcrypt
+            print("Initialisation du compte Ministère (Super Admin)...")
+            
+            # Hachage du mot de passe par défaut
+            password = "Ministere2026!"
+            hashed_pwd = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            
+            admin_user = User(
+                email="admin@ministere.tg",
+                hashed_password=hashed_pwd,
+                full_name="Ministère de l'Agriculture",
+                role="MINISTERE",
+                org_name="ministere",
+                blockchain_id="MINISTERE-ROOT",
+                blockchain_validated=True, # Le ministère est validé par défaut
+                is_admin=True,
+                is_active=True
+            )
+            db.add(admin_user)
+            db.commit()
+            print("Compte Ministère créé avec succès : admin@ministere.tg / Ministere2026!")
+    except Exception as e:
+        print(f"Erreur lors du seeding : {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 def get_db():
     db = SessionLocal()
