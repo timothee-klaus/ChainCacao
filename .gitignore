@@ -54,3 +54,6 @@ blockchain/chaincode/node_modules/
 
 backend/uploads/
 
+blockchain/bin/
+blockchain/builders/
+blockchain/test-network/log.txt
