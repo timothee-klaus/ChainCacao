@@ -3,7 +3,8 @@ const grpc = require('@grpc/grpc-js');
 const { connect, signers } = require('@hyperledger/fabric-gateway');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+const envPath = process.env.DOTENV_CONFIG_PATH ? path.resolve(__dirname, process.env.DOTENV_CONFIG_PATH) : path.resolve(__dirname, '.env');
+require('dotenv').config({ path: envPath });
 const IdentityService = require('./IdentityService');
 const networkConfig = require('./networkConfig');
 
