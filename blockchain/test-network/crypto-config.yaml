@@ -1,0 +1,23 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: test.chaincacao.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - localhost
+          - 127.0.0.1
+
+PeerOrgs:
+  - Name: OrgTest
+    Domain: test.chaincacao.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: peer0
+        SANS:
+          - localhost
+          - 127.0.0.1
+    Template:
+      Count: 0
+    Users:
+      Count: 1

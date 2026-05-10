@@ -1,0 +1,1 @@
+[34m2026-05-10 18:03:01.946 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [bcbcc54375de60b599257a1654f06d50be88040ff352f847202d575b0385300e] committed with status (VALID) at peer0.test.chaincacao.com:17051
