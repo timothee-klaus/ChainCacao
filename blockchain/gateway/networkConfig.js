@@ -43,8 +43,14 @@ const networkConfig = {
             peerHost: 'peer0.test.chaincacao.com'
         }
     },
-    // Fonction utilitaire pour obtenir la config, avec repli sur 'test'
+    // Fonction utilitaire pour obtenir la config
+    // SUR LA VM: On force l'utilisation de 'test' pour mapper le réseau ultra-light
     getOrgConfig(orgName) {
+        // Si la config 'test' est présente, on l'utilise par défaut pour TOUT sur la VM
+        // afin d'éviter les erreurs de port (7051 vs 17051)
+        if (this.organizations['test']) {
+            return this.organizations['test'];
+        }
         return this.organizations[orgName] || this.organizations['test'];
     }
 };
