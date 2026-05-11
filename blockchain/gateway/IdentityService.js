@@ -1,4 +1,5 @@
 const FabricCAServices = require('fabric-ca-client');
+const { User } = require('fabric-common');
 const fs = require('fs').promises;
 const path = require('path');
 const networkConfig = require('./networkConfig');
@@ -19,7 +20,17 @@ class IdentityService {
         const identityPath = path.join(walletPath, `${userId}.id`);
         try {
             const data = await fs.readFile(identityPath, 'utf8');
-            return JSON.parse(data);
+            const identity = JSON.parse(data);
+            
+            // Re-convertir les Buffers sérialisés par JSON.stringify
+            if (identity.credentials && identity.credentials.privateKey && identity.credentials.privateKey.type === 'Buffer') {
+                identity.credentials.privateKey = Buffer.from(identity.credentials.privateKey.data);
+            }
+            if (identity.credentials && identity.credentials.certificate && typeof identity.credentials.certificate === 'object' && identity.credentials.certificate.type === 'Buffer') {
+                identity.credentials.certificate = Buffer.from(identity.credentials.certificate.data);
+            }
+            
+            return identity;
         } catch (error) {
             return null; // Identity not found
         }
@@ -95,20 +106,14 @@ class IdentityService {
             adminIdentity = await this.getFromWallet(orgName, 'admin');
         }
         
-        // Mock a user object for fabric-ca-client registrar using basic methods
-        const adminUser = {
-            getName: () => 'admin',
-            getSigningIdentity: () => ({
-                _certificate: adminIdentity.credentials.certificate,
-                sign: (msg) => {
-                    const crypto = require('crypto');
-                    const sign = crypto.createSign('SHA256');
-                    sign.update(msg);
-                    const privateKey = crypto.createPrivateKey(adminIdentity.credentials.privateKey);
-                    return sign.sign(privateKey, 'hex');
-                }
-            })
-        };
+        // Create a real User object for the registrar
+        const adminUser = new User('admin');
+        adminUser.setCryptoSuite(FabricCAServices.newCryptoSuite());
+        await adminUser.setEnrollment(
+            adminIdentity.credentials.privateKey,
+            adminIdentity.credentials.certificate,
+            adminIdentity.mspId
+        );
 
         const enrollmentSecret = Math.random().toString(36).slice(-10);
 
