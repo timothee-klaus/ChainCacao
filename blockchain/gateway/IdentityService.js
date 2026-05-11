@@ -110,6 +110,7 @@ class IdentityService {
         // Create a real User object for the registrar
         const adminUser = new User('admin');
         const cryptoSuite = FabricCAServices.newCryptoSuite();
+        cryptoSuite.setCryptoKeyStore(FabricCAServices.newCryptoKeyStore());
         adminUser.setCryptoSuite(cryptoSuite);
 
         // Importer la clé privée proprement dans le CryptoSuite (conversion PEM -> Key object)
