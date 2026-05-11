@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { useLotsStore } from "@/store/lots"
 import { useLotActionsStore } from "@/store/lot-actions"
+import { useCooperativeStore } from "@/store/cooperative"
 import { useUser } from "@/context/useUser"
 import { LotDetailModal } from "@/components/lot/lot-detail-modal"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,11 +13,13 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, CheckCircle2, Clock3, PackageOpen, RefreshCw, Truck } from "lucide-react"
 import Link from "next/link"
 import { translateStatus } from "@/lib/status-helper"
+import { getLotHistoryIds } from "@/lib/lot-lineage"
 
 export function TransformerDashboard() {
   const { user, activeRole } = useUser()
   const { lots } = useLotsStore()
   const { getLotTimeline, actions } = useLotActionsStore()
+  const groups = useCooperativeStore((state) => state.groups)
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null)
   const [lotDetailOpen, setLotDetailOpen] = useState(false)
 
@@ -32,7 +35,7 @@ export function TransformerDashboard() {
   const transformedLots = transformerLots.filter((lot) => lot.statut === "transformed")
   const totalWeight = transformerLots.reduce((sum, lot) => sum + lot.poidsKg, 0)
   const totalSourceActions = transformerLots.reduce(
-    (sum, lot) => sum + getLotTimeline(lot.lotId).length,
+    (sum, lot) => sum + getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups)).length,
     0
   )
   const recentActions = [...actions]
@@ -44,7 +47,7 @@ export function TransformerDashboard() {
 
   const lotSnapshots = transformerLots
     .map((lot) => {
-      const timeline = getLotTimeline(lot.lotId)
+      const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
       const lastEvent = timeline[timeline.length - 1]
       return {
         lot,
@@ -187,7 +190,7 @@ export function TransformerDashboard() {
             {transformerLots.length > 0 ? (
               <div className="space-y-3">
                 {transformerLots.slice(0, 6).map((lot) => {
-                  const timeline = getLotTimeline(lot.lotId)
+                  const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
                   const lastEvent = timeline[timeline.length - 1]
 
                   return (

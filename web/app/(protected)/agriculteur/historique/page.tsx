@@ -6,6 +6,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react"
 
 import { LotDetailModal } from "@/components/lot/lot-detail-modal"
 import { LotWorkflowTimeline } from "@/components/lot/lot-workflow-timeline"
+import { useCooperativeStore } from "@/store/cooperative"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { useLotsStore } from "@/store/lots"
 import { useUser } from "@/context/useUser"
@@ -13,11 +14,13 @@ import type { Lot } from "@/types/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getLotHistoryIds } from "@/lib/lot-lineage"
 
 export default function HistoriquePage() {
   const { user } = useUser()
   const { getLotsForFarmer } = useLotsStore()
   const { getLotTimeline } = useLotActionsStore()
+  const groups = useCooperativeStore((state) => state.groups)
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -105,7 +108,7 @@ export default function HistoriquePage() {
         <CardContent className="space-y-3">
           {sortedLots.length > 0 ? (
             sortedLots.map((lot) => {
-              const timeline = getLotTimeline(lot.lotId)
+              const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
               const lastAction = timeline[timeline.length - 1]
 
               return (

@@ -21,7 +21,7 @@ type ActionTemplate = {
   description: string
 }
 
-const roleActions: Record<UserRole, ActionTemplate[]> = {
+const roleActions: Partial<Record<UserRole, ActionTemplate[]>> = {
   Agriculteur: [
     {
       label: "Signer l'enregistrement de récolte",
@@ -161,8 +161,21 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
 
   if (!user || !activeRole) return null
 
-  const canAct = (): boolean => {
+  // Normalize role to handle both frontend and backend role names
+  const normalizedRole: UserRole = (() => {
     switch (activeRole) {
+      case "PRODUCTEUR": return "Agriculteur"
+      case "COOPERATIVE": return "CoopManager"
+      case "TRANSFORMATEUR": return "Transformer"
+      case "EXPORTATEUR": return "Exporter"
+      case "CERTIF": return "Verifier"
+      case "MINISTERE": return "MinistryAnalyst"
+      default: return activeRole
+    }
+  })()
+
+  const canAct = (): boolean => {
+    switch (normalizedRole) {
       case "Agriculteur":
         return lot.statut === "draft" || lot.statut === "pending"
       case "CoopManager":
@@ -212,7 +225,7 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
         }
       }
 
-      if (action.phase === "controle" && activeRole === "Exporter") {
+      if (action.phase === "controle" && normalizedRole === "Exporter") {
         return {
           ...action,
           label: "Vérifier la conformité du groupement",
@@ -222,21 +235,22 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
       return action
     }
 
-    if (activeRole === "Transformer") {
-      if (lot.statut === "pending") {
-        return [customizeForGroup(roleActions.Transformer[0])]
+    if (normalizedRole === "Transformer") {
+      const transformerActions = roleActions.Transformer || []
+      if (lot.statut === "pending" && transformerActions[0]) {
+        return [customizeForGroup(transformerActions[0])]
       }
 
-      if (lot.statut === "transferred") {
-        return [customizeForGroup(roleActions.Transformer[1])]
+      if (lot.statut === "transferred" && transformerActions[1]) {
+        return [customizeForGroup(transformerActions[1])]
       }
 
-      if (lot.statut === "transformed") {
-        return [customizeForGroup(roleActions.Transformer[2])]
+      if (lot.statut === "transformed" && transformerActions[2]) {
+        return [customizeForGroup(transformerActions[2])]
       }
     }
 
-    return (roleActions[activeRole] ?? []).map(customizeForGroup)
+    return (roleActions[normalizedRole] ?? []).map(customizeForGroup)
   }
 
   const handleAction = (template: ActionTemplate) => {
@@ -244,7 +258,7 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
 
     addAction({
       lotId: lot.lotId,
-      actor: activeRole,
+      actor: normalizedRole,
       actorName: user.nomAffiche,
       actorId: user.userId,
       action: template.action,
@@ -254,7 +268,7 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
       metadata: {
         lotId: lot.lotId,
         previousStatus: lot.statut,
-        actorRole: activeRole,
+        actorRole: normalizedRole,
       },
     })
 
@@ -273,7 +287,7 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
         <CardContent className="pt-6 text-center">
           <Lock className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {activeRole} peut consulter ce lot, mais aucune action n’est disponible à ce stade.
+            {normalizedRole} peut consulter ce lot, mais aucune action n’est disponible à ce stade.
           </p>
         </CardContent>
       </Card>

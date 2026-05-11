@@ -14,6 +14,8 @@ interface UsersStore {
   currentUserId: string | null;
   currentRole: User['roles'][number] | null;
   setCurrentRole: (role: User['roles'][number] | null) => void;
+  token: string | null;
+  setToken: (token: string | null) => void;
 }
 
 export const useUsersStore = create(
@@ -22,6 +24,7 @@ export const useUsersStore = create(
       users: mockUsers,
       currentUserId: null,
       currentRole: null,
+      token: null,
 
       addUser: (user: User) =>
         set((state) => ({
@@ -61,6 +64,8 @@ export const useUsersStore = create(
         }),
 
       setCurrentRole: (role) => set({ currentRole: role }),
+
+      setToken: (token) => set({ token }),
     }),
     {
       name: 'usersStore',

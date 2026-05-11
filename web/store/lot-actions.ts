@@ -43,7 +43,7 @@ interface LotActionsStore {
   actions: LotAction[]
   addAction: (action: Omit<LotAction, "actionId" | "timestamp">) => void
   getActionsForLot: (lotId: string) => LotAction[]
-  getLotTimeline: (lotId: string) => LotAction[]
+  getLotTimeline: (lotId: string, relatedLotIds?: string[]) => LotAction[]
   hasLotAction: (lotId: string, action: LotAction["action"], phase: LotAction["phase"]) => boolean
   registerActionOnChain: (actionId: string) => string | null
 }
@@ -219,15 +219,17 @@ export const useLotActionsStore = create(
         }))
       },
 
-      getActionsForLot: (lotId: string) => {
+      getActionsForLot: (lotId: string, relatedLotIds: string[] = []) => {
         const { actions } = get()
-        return actions.filter((a) => a.lotId === lotId)
+        const lotIds = new Set([lotId, ...relatedLotIds])
+        return actions.filter((action) => lotIds.has(action.lotId))
       },
 
-      getLotTimeline: (lotId: string) => {
+      getLotTimeline: (lotId: string, relatedLotIds: string[] = []) => {
         const { actions } = get()
+        const lotIds = new Set([lotId, ...relatedLotIds])
         return actions
-          .filter((a) => a.lotId === lotId)
+          .filter((action) => lotIds.has(action.lotId))
           .sort((a, b) => a.timestamp - b.timestamp)
       },
 

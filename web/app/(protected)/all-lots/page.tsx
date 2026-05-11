@@ -6,6 +6,7 @@ import Link from "next/link"
 import { RoleGuard } from "@/components/layout/role-guard"
 import { LotDetailModal } from "@/components/lot/lot-detail-modal"
 import { LotWorkflowTimeline } from "@/components/lot/lot-workflow-timeline"
+import { useCooperativeStore } from "@/store/cooperative"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { useLotsStore } from "@/store/lots"
 import { useUser } from "@/context/useUser"
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ArrowRight, ChevronRight, Search } from "lucide-react"
+import { getLotHistoryIds } from "@/lib/lot-lineage"
 
 const allowedRoles = [
   "CoopManager",
@@ -38,6 +40,7 @@ export default function AllLotsPage() {
 function AllLotsContent() {
   const { lots } = useLotsStore()
   const { getLotTimeline } = useLotActionsStore()
+  const groups = useCooperativeStore((state) => state.groups)
   const { activeRole } = useUser()
   const [selectedLot, setSelectedLot] = useState<Lot | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -63,7 +66,7 @@ function AllLotsContent() {
     { label: "Lots visibles", value: filteredLots.length },
     {
       label: "Traçables",
-      value: filteredLots.filter((lot) => getLotTimeline(lot.lotId).length > 0).length,
+      value: filteredLots.filter((lot) => getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups)).length > 0).length,
     },
     {
       label: "Exportés",
@@ -71,7 +74,7 @@ function AllLotsContent() {
     },
     {
       label: "Validations",
-      value: filteredLots.reduce((count, lot) => count + getLotTimeline(lot.lotId).length, 0),
+      value: filteredLots.reduce((count, lot) => count + getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups)).length, 0),
     },
   ]
 
@@ -135,7 +138,7 @@ function AllLotsContent() {
         <CardContent className="space-y-3">
           {filteredLots.length > 0 ? (
             filteredLots.map((lot) => {
-              const timeline = getLotTimeline(lot.lotId)
+              const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
               const lastAction = timeline[timeline.length - 1]
 
               return (

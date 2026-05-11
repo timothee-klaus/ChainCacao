@@ -35,7 +35,7 @@ export type RoleConfig = {
   footerItems: RoleNavItem[]
 }
 
-export const roleRouteMap: Record<UserRole, string> = {
+export const roleRouteMap: Partial<Record<UserRole, string>> = {
   Agriculteur: "/agriculteur",
   CoopManager: "/cooperative",
   Transformer: "/transformer",
@@ -47,7 +47,7 @@ export const roleRouteMap: Record<UserRole, string> = {
   Admin: "/admin",
 }
 
-const roleConfigMap: Record<UserRole, RoleConfig> = {
+const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
   Agriculteur: {
     role: "Agriculteur",
     label: "Agriculteur",
@@ -205,12 +205,28 @@ const roleConfigMap: Record<UserRole, RoleConfig> = {
   },
 }
 
+function normalizeRole(role: UserRole): UserRole {
+  switch (role) {
+    case "PRODUCTEUR": return "Agriculteur"
+    case "COOPERATIVE": return "CoopManager"
+    case "TRANSFORMATEUR": return "Transformer"
+    case "EXPORTATEUR": return "Exporter"
+    case "CERTIF": return "Verifier"
+    case "MINISTERE": return "MinistryAnalyst"
+    default: return role
+  }
+}
+
 export function getRoleConfig(role: UserRole | null) {
-  return role ? roleConfigMap[role] : roleConfigMap.Agriculteur
+  if (!role) return roleConfigMap.Agriculteur!
+  const normalized = normalizeRole(role)
+  return roleConfigMap[normalized] || roleConfigMap.Agriculteur!
 }
 
 export function getRoleRoute(role: UserRole | null) {
-  return role ? roleRouteMap[role] : roleRouteMap.Agriculteur
+  if (!role) return roleRouteMap.Agriculteur!
+  const normalized = normalizeRole(role)
+  return roleRouteMap[normalized] || roleRouteMap.Agriculteur!
 }
 
 export function roleFromSignupRoleId(roleId: string): UserRole {

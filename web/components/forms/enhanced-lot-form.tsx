@@ -302,7 +302,7 @@ export function EnhancedLotForm({
           <Input
             id="region"
             {...register("region")}
-            placeholder="Haut-Sassandra"
+            placeholder="Maritime"
           />
           <FieldError errors={[errors.region]} />
         </Field>

@@ -7,9 +7,10 @@ import { Copy, Download, QrCode } from "lucide-react"
 
 import { useUser } from "@/context/useUser"
 import type { Lot } from "@/types/types"
+import { useCooperativeStore } from "@/store/cooperative"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { useEUDRStore } from "@/store/eudr"
-import { getLotLineageIds } from "@/lib/lot-lineage"
+import { getLotHistoryIds, getLotLineageIds } from "@/lib/lot-lineage"
 import { translateStatus } from "@/lib/status-helper"
 import { LotActionsPanel } from "@/components/lot/lot-actions-panel"
 import { LotWorkflowTimeline } from "@/components/lot/lot-workflow-timeline"
@@ -48,13 +49,14 @@ export function LotDetailModal({
   const { activeRole } = useUser()
   const { Canvas } = useQRCode()
   const { getLotTimeline } = useLotActionsStore()
+  const groups = useCooperativeStore((state) => state.groups)
   const { getEUDRForLot } = useEUDRStore()
   const qrBoxRef = useRef<HTMLDivElement>(null)
   const [copyLabel, setCopyLabel] = useState("Copier l'ID")
 
   if (!lot) return null
 
-  const timeline = getLotTimeline(lot.lotId)
+  const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
   const eudrRecord = getEUDRForLot(lot.lotId)
   const qrValue = `chaincacao://lot/${lot.lotId}`
   const metaActions = timeline.flatMap((action) => {
@@ -106,6 +108,8 @@ export function LotDetailModal({
   const isGroupLot = Boolean(lot.isGroup || declaredSourceLots.length > 0)
   const lineageLotIds = getLotLineageIds(lot)
   const hasConfirmedEUDR = eudrRecord?.status === "confirmed"
+  const canAccessCompliance = activeRole === "Exporter"
+  const showComplianceTab = canAccessCompliance || hasConfirmedEUDR
 
   const getSignatureLabel = (actorId: string) => {
     const matchedAction = timeline.find((action) => action.actorId === actorId)
@@ -144,7 +148,7 @@ export function LotDetailModal({
             <TabsTrigger value="qr">QR Code</TabsTrigger>
             <TabsTrigger value="timeline">Historique ({timeline.length})</TabsTrigger>
             <TabsTrigger value="actions">Actions</TabsTrigger>
-            <TabsTrigger value="conformite">Conformité</TabsTrigger>
+            {showComplianceTab ? <TabsTrigger value="conformite">Conformité</TabsTrigger> : null}
           </TabsList>
 
           <TabsContent value="overview" className="mt-4 space-y-4">
@@ -439,14 +443,15 @@ export function LotDetailModal({
             <LotActionsPanel lot={lot} />
           </TabsContent>
 
-          <TabsContent value="conformite" className="mt-4 space-y-4">
-            {eudrRecord ? (
+          {showComplianceTab ? (
+            <TabsContent value="conformite" className="mt-4 space-y-4">
+              {eudrRecord ? (
               <>
                 <Card className="border-dashed">
                   <CardHeader>
                     <CardTitle className="text-base">Fiche de conformité disponible</CardTitle>
                   <CardDescription>
-                    Cette fiche peut être consultée à tout moment depuis l’historique du lot.
+                    Cette fiche peut être consultée une fois la conformité validée par l’exportateur.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -491,21 +496,29 @@ export function LotDetailModal({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <Button asChild className="rounded-full">
-                        <Link href={`/exporter/conformite/${encodeURIComponent(lot.lotId)}`}>
-                          {hasConfirmedEUDR ? "Voir la confirmation" : "Ouvrir la fiche complète"}
-                        </Link>
-                      </Button>
-                      {!hasConfirmedEUDR ? (
-                        <Button asChild variant="outline" className="rounded-full">
-                          <Link href={`/exporter/conformite?lotId=${encodeURIComponent(lot.lotId)}`}>
-                            Confirmer la conformité EUDR
+                      {hasConfirmedEUDR ? (
+                        <Button asChild className="rounded-full">
+                          <Link href={`/exporter/conformite/${encodeURIComponent(lot.lotId)}`}>
+                            Voir la confirmation
                           </Link>
                         </Button>
+                      ) : canAccessCompliance ? (
+                        <>
+                          <Button asChild className="rounded-full">
+                            <Link href={`/exporter/conformite/${encodeURIComponent(lot.lotId)}`}>
+                              Ouvrir la fiche complète
+                            </Link>
+                          </Button>
+                          <Button asChild variant="outline" className="rounded-full">
+                            <Link href={`/exporter/conformite?lotId=${encodeURIComponent(lot.lotId)}`}>
+                              Confirmer la conformité EUDR
+                            </Link>
+                          </Button>
+                        </>
                       ) : (
                         <Button asChild variant="outline" className="rounded-full">
-                          <Link href={`/exporter/historique?lotId=${encodeURIComponent(lot.lotId)}`}>
-                            Voir l’historique conformité
+                          <Link href={`/exporter/conformite/${encodeURIComponent(lot.lotId)}`}>
+                            Voir la fiche de conformité
                           </Link>
                         </Button>
                       )}
@@ -527,18 +540,27 @@ export function LotDetailModal({
                 <CardContent className="space-y-3">
                   <p className="text-sm text-muted-foreground">
                     Le lot peut toujours être suivi dans l’historique général,
-                    mais la fiche exporteur n’est visible qu’après
-                    confirmation.
+                    mais la fiche de conformité n’est visible qu’après validation
+                    par l’exportateur.
                   </p>
-                  <Button asChild className="rounded-full">
-                    <Link href={`/exporter/conformite?lotId=${encodeURIComponent(lot.lotId)}`}>
-                      Confirmer la conformité EUDR
-                    </Link>
-                  </Button>
+                  {canAccessCompliance ? (
+                    <Button asChild className="rounded-full">
+                      <Link href={`/exporter/conformite?lotId=${encodeURIComponent(lot.lotId)}`}>
+                        Confirmer la conformité EUDR
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button asChild variant="outline" className="rounded-full">
+                      <Link href={`/exporter/conformite/${encodeURIComponent(lot.lotId)}`}>
+                        Voir la fiche de conformité
+                      </Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            )}
-          </TabsContent>
+              )}
+            </TabsContent>
+          ) : null}
         </Tabs>
       </DialogContent>
     </Dialog>

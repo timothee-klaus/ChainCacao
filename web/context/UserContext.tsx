@@ -36,6 +36,7 @@ export function UserProvider({ children }: UserProviderProps) {
     setCurrentRole,
     currentRole,
     currentUserId,
+    setToken,
   } = useUsersStore()
 
   useEffect(() => {
@@ -79,8 +80,9 @@ export function UserProvider({ children }: UserProviderProps) {
     setUserState(null)
     setActiveRole(null)
     setCurrentRole(null)
+    setToken(null)
     router.push("/auth")
-  }, [router, setCurrentRole])
+  }, [router, setCurrentRole, setToken])
 
   const switchAccount = useCallback(
     (userId: string, role: UserRole | null = null) => {
