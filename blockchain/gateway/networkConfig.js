@@ -1,5 +1,3 @@
-const path = require('path');
-
 const networkConfig = {
     organizations: {
         'producteurs': {
@@ -44,7 +42,13 @@ const networkConfig = {
             caName: 'ca-test',
             peerHost: 'peer0.test.chaincacao.com'
         }
+    },
+    // Fonction utilitaire pour obtenir la config, avec repli sur 'test'
+    getOrgConfig(orgName) {
+        return this.organizations[orgName] || this.organizations['test'];
     }
 };
 
 module.exports = networkConfig;
+
+
