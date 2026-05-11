@@ -2,6 +2,7 @@ const FabricCAServices = require('fabric-ca-client');
 const { User } = require('fabric-common');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 const networkConfig = require('./networkConfig');
 
 class IdentityService {
@@ -27,7 +28,7 @@ class IdentityService {
                 identity.credentials.privateKey = Buffer.from(identity.credentials.privateKey.data);
             }
             if (identity.credentials && identity.credentials.certificate && typeof identity.credentials.certificate === 'object' && identity.credentials.certificate.type === 'Buffer') {
-                identity.credentials.certificate = Buffer.from(identity.credentials.certificate.data);
+                identity.credentials.certificate = Buffer.from(identity.credentials.certificate.data).toString();
             }
             
             return identity;

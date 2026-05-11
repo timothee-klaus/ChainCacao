@@ -18,9 +18,9 @@ def migrate():
             "parent_id": "VARCHAR"
         }
         
-        for col, type_info in expected_columns.items():
+    for col, type_info in expected_columns.items():
+        with engine.connect() as conn:
             try:
-                # Tentative d'ajout de la colonne
                 print(f"Tentative d'ajout de la colonne '{col}'...")
                 conn.execute(text(f"ALTER TABLE users ADD COLUMN {col} {type_info}"))
                 conn.commit()
