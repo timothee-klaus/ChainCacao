@@ -117,6 +117,18 @@ app.post('/register', async (req, res) => {
     }
 });
 
+app.post('/enroll', async (req, res) => {
+    const { userId, orgName, secret } = req.body;
+    try {
+        console.log(`Enrolling user ${userId} in ${orgName}...`);
+        await identityService.enrollAdminInWallet(orgName, userId, secret);
+        res.json({ success: true, message: `User ${userId} enrolled in wallet` });
+    } catch (error) {
+        console.error('Enrollment error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

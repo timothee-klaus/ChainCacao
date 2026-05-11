@@ -58,19 +58,20 @@ class IdentityService {
         return identity;
     }
 
-    async enrollAdminInWallet(orgName) {
+    async enrollAdminInWallet(orgName, userId = 'admin', secret = 'adminpw') {
         const orgConfig = networkConfig.organizations[orgName];
         if (!orgConfig) throw new Error(`Configuration non trouvée pour l'organisation: ${orgName}`);
 
         const caUrl = orgConfig.caUrl;
-        
-        const tlsCertPath = path.join(this.orgsRoot, 'fabric-ca', orgName, 'ca-cert.pem');
+        const tlsCertPath = path.join(this.orgsRoot, 'peerOrganizations', `${orgName}.chaincacao.com`, 'tlsca', `tlsca.${orgName}.chaincacao.com-cert.pem`);
         const tlsCert = await fs.readFile(tlsCertPath, 'utf8');
-        const caService = new FabricCAServices(caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
 
+        const caService = new FabricCAServices(caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
+        
+        console.log(`Enrolling ${userId} for org ${orgName} at ${caUrl}...`);
         const enrollment = await caService.enroll({
-            enrollmentID: 'admin',
-            enrollmentSecret: process.env.CA_ADMIN_PASS || 'adminpw'
+            enrollmentID: userId,
+            enrollmentSecret: secret
         });
 
         const x509Identity = {
@@ -82,8 +83,8 @@ class IdentityService {
             type: 'X.509',
         };
 
-        await this.putInWallet(orgName, 'admin', x509Identity);
-        console.log(`Admin for ${orgName} enrolled successfully.`);
+        await this.putInWallet(orgName, userId, x509Identity);
+        console.log(`Successfully enrolled ${userId} and saved to wallet`);
     }
 
     async registerAndEnrollUser(orgName, userId, role = 'client') {
