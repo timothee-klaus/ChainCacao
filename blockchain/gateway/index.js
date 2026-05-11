@@ -5,8 +5,13 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const envPath = process.env.DOTENV_CONFIG_PATH ? path.resolve(__dirname, process.env.DOTENV_CONFIG_PATH) : path.resolve(__dirname, '.env');
+// On cherche d'abord .env.test (VM/Test), sinon .env par défaut
+const envTestPath = path.resolve(__dirname, '.env.test');
+const envDefaultPath = path.resolve(__dirname, '.env');
+const envPath = fs.existsSync(envTestPath) ? envTestPath : envDefaultPath;
+
 require('dotenv').config({ path: envPath });
+console.log(`[Gateway] Chargement de la configuration depuis: ${path.basename(envPath)}`);
 
 const IdentityService = require('./IdentityService');
 const networkConfig = require('./networkConfig');
