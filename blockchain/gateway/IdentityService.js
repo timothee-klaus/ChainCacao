@@ -23,9 +23,9 @@ class IdentityService {
             const data = await fs.readFile(identityPath, 'utf8');
             const identity = JSON.parse(data);
             
-            // Re-convertir les Buffers sérialisés par JSON.stringify
+            // Re-convertir les Buffers sérialisés par JSON.stringify en chaînes PEM
             if (identity.credentials && identity.credentials.privateKey && identity.credentials.privateKey.type === 'Buffer') {
-                identity.credentials.privateKey = Buffer.from(identity.credentials.privateKey.data);
+                identity.credentials.privateKey = Buffer.from(identity.credentials.privateKey.data).toString();
             }
             if (identity.credentials && identity.credentials.certificate && typeof identity.credentials.certificate === 'object' && identity.credentials.certificate.type === 'Buffer') {
                 identity.credentials.certificate = Buffer.from(identity.credentials.certificate.data).toString();
@@ -109,9 +109,14 @@ class IdentityService {
         
         // Create a real User object for the registrar
         const adminUser = new User('admin');
-        adminUser.setCryptoSuite(FabricCAServices.newCryptoSuite());
+        const cryptoSuite = FabricCAServices.newCryptoSuite();
+        adminUser.setCryptoSuite(cryptoSuite);
+
+        // Importer la clé privée proprement dans le CryptoSuite (conversion PEM -> Key object)
+        const privKey = await cryptoSuite.importKey(adminIdentity.credentials.privateKey, { ephemeral: true });
+
         await adminUser.setEnrollment(
-            adminIdentity.credentials.privateKey,
+            privKey,
             adminIdentity.credentials.certificate,
             adminIdentity.mspId
         );
