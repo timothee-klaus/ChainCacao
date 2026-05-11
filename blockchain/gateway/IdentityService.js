@@ -43,19 +43,25 @@ class IdentityService {
         await fs.writeFile(identityPath, JSON.stringify(identity, null, 2));
     }
 
-    async getIdentity(orgName, userId = 'admin') {
-        let identity = await this.getFromWallet(orgName, userId);
-
-        if (!identity && userId === 'admin') {
-            await this.enrollAdminInWallet(orgName);
-            identity = await this.getFromWallet(orgName, 'admin');
+    async getIdentity(orgName, userId) {
+        try {
+            const identity = await this.getFromWallet(orgName, userId);
+            if (identity) return identity;
+        } catch (e) {
+            console.warn(`Identity ${userId} not found, falling back to admin...`);
         }
 
-        if (!identity) {
-            throw new Error(`Identité ${userId} non trouvée dans le wallet de ${orgName}`);
+        // Fallback to admin
+        try {
+            let adminIdentity = await this.getFromWallet(orgName, 'admin');
+            if (!adminIdentity) {
+                await this.enrollAdminInWallet(orgName);
+                adminIdentity = await this.getFromWallet(orgName, 'admin');
+            }
+            return adminIdentity;
+        } catch (fallbackError) {
+            throw new Error(`Identité ${userId} non trouvée et échec du repli sur 'admin': ${fallbackError.message}`);
         }
-
-        return identity;
     }
 
     async enrollAdminInWallet(orgName, userId = 'admin', secret = 'adminpw') {
