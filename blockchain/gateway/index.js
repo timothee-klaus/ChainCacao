@@ -44,7 +44,7 @@ async function getGatewayConnection(requestedOrg, userId = 'admin') {
             client,
             identity: { mspId: identity.mspId, credentials: Buffer.from(identity.credentials.certificate) },
             signer: signers.newPrivateKeySigner(privateKey),
-            discovery: { enabled: true, asLocalhost: true },
+            discovery: { enabled: false, asLocalhost: true },
         }),
         client
     };

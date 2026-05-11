@@ -48,7 +48,7 @@ approveForMyOrg() {
   setGlobals $ORG
   echo "### Approving chaincode for org${ORG} ###"
   set -x
-  peer lifecycle chaincode approveformyorg -o orderer.test.chaincacao.com:17050 --ordererTLSHostnameOverride orderer.test.chaincacao.com --tls --cafile "$ORDERER_CA" --channelID ${CHANNEL_NAME} --name ${CC_NAME} --version ${CC_VERSION} --package-id ${PACKAGE_ID} --sequence ${CC_SEQUENCE} ${COLLECTIONS_CONFIG} >&log.txt
+  peer lifecycle chaincode approveformyorg -o orderer.test.chaincacao.com:17050 --ordererTLSHostnameOverride orderer.test.chaincacao.com --tls --cafile "$ORDERER_CA" --channelID ${CHANNEL_NAME} --name ${CC_NAME} --version ${CC_VERSION} --package-id ${PACKAGE_ID} --sequence ${CC_SEQUENCE} --signature-policy "OR('OrgTestMSP.member')" ${COLLECTIONS_CONFIG} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
@@ -58,7 +58,7 @@ commitChaincodeDefinition() {
   parsePeerConnectionParameters 1
   echo "### Committing chaincode definition ###"
   set -x
-  peer lifecycle chaincode commit -o orderer.test.chaincacao.com:17050 --ordererTLSHostnameOverride orderer.test.chaincacao.com --tls --cafile "$ORDERER_CA" --channelID ${CHANNEL_NAME} --name ${CC_NAME} $PEER_CONN_PARMS --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${COLLECTIONS_CONFIG} >&log.txt
+  peer lifecycle chaincode commit -o orderer.test.chaincacao.com:17050 --ordererTLSHostnameOverride orderer.test.chaincacao.com --tls --cafile "$ORDERER_CA" --channelID ${CHANNEL_NAME} --name ${CC_NAME} $PEER_CONN_PARMS --version ${CC_VERSION} --sequence ${CC_SEQUENCE} --signature-policy "OR('OrgTestMSP.member')" ${COLLECTIONS_CONFIG} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
