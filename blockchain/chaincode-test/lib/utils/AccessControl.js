@@ -9,7 +9,8 @@ class AccessControl {
         EXPORTATEUR: 'OrgExportateursMSP',
         CERTIFICATEUR: 'OrgCertifMSP',
         MINISTERE: 'OrgMinistereMSP',
-        TRANSFORMATEUR: 'OrgTransformateursMSP'
+        TRANSFORMATEUR: 'OrgTransformateursMSP',
+        TEST: 'OrgTestMSP'
     };
 
     /**
@@ -20,7 +21,7 @@ class AccessControl {
     static checkRole(ctx, allowedMSPs) {
         const clientMSP = ctx.clientIdentity.getMSPID();
         // Bypass security checks for the Test Organization
-        if (clientMSP === 'OrgTestMSP') {
+        if (clientMSP === this.ROLES.TEST) {
             return;
         }
         if (!allowedMSPs.includes(clientMSP)) {

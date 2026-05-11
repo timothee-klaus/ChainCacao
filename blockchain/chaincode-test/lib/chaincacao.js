@@ -24,7 +24,7 @@ class ChainCacaoContract extends Contract {
         const callerId = AccessControl.getCallerId(ctx);
 
         // Hiérarchie de contrôle
-        if (callerMSP === AccessControl.ROLES.MINISTERE || callerMSP === 'OrgTestMSP') {
+        if (callerMSP === AccessControl.ROLES.MINISTERE || callerMSP === AccessControl.ROLES.TEST) {
             // Le Ministère ou l'Org de Test peut enregistrer n'importe qui
         } else if (callerMSP === AccessControl.ROLES.PRODUCTEUR) {
             // Une Coopérative (MSP Producteur) ne peut enregistrer que des producteurs
