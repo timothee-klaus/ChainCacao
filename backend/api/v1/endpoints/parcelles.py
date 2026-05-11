@@ -24,21 +24,24 @@ async def register_parcelle(
         )
 
     # Force le farmer_id à être celui de l'utilisateur connecté
-    parcelle_data = parcelle.model_dump(by_alias=True)
-    parcelle_data["farmerId"] = current_user.blockchain_id
+    parcelle_data = parcelle.model_dump()
+    parcelle_data["farmer_id"] = current_user.blockchain_id
+
 
     result = await blockchain.register_parcelle(
-        parcelle.model_dump(), 
+        parcelle_data, 
         current_user.org_name, 
         current_user.blockchain_id
     )
+
     
     if not result.get("success"):
         raise HTTPException(status_code=400, detail=result.get("error"))
     
     return result
 
-@router.get("/me", response_model=List[ParcelleResponse])
+@router.get("/me", response_model=List[Any])
+
 async def get_my_parcelles(current_user: User = Depends(security.get_validated_user)):
     """
     Récupère la liste des parcelles du producteur connecté.
@@ -60,7 +63,8 @@ async def get_my_parcelles(current_user: User = Depends(security.get_validated_u
         
     return result
 
-@router.get("/{parcelle_id}", response_model=ParcelleResponse)
+@router.get("/{parcelle_id}", response_model=Any)
+
 async def get_parcelle(
     parcelle_id: str,
     current_user: User = Depends(security.get_validated_user)
@@ -74,7 +78,8 @@ async def get_parcelle(
         current_user.blockchain_id
     )
     
-    if isinstance(result, dict) and result.get("success") is False:
-        raise HTTPException(status_code=404, detail="Parcelle non trouvée")
+    if not result or (isinstance(result, dict) and result.get("success") is False):
+        raise HTTPException(status_code=404, detail=f"Parcelle {parcelle_id} non trouvée sur la blockchain")
         
     return result
+

@@ -24,7 +24,8 @@ class GPSModel(BaseModel):
 class ParcelleCreate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
     parcelle_id: str = Field(alias="parcelleId")
-    farmer_id: str = Field(alias="farmerId")
+    farmer_id: Optional[str] = Field(None, alias="farmerId")
+
     gps: GPSModel
     culture: str
     surface: float
