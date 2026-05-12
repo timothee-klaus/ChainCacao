@@ -4,7 +4,9 @@ import '../../database/isar_service.dart';
 import 'package:isar/isar.dart';
 import '../../../features/cacao_lot/data/models/cacao_lot_model.dart';
 
-final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) async* {
+final connectivityProvider = StreamProvider<List<ConnectivityResult>>((
+  ref,
+) async* {
   // On récupère l'état initial
   final initial = await Connectivity().checkConnectivity();
   yield initial;
@@ -14,7 +16,8 @@ final connectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) asyn
 
 final pendingSyncCountProvider = StreamProvider<int>((ref) async* {
   final isar = await ref.watch(isarServiceProvider).db;
-  yield* isar.collection<CacaoLotModel>()
+  yield* isar
+      .collection<CacaoLotModel>()
       .filter()
       .syncStatusEqualTo('pending')
       .watch(fireImmediately: true)

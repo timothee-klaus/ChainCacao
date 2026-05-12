@@ -12,12 +12,12 @@ class QueueItem {
   String payloadType = ''; // create_lot, transfer, etc.
   String payloadRef = ''; // Référence à l'identifiant de l'objet (ex: lotId)
   List<String> mediaRefs = [];
-  
+
   int tentatives = 0;
-  
+
   @Index()
   String statut = 'pending'; // pending, failed, sent
-  
+
   DateTime dateCreation = DateTime.now();
 
   QueueItem();
@@ -28,7 +28,8 @@ class QueueItem {
     List<String> mediaRefs = const [],
   }) {
     return QueueItem()
-      ..queueId = DateTime.now().millisecondsSinceEpoch.toString() // Simple ID pour l'exemple
+      ..queueId = DateTime.now().millisecondsSinceEpoch
+          .toString() // Simple ID pour l'exemple
       ..payloadType = payloadType
       ..payloadRef = payloadRef
       ..mediaRefs = mediaRefs

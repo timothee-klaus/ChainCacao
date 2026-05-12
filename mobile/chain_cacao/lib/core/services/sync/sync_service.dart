@@ -18,13 +18,16 @@ class SyncService {
   }
 
   void _startListeningToConnectivity() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      final hasConnection = results.any((r) => 
-        r == ConnectivityResult.mobile || 
-        r == ConnectivityResult.wifi || 
-        r == ConnectivityResult.ethernet
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
+      final hasConnection = results.any(
+        (r) =>
+            r == ConnectivityResult.mobile ||
+            r == ConnectivityResult.wifi ||
+            r == ConnectivityResult.ethernet,
       );
-      
+
       if (hasConnection) {
         triggerSync();
       }
@@ -37,8 +40,9 @@ class SyncService {
 
     try {
       final isar = await _isarService.db;
-      
-      final pendingItems = await isar.collection<QueueItem>()
+
+      final pendingItems = await isar
+          .collection<QueueItem>()
           .filter()
           .statutEqualTo('pending')
           .sortByDateCreation()
@@ -48,7 +52,7 @@ class SyncService {
 
       for (var item in pendingItems) {
         final success = await _processQueueItem(item, isar);
-        
+
         await isar.writeTxn(() async {
           if (success) {
             item.statut = 'sent';
@@ -62,10 +66,9 @@ class SyncService {
           }
         });
       }
-      
+
       // Rafraîchir la liste des lots pour l'UI
       _ref.invalidate(cacaoLotListNotifierProvider);
-      
     } catch (e) {
       // Log error
     } finally {
@@ -75,7 +78,11 @@ class SyncService {
 
   Future<bool> _processQueueItem(QueueItem item, Isar isar) async {
     if (item.payloadType == 'create_lot') {
-      final lot = await isar.collection<CacaoLotModel>().filter().lotIdEqualTo(item.payloadRef).findFirst();
+      final lot = await isar
+          .collection<CacaoLotModel>()
+          .filter()
+          .lotIdEqualTo(item.payloadRef)
+          .findFirst();
       if (lot == null) return true;
 
       try {
@@ -84,17 +91,18 @@ class SyncService {
 
         // En mode démo hackathon, on force le succès même si le serveur simulé ne répond pas
         // car l'objectif est de montrer la transition vers la blockchain
-        
+
         // Mise à jour du statut de synchro du lot local
         await isar.writeTxn(() async {
           lot.syncStatus = 'synced';
           // On simule un hash de transaction blockchain
-          lot.lotHashOnChain = '0x${lot.lotId.hashCode.toRadixString(16)}${DateTime.now().millisecond.toRadixString(16)}';
+          lot.lotHashOnChain =
+              '0x${lot.lotId.hashCode.toRadixString(16)}${DateTime.now().millisecond.toRadixString(16)}';
           lot.updatedAt = DateTime.now();
           await isar.collection<CacaoLotModel>().put(lot);
         });
-        
-        return true; 
+
+        return true;
       } catch (_) {
         return true;
       }

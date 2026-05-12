@@ -13,7 +13,7 @@ class SaveCacaoLotUseCase {
     if (lot.weightKg <= 0) {
       return left('Le poids du lot doit être supérieur à 0 kg.');
     }
-    
+
     return await repository.saveLot(lot);
   }
 }

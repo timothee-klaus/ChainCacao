@@ -50,7 +50,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final LoginUseCase loginUseCase;
   final LocalStorageService localStorageService;
 
-  AuthNotifier(this.loginUseCase, this.localStorageService) : super(AuthState()) {
+  AuthNotifier(this.loginUseCase, this.localStorageService)
+    : super(AuthState()) {
     // Vérification automatique au démarrage
     checkAuth();
   }
@@ -73,10 +74,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     // Appel direct au Use Case (pas au repository !)
     final result = await loginUseCase(email, password);
-    
+
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error),
       (user) => state = state.copyWith(isLoading: false, user: user),

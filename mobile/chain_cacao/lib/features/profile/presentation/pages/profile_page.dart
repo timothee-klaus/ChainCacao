@@ -66,7 +66,9 @@ class ProfilePage extends ConsumerWidget {
                 child: const CircleAvatar(
                   radius: 50,
                   backgroundColor: Color(0xFFF0F2F5),
-                  backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=farmer'),
+                  backgroundImage: NetworkImage(
+                    'https://i.pravatar.cc/150?u=farmer',
+                  ),
                 ),
               ),
               Positioned(
@@ -78,7 +80,11 @@ class ProfilePage extends ConsumerWidget {
                     color: Color(0xFF2D1E17),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
               ),
             ],
@@ -149,15 +155,23 @@ class ProfilePage extends ConsumerWidget {
           ),
           child: lotsAsync.when(
             data: (lots) {
-              final totalWeight = lots.fold(0.0, (sum, lot) => sum + lot.weightKg);
-              final syncedCount = lots.where((l) => l.syncStatus == 'synced').length;
-              
+              final totalWeight = lots.fold(
+                0.0,
+                (sum, lot) => sum + lot.weightKg,
+              );
+              final syncedCount = lots
+                  .where((l) => l.syncStatus == 'synced')
+                  .length;
+
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildStatItem('RÉCOLTES', '${lots.length}'),
                   Container(width: 1, height: 40, color: Colors.white24),
-                  _buildStatItem('POIDS TOTAL', '${totalWeight.toStringAsFixed(0)} KG'),
+                  _buildStatItem(
+                    'POIDS TOTAL',
+                    '${totalWeight.toStringAsFixed(0)} KG',
+                  ),
                   Container(width: 1, height: 40, color: Colors.white24),
                   _buildStatItem('SYNCHRONISÉS', '$syncedCount'),
                 ],
@@ -165,11 +179,16 @@ class ProfilePage extends ConsumerWidget {
             },
             loading: () => const SizedBox(
               height: 40,
-              child: Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              ),
             ),
             error: (err, _) => Text(
-              'Erreur stats', 
-              style: const TextStyle(color: Colors.white, fontSize: 10)
+              'Erreur stats',
+              style: const TextStyle(color: Colors.white, fontSize: 10),
             ),
           ),
         ),
@@ -212,15 +231,23 @@ class ProfilePage extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            _buildMenuItem(Icons.person_outline, 'Mon Compte', 'Gérez vos infos personnelles'),
+            _buildMenuItem(
+              Icons.person_outline,
+              'Mon Compte',
+              'Gérez vos infos personnelles',
+            ),
             _buildDivider(),
-            _buildMenuItem(Icons.lock_outline, 'Sécurité', 'Code PIN et Biométrie'),
+            _buildMenuItem(
+              Icons.lock_outline,
+              'Sécurité',
+              'Code PIN et Biométrie',
+            ),
             _buildDivider(),
             _buildMenuItem(Icons.language_outlined, 'Langue', 'Français (FR)'),
             _buildDivider(),
             _buildMenuItem(
-              Icons.logout, 
-              'Déconnexion', 
+              Icons.logout,
+              'Déconnexion',
               'Quitter la session en toute sécurité',
               isDestructive: true,
               onTap: () => ref.read(authProvider.notifier).logout(),
@@ -231,9 +258,15 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, String subtitle, {bool isDestructive = false, VoidCallback? onTap}) {
+  Widget _buildMenuItem(
+    IconData icon,
+    String title,
+    String subtitle, {
+    bool isDestructive = false,
+    VoidCallback? onTap,
+  }) {
     final color = isDestructive ? Colors.red[700] : const Color(0xFF2D1E17);
-    
+
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -270,7 +303,11 @@ class ProfilePage extends ConsumerWidget {
       children: [
         const Text(
           'ChainCacao v1.0.4',
-          style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(

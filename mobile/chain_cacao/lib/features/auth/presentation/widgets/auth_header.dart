@@ -16,10 +16,7 @@ class AuthHeader extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.brown.withValues(alpha: 0.2)),
           ),
-          child: Image.asset(
-            'assets/images/logo.png',
-            height: 50,
-          ),
+          child: Image.asset('assets/images/logo.png', height: 50),
         ),
         const SizedBox(width: 16),
         // Bloc Texte

@@ -5,7 +5,8 @@ class LocationService {
 
   Future<LocationPermission> checkPermission() => Geolocator.checkPermission();
 
-  Future<LocationPermission> requestPermission() => Geolocator.requestPermission();
+  Future<LocationPermission> requestPermission() =>
+      Geolocator.requestPermission();
 
   Future<Position?> getCurrentPosition() async {
     bool serviceEnabled = await isServiceEnabled();

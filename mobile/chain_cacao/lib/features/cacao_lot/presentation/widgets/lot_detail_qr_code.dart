@@ -54,7 +54,7 @@ class _LotDetailQRCodeState extends State<LotDetailQRCode> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Screenshot target
           Screenshot(
             controller: _screenshotController,
@@ -99,22 +99,31 @@ class _LotDetailQRCodeState extends State<LotDetailQRCode> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           SizedBox(
             width: double.infinity,
             height: 56,
             child: ElevatedButton.icon(
               onPressed: _isExporting ? null : _exportQRCode,
-              icon: _isExporting 
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.share_outlined),
-              label: const Text('Partager le Passeport', style: TextStyle(fontWeight: FontWeight.bold)),
+              icon: _isExporting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.share_outlined),
+              label: const Text(
+                'Partager le Passeport',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2D1E17),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           ),

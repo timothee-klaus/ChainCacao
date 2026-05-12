@@ -32,14 +32,20 @@ class _LotDetailPageState extends State<LotDetailPage> {
         ),
         title: Text(
           'LOT-${widget.lot.lotId.length > 8 ? widget.lot.lotId.substring(0, 8).toUpperCase() : widget.lot.lotId.toUpperCase()}',
-          style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=farmer'),
+              backgroundImage: NetworkImage(
+                'https://i.pravatar.cc/150?u=farmer',
+              ),
             ),
           ),
         ],
@@ -49,7 +55,7 @@ class _LotDetailPageState extends State<LotDetailPage> {
           children: [
             // Hero Gallery Section (Multi-images)
             _buildHeroGallery(),
-            
+
             // Floating Content
             Transform.translate(
               offset: const Offset(0, -40),
@@ -76,49 +82,52 @@ class _LotDetailPageState extends State<LotDetailPage> {
 
   Widget _buildHeroGallery() {
     final photos = widget.lot.photoUrls;
-    
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
         SizedBox(
           height: 280,
           width: double.infinity,
-          child: photos.isNotEmpty 
-            ? PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) => setState(() => _currentPage = index),
-                itemCount: photos.length,
-                itemBuilder: (context, index) => Image.file(
-                  File(photos[index]),
-                  fit: BoxFit.cover,
-                ),
-              )
-            : Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.brown[100]!, Colors.brown[50]!],
+          child: photos.isNotEmpty
+              ? PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) =>
+                      setState(() => _currentPage = index),
+                  itemCount: photos.length,
+                  itemBuilder: (context, index) =>
+                      Image.file(File(photos[index]), fit: BoxFit.cover),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.brown[100]!, Colors.brown[50]!],
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.image_not_supported_outlined, size: 48, color: Colors.brown[300]),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Aucune photo disponible',
-                        style: TextStyle(
-                          color: Colors.brown[400],
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.image_not_supported_outlined,
+                          size: 48,
+                          color: Colors.brown[300],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Text(
+                          'Aucune photo disponible',
+                          style: TextStyle(
+                            color: Colors.brown[400],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
         ),
         // Page Indicator
         if (photos.length > 1)
@@ -134,7 +143,9 @@ class _LotDetailPageState extends State<LotDetailPage> {
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentPage == index ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                    color: _currentPage == index
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -169,7 +180,12 @@ class _LotDetailPageState extends State<LotDetailPage> {
                 children: [
                   const Text(
                     'PRODUIT DE L\'ESTATE',
-                    style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -178,19 +194,28 @@ class _LotDetailPageState extends State<LotDetailPage> {
                     children: [
                       Text(
                         widget.lot.species,
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1A1A1A),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '(${widget.lot.variete.isEmpty ? "Non spécifiée" : widget.lot.variete})',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.brown[400]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.brown[400],
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
               InkWell(
-                onTap: () => _shareService.shareLotInfo(widget.lot, includeQR: true),
+                onTap: () =>
+                    _shareService.shareLotInfo(widget.lot, includeQR: true),
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
                   padding: const EdgeInsets.all(12),
@@ -242,9 +267,19 @@ class _LotDetailPageState extends State<LotDetailPage> {
         children: [
           Icon(icon, color: Colors.brown[700], size: 20),
           const SizedBox(height: 12),
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+          ),
         ],
       ),
     );
@@ -265,9 +300,22 @@ class _LotDetailPageState extends State<LotDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('LOCALISATION', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+                const Text(
+                  'LOCALISATION',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('Région des ${widget.lot.region}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+                Text(
+                  'Région des ${widget.lot.region}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ],
             ),
           ),
@@ -277,7 +325,9 @@ class _LotDetailPageState extends State<LotDetailPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               image: const DecorationImage(
-                image: NetworkImage('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=200&auto=format&fit=crop'),
+                image: NetworkImage(
+                  'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=200&auto=format&fit=crop',
+                ),
                 fit: BoxFit.cover,
               ),
             ),
@@ -293,7 +343,11 @@ class _LotDetailPageState extends State<LotDetailPage> {
       children: [
         const Text(
           'Historique du Lot',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF1A1A1A),
+          ),
         ),
         const SizedBox(height: 24),
         _buildTimelineItem(
@@ -313,7 +367,14 @@ class _LotDetailPageState extends State<LotDetailPage> {
     );
   }
 
-  Widget _buildTimelineItem(String title, String description, String date, {bool isFirst = false, bool isLast = false, bool isActive = false}) {
+  Widget _buildTimelineItem(
+    String title,
+    String description,
+    String date, {
+    bool isFirst = false,
+    bool isLast = false,
+    bool isActive = false,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -328,11 +389,7 @@ class _LotDetailPageState extends State<LotDetailPage> {
               ),
             ),
             if (!isLast)
-              Container(
-                width: 2,
-                height: 80,
-                color: Colors.grey[200],
-              ),
+              Container(width: 2, height: 80, color: Colors.grey[200]),
           ],
         ),
         const SizedBox(width: 16),
@@ -340,13 +397,30 @@ class _LotDetailPageState extends State<LotDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(description, style: TextStyle(color: Colors.grey[600], fontSize: 12, height: 1.4)),
+              Text(
+                description,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 date.toUpperCase(),
-                style: TextStyle(color: isActive ? Colors.brown[700] : Colors.grey, fontSize: 10, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                  color: isActive ? Colors.brown[700] : Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               const SizedBox(height: 24),
             ],
@@ -365,11 +439,16 @@ class _LotDetailPageState extends State<LotDetailPage> {
           child: ElevatedButton.icon(
             onPressed: () {},
             icon: const Icon(Icons.sell_outlined),
-            label: const Text('Vendre le lot', style: TextStyle(fontWeight: FontWeight.w900)),
+            label: const Text(
+              'Vendre le lot',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2D1E17),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               elevation: 4,
             ),
           ),
@@ -388,11 +467,16 @@ class _LotDetailPageState extends State<LotDetailPage> {
               );
             },
             icon: const Icon(Icons.qr_code_2),
-            label: const Text('Afficher le QR Code', style: TextStyle(fontWeight: FontWeight.w900)),
+            label: const Text(
+              'Afficher le QR Code',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF2D1E17),
               side: const BorderSide(color: Color(0xFF2D1E17)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           ),
         ),

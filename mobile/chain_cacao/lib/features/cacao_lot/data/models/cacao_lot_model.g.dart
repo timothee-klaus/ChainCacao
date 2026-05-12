@@ -57,11 +57,7 @@ const CacaoLotModelSchema = CollectionSchema(
       name: r'lotHashOnChain',
       type: IsarType.string,
     ),
-    r'lotId': PropertySchema(
-      id: 8,
-      name: r'lotId',
-      type: IsarType.string,
-    ),
+    r'lotId': PropertySchema(id: 8, name: r'lotId', type: IsarType.string),
     r'parcelleId': PropertySchema(
       id: 9,
       name: r'parcelleId',
@@ -77,21 +73,9 @@ const CacaoLotModelSchema = CollectionSchema(
       name: r'photoUrls',
       type: IsarType.stringList,
     ),
-    r'region': PropertySchema(
-      id: 12,
-      name: r'region',
-      type: IsarType.string,
-    ),
-    r'species': PropertySchema(
-      id: 13,
-      name: r'species',
-      type: IsarType.string,
-    ),
-    r'statut': PropertySchema(
-      id: 14,
-      name: r'statut',
-      type: IsarType.string,
-    ),
+    r'region': PropertySchema(id: 12, name: r'region', type: IsarType.string),
+    r'species': PropertySchema(id: 13, name: r'species', type: IsarType.string),
+    r'statut': PropertySchema(id: 14, name: r'statut', type: IsarType.string),
     r'syncStatus': PropertySchema(
       id: 15,
       name: r'syncStatus',
@@ -102,16 +86,12 @@ const CacaoLotModelSchema = CollectionSchema(
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
-    r'variete': PropertySchema(
-      id: 17,
-      name: r'variete',
-      type: IsarType.string,
-    ),
+    r'variete': PropertySchema(id: 17, name: r'variete', type: IsarType.string),
     r'weightKg': PropertySchema(
       id: 18,
       name: r'weightKg',
       type: IsarType.double,
-    )
+    ),
   },
   estimateSize: _cacaoLotModelEstimateSize,
   serialize: _cacaoLotModelSerialize,
@@ -129,9 +109,9 @@ const CacaoLotModelSchema = CollectionSchema(
           name: r'lotId',
           type: IndexType.hash,
           caseSensitive: true,
-        )
+        ),
       ],
-    )
+    ),
   },
   links: {},
   embeddedSchemas: {},
@@ -301,7 +281,10 @@ List<IsarLinkBase<dynamic>> _cacaoLotModelGetLinks(CacaoLotModel object) {
 }
 
 void _cacaoLotModelAttach(
-    IsarCollection<dynamic> col, Id id, CacaoLotModel object) {
+  IsarCollection<dynamic> col,
+  Id id,
+  CacaoLotModel object,
+) {
   object.isarId = id;
 }
 
@@ -354,8 +337,10 @@ extension CacaoLotModelByIndex on IsarCollection<CacaoLotModel> {
     return putAllByIndex(r'lotId', objects);
   }
 
-  List<Id> putAllByLotIdSync(List<CacaoLotModel> objects,
-      {bool saveLinks = true}) {
+  List<Id> putAllByLotIdSync(
+    List<CacaoLotModel> objects, {
+    bool saveLinks = true,
+  }) {
     return putAllByIndexSync(r'lotId', objects, saveLinks: saveLinks);
   }
 }
@@ -372,17 +357,17 @@ extension CacaoLotModelQueryWhereSort
 extension CacaoLotModelQueryWhere
     on QueryBuilder<CacaoLotModel, CacaoLotModel, QWhereClause> {
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause> isarIdEqualTo(
-      Id isarId) {
+    Id isarId,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: isarId,
-        upper: isarId,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: isarId, upper: isarId),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause>
-      isarIdNotEqualTo(Id isarId) {
+  isarIdNotEqualTo(Id isarId) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -405,7 +390,7 @@ extension CacaoLotModelQueryWhere
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause>
-      isarIdGreaterThan(Id isarId, {bool include = false}) {
+  isarIdGreaterThan(Id isarId, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: isarId, includeLower: include),
@@ -414,8 +399,9 @@ extension CacaoLotModelQueryWhere
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause> isarIdLessThan(
-      Id isarId,
-      {bool include = false}) {
+    Id isarId, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: isarId, includeUpper: include),
@@ -430,56 +416,67 @@ extension CacaoLotModelQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIsarId,
-        includeLower: includeLower,
-        upper: upperIsarId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIsarId,
+          includeLower: includeLower,
+          upper: upperIsarId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause> lotIdEqualTo(
-      String lotId) {
+    String lotId,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'lotId',
-        value: [lotId],
-      ));
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'lotId', value: [lotId]),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterWhereClause> lotIdNotEqualTo(
-      String lotId) {
+    String lotId,
+  ) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lotId',
-              lower: [],
-              upper: [lotId],
-              includeUpper: false,
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lotId',
-              lower: [lotId],
-              includeLower: false,
-              upper: [],
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lotId',
+                lower: [],
+                upper: [lotId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lotId',
+                lower: [lotId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
       } else {
         return query
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lotId',
-              lower: [lotId],
-              includeLower: false,
-              upper: [],
-            ))
-            .addWhereClause(IndexWhereClause.between(
-              indexName: r'lotId',
-              lower: [],
-              upper: [lotId],
-              includeUpper: false,
-            ));
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lotId',
+                lower: [lotId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lotId',
+                lower: [],
+                upper: [lotId],
+                includeUpper: false,
+              ),
+            );
       }
     });
   }
@@ -488,53 +485,56 @@ extension CacaoLotModelQueryWhere
 extension CacaoLotModelQueryFilter
     on QueryBuilder<CacaoLotModel, CacaoLotModel, QFilterCondition> {
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  coopNameEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameLessThan(
+  coopNameGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameBetween(
+  coopNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  coopNameBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -542,191 +542,195 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'coopName',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'coopName',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  coopNameStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  coopNameEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameContains(String value, {bool caseSensitive = true}) {
+  coopNameContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'coopName',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'coopName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameMatches(String pattern, {bool caseSensitive = true}) {
+  coopNameMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'coopName',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'coopName',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameIsEmpty() {
+  coopNameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'coopName',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'coopName', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      coopNameIsNotEmpty() {
+  coopNameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'coopName',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'coopName', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdAtEqualTo(DateTime value) {
+  createdAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'createdAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'createdAt', value: value),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdAtGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  createdAtGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'createdAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'createdAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdAtLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  createdAtLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'createdAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'createdAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdAtBetween(
+  createdAtBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'createdAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'createdAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  createdByEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByLessThan(
+  createdByGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByBetween(
+  createdByLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  createdByBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -734,191 +738,195 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'createdBy',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'createdBy',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  createdByStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  createdByEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByContains(String value, {bool caseSensitive = true}) {
+  createdByContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'createdBy',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'createdBy',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByMatches(String pattern, {bool caseSensitive = true}) {
+  createdByMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'createdBy',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'createdBy',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByIsEmpty() {
+  createdByIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'createdBy',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'createdBy', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      createdByIsNotEmpty() {
+  createdByIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'createdBy',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'createdBy', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      dateCollecteEqualTo(DateTime value) {
+  dateCollecteEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'dateCollecte',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'dateCollecte', value: value),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      dateCollecteGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  dateCollecteGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'dateCollecte',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'dateCollecte',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      dateCollecteLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  dateCollecteLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'dateCollecte',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'dateCollecte',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      dateCollecteBetween(
+  dateCollecteBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'dateCollecte',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'dateCollecte',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  farmerIdEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdLessThan(
+  farmerIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdBetween(
+  farmerIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  farmerIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -926,209 +934,213 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'farmerId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'farmerId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  farmerIdStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  farmerIdEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdContains(String value, {bool caseSensitive = true}) {
+  farmerIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'farmerId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'farmerId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdMatches(String pattern, {bool caseSensitive = true}) {
+  farmerIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'farmerId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'farmerId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdIsEmpty() {
+  farmerIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'farmerId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'farmerId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      farmerIdIsNotEmpty() {
+  farmerIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'farmerId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'farmerId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      isarIdEqualTo(Id value) {
+  isarIdEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isarId',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isarId', value: value),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      isarIdGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
+  isarIdGreaterThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'isarId',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'isarId',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      isarIdLessThan(
-    Id value, {
-    bool include = false,
-  }) {
+  isarIdLessThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'isarId',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'isarId',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      isarIdBetween(
+  isarIdBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'isarId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'isarId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeIsNull() {
+  latitudeIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'latitude',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'latitude'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeIsNotNull() {
+  latitudeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'latitude',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'latitude'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeEqualTo(
-    double? value, {
-    double epsilon = Query.epsilon,
-  }) {
+  latitudeEqualTo(double? value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'latitude',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'latitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeGreaterThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'latitude',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeLessThan(
+  latitudeGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'latitude',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'latitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      latitudeBetween(
+  latitudeLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'latitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  latitudeBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -1136,83 +1148,88 @@ extension CacaoLotModelQueryFilter
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'latitude',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'latitude',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeIsNull() {
+  longitudeIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'longitude',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'longitude'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeIsNotNull() {
+  longitudeIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'longitude',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'longitude'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeEqualTo(
-    double? value, {
-    double epsilon = Query.epsilon,
-  }) {
+  longitudeEqualTo(double? value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'longitude',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'longitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeGreaterThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'longitude',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeLessThan(
+  longitudeGreaterThan(
     double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'longitude',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'longitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      longitudeBetween(
+  longitudeLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'longitude',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  longitudeBetween(
     double? lower,
     double? upper, {
     bool includeLower = true,
@@ -1220,83 +1237,88 @@ extension CacaoLotModelQueryFilter
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'longitude',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'longitude',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainIsNull() {
+  lotHashOnChainIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'lotHashOnChain',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'lotHashOnChain'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainIsNotNull() {
+  lotHashOnChainIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'lotHashOnChain',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'lotHashOnChain'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainEqualTo(
-    String? value, {
-    bool caseSensitive = true,
-  }) {
+  lotHashOnChainEqualTo(String? value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainLessThan(
+  lotHashOnChainGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainBetween(
+  lotHashOnChainLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  lotHashOnChainBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1304,135 +1326,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lotHashOnChain',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lotHashOnChain',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lotHashOnChainStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lotHashOnChainEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainContains(String value, {bool caseSensitive = true}) {
+  lotHashOnChainContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'lotHashOnChain',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'lotHashOnChain',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainMatches(String pattern, {bool caseSensitive = true}) {
+  lotHashOnChainMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'lotHashOnChain',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'lotHashOnChain',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainIsEmpty() {
+  lotHashOnChainIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lotHashOnChain',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lotHashOnChain', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotHashOnChainIsNotEmpty() {
+  lotHashOnChainIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'lotHashOnChain',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'lotHashOnChain', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lotIdEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdLessThan(
+  lotIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdBetween(
+  lotIdLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  lotIdBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1440,153 +1467,158 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'lotId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lotId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lotIdStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  lotIdEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdContains(String value, {bool caseSensitive = true}) {
+  lotIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'lotId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'lotId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdMatches(String pattern, {bool caseSensitive = true}) {
+  lotIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'lotId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'lotId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdIsEmpty() {
+  lotIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'lotId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lotId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      lotIdIsNotEmpty() {
+  lotIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'lotId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'lotId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdIsNull() {
+  parcelleIdIsNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'parcelleId',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'parcelleId'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdIsNotNull() {
+  parcelleIdIsNotNull() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'parcelleId',
-      ));
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'parcelleId'),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdEqualTo(
-    String? value, {
-    bool caseSensitive = true,
-  }) {
+  parcelleIdEqualTo(String? value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdLessThan(
+  parcelleIdGreaterThan(
     String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdBetween(
+  parcelleIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  parcelleIdBetween(
     String? lower,
     String? upper, {
     bool includeLower = true,
@@ -1594,135 +1626,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'parcelleId',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'parcelleId',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  parcelleIdStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  parcelleIdEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdContains(String value, {bool caseSensitive = true}) {
+  parcelleIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'parcelleId',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'parcelleId',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdMatches(String pattern, {bool caseSensitive = true}) {
+  parcelleIdMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'parcelleId',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'parcelleId',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdIsEmpty() {
+  parcelleIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'parcelleId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'parcelleId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      parcelleIdIsNotEmpty() {
+  parcelleIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'parcelleId',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'parcelleId', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  photoHashesElementEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementLessThan(
+  photoHashesElementGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementBetween(
+  photoHashesElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesElementBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1730,160 +1767,126 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'photoHashes',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'photoHashes',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'photoHashes',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photoHashes',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'photoHashes',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoHashes',
-        length,
-        true,
-        length,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'photoHashes',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesIsEmpty() {
+  photoHashesElementStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoHashes',
-        0,
-        true,
-        0,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesIsNotEmpty() {
+  photoHashesElementEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoHashes',
-        0,
-        false,
-        999999,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
+  photoHashesElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoHashes',
-        0,
-        true,
-        length,
-        include,
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'photoHashes',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
+  photoHashesElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoHashes',
-        length,
-        include,
-        999999,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'photoHashes',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoHashesLengthBetween(
+  photoHashesElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'photoHashes', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'photoHashes', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoHashes', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoHashes', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoHashes', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoHashes', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoHashes', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoHashesLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -1901,53 +1904,56 @@ extension CacaoLotModelQueryFilter
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  photoUrlsElementEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementLessThan(
+  photoUrlsElementGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementBetween(
+  photoUrlsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsElementBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1955,160 +1961,126 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'photoUrls',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'photoUrls',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'photoUrls',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photoUrls',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'photoUrls',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoUrls',
-        length,
-        true,
-        length,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'photoUrls',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsIsEmpty() {
+  photoUrlsElementStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoUrls',
-        0,
-        true,
-        0,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsIsNotEmpty() {
+  photoUrlsElementEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoUrls',
-        0,
-        false,
-        999999,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
+  photoUrlsElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoUrls',
-        0,
-        true,
-        length,
-        include,
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'photoUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
+  photoUrlsElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'photoUrls',
-        length,
-        include,
-        999999,
-        true,
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'photoUrls',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      photoUrlsLengthBetween(
+  photoUrlsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'photoUrls', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'photoUrls', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoUrls', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoUrls', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoUrls', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoUrls', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoUrls', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  photoUrlsLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -2126,53 +2098,56 @@ extension CacaoLotModelQueryFilter
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  regionEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionLessThan(
+  regionGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionBetween(
+  regionLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  regionBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2180,135 +2155,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'region',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'region',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  regionStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  regionEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionContains(String value, {bool caseSensitive = true}) {
+  regionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'region',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'region',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionMatches(String pattern, {bool caseSensitive = true}) {
+  regionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'region',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'region',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionIsEmpty() {
+  regionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'region',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'region', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      regionIsNotEmpty() {
+  regionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'region',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'region', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  speciesEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesLessThan(
+  speciesGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesBetween(
+  speciesLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  speciesBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2316,135 +2296,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'species',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'species',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  speciesStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  speciesEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesContains(String value, {bool caseSensitive = true}) {
+  speciesContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'species',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'species',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesMatches(String pattern, {bool caseSensitive = true}) {
+  speciesMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'species',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'species',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesIsEmpty() {
+  speciesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'species',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'species', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      speciesIsNotEmpty() {
+  speciesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'species',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'species', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  statutEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutLessThan(
+  statutGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutBetween(
+  statutLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  statutBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2452,135 +2437,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'statut',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'statut',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  statutStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  statutEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutContains(String value, {bool caseSensitive = true}) {
+  statutContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'statut',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'statut',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutMatches(String pattern, {bool caseSensitive = true}) {
+  statutMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'statut',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'statut',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutIsEmpty() {
+  statutIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'statut',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'statut', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      statutIsNotEmpty() {
+  statutIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'statut',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'statut', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  syncStatusEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusLessThan(
+  syncStatusGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusBetween(
+  syncStatusLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  syncStatusBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2588,191 +2578,195 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'syncStatus',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'syncStatus',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  syncStatusStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  syncStatusEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusContains(String value, {bool caseSensitive = true}) {
+  syncStatusContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'syncStatus',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'syncStatus',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusMatches(String pattern, {bool caseSensitive = true}) {
+  syncStatusMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'syncStatus',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'syncStatus',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusIsEmpty() {
+  syncStatusIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'syncStatus',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'syncStatus', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      syncStatusIsNotEmpty() {
+  syncStatusIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'syncStatus',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'syncStatus', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      updatedAtEqualTo(DateTime value) {
+  updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'updatedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'updatedAt', value: value),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      updatedAtGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  updatedAtGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'updatedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'updatedAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      updatedAtLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  updatedAtLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'updatedAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'updatedAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      updatedAtBetween(
+  updatedAtBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'updatedAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'updatedAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  varieteEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteLessThan(
+  varieteGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteBetween(
+  varieteLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  varieteBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -2780,135 +2774,140 @@ extension CacaoLotModelQueryFilter
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'variete',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'variete',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  varieteStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  varieteEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteContains(String value, {bool caseSensitive = true}) {
+  varieteContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'variete',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'variete',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteMatches(String pattern, {bool caseSensitive = true}) {
+  varieteMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'variete',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'variete',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteIsEmpty() {
+  varieteIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'variete',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'variete', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      varieteIsNotEmpty() {
+  varieteIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'variete',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'variete', value: ''),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      weightKgEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
+  weightKgEqualTo(double value, {double epsilon = Query.epsilon}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'weightKg',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'weightKg',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      weightKgGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'weightKg',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      weightKgLessThan(
+  weightKgGreaterThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'weightKg',
-        value: value,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'weightKg',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
-      weightKgBetween(
+  weightKgLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'weightKg',
+          value: value,
+          epsilon: epsilon,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterFilterCondition>
+  weightKgBetween(
     double lower,
     double upper, {
     bool includeLower = true,
@@ -2916,14 +2915,16 @@ extension CacaoLotModelQueryFilter
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'weightKg',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'weightKg',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          epsilon: epsilon,
+        ),
+      );
     });
   }
 }
@@ -2943,7 +2944,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByCoopNameDesc() {
+  sortByCoopNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'coopName', Sort.desc);
     });
@@ -2956,7 +2957,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByCreatedAtDesc() {
+  sortByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
@@ -2969,21 +2970,21 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByCreatedByDesc() {
+  sortByCreatedByDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdBy', Sort.desc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByDateCollecte() {
+  sortByDateCollecte() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dateCollecte', Sort.asc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByDateCollecteDesc() {
+  sortByDateCollecteDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dateCollecte', Sort.desc);
     });
@@ -2996,7 +2997,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByFarmerIdDesc() {
+  sortByFarmerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'farmerId', Sort.desc);
     });
@@ -3009,7 +3010,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByLatitudeDesc() {
+  sortByLatitudeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'latitude', Sort.desc);
     });
@@ -3022,21 +3023,21 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByLongitudeDesc() {
+  sortByLongitudeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'longitude', Sort.desc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByLotHashOnChain() {
+  sortByLotHashOnChain() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lotHashOnChain', Sort.asc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByLotHashOnChainDesc() {
+  sortByLotHashOnChainDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lotHashOnChain', Sort.desc);
     });
@@ -3061,7 +3062,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByParcelleIdDesc() {
+  sortByParcelleIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'parcelleId', Sort.desc);
     });
@@ -3110,7 +3111,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortBySyncStatusDesc() {
+  sortBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.desc);
     });
@@ -3123,7 +3124,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByUpdatedAtDesc() {
+  sortByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
@@ -3148,7 +3149,7 @@ extension CacaoLotModelQuerySortBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      sortByWeightKgDesc() {
+  sortByWeightKgDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'weightKg', Sort.desc);
     });
@@ -3164,7 +3165,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByCoopNameDesc() {
+  thenByCoopNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'coopName', Sort.desc);
     });
@@ -3177,7 +3178,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByCreatedAtDesc() {
+  thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
     });
@@ -3190,21 +3191,21 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByCreatedByDesc() {
+  thenByCreatedByDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdBy', Sort.desc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByDateCollecte() {
+  thenByDateCollecte() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dateCollecte', Sort.asc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByDateCollecteDesc() {
+  thenByDateCollecteDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dateCollecte', Sort.desc);
     });
@@ -3217,7 +3218,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByFarmerIdDesc() {
+  thenByFarmerIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'farmerId', Sort.desc);
     });
@@ -3242,7 +3243,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByLatitudeDesc() {
+  thenByLatitudeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'latitude', Sort.desc);
     });
@@ -3255,21 +3256,21 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByLongitudeDesc() {
+  thenByLongitudeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'longitude', Sort.desc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByLotHashOnChain() {
+  thenByLotHashOnChain() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lotHashOnChain', Sort.asc);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByLotHashOnChainDesc() {
+  thenByLotHashOnChainDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lotHashOnChain', Sort.desc);
     });
@@ -3294,7 +3295,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByParcelleIdDesc() {
+  thenByParcelleIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'parcelleId', Sort.desc);
     });
@@ -3343,7 +3344,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenBySyncStatusDesc() {
+  thenBySyncStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'syncStatus', Sort.desc);
     });
@@ -3356,7 +3357,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByUpdatedAtDesc() {
+  thenByUpdatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'updatedAt', Sort.desc);
     });
@@ -3381,7 +3382,7 @@ extension CacaoLotModelQuerySortThenBy
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QAfterSortBy>
-      thenByWeightKgDesc() {
+  thenByWeightKgDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'weightKg', Sort.desc);
     });
@@ -3390,8 +3391,9 @@ extension CacaoLotModelQuerySortThenBy
 
 extension CacaoLotModelQueryWhereDistinct
     on QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> {
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByCoopName(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByCoopName({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'coopName', caseSensitive: caseSensitive);
     });
@@ -3403,22 +3405,24 @@ extension CacaoLotModelQueryWhereDistinct
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByCreatedBy(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByCreatedBy({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdBy', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct>
-      distinctByDateCollecte() {
+  distinctByDateCollecte() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dateCollecte');
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByFarmerId(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByFarmerId({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'farmerId', caseSensitive: caseSensitive);
     });
@@ -3437,29 +3441,33 @@ extension CacaoLotModelQueryWhereDistinct
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct>
-      distinctByLotHashOnChain({bool caseSensitive = true}) {
+  distinctByLotHashOnChain({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'lotHashOnChain',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(
+        r'lotHashOnChain',
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByLotId(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByLotId({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lotId', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByParcelleId(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByParcelleId({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'parcelleId', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct>
-      distinctByPhotoHashes() {
+  distinctByPhotoHashes() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'photoHashes');
     });
@@ -3471,29 +3479,33 @@ extension CacaoLotModelQueryWhereDistinct
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByRegion(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByRegion({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'region', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctBySpecies(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctBySpecies({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'species', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByStatut(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByStatut({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'statut', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctBySyncStatus(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctBySyncStatus({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'syncStatus', caseSensitive: caseSensitive);
     });
@@ -3505,8 +3517,9 @@ extension CacaoLotModelQueryWhereDistinct
     });
   }
 
-  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByVariete(
-      {bool caseSensitive = true}) {
+  QueryBuilder<CacaoLotModel, CacaoLotModel, QDistinct> distinctByVariete({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'variete', caseSensitive: caseSensitive);
     });
@@ -3546,7 +3559,7 @@ extension CacaoLotModelQueryProperty
   }
 
   QueryBuilder<CacaoLotModel, DateTime, QQueryOperations>
-      dateCollecteProperty() {
+  dateCollecteProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'dateCollecte');
     });
@@ -3571,7 +3584,7 @@ extension CacaoLotModelQueryProperty
   }
 
   QueryBuilder<CacaoLotModel, String?, QQueryOperations>
-      lotHashOnChainProperty() {
+  lotHashOnChainProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lotHashOnChain');
     });
@@ -3590,14 +3603,14 @@ extension CacaoLotModelQueryProperty
   }
 
   QueryBuilder<CacaoLotModel, List<String>, QQueryOperations>
-      photoHashesProperty() {
+  photoHashesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'photoHashes');
     });
   }
 
   QueryBuilder<CacaoLotModel, List<String>, QQueryOperations>
-      photoUrlsProperty() {
+  photoUrlsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'photoUrls');
     });

@@ -18,23 +18,25 @@ final parcelleLocalDataSourceProvider = FutureProvider((ref) async {
   return ParcelleLocalDataSourceImpl(isar);
 });
 
-final parcelleNotifierProvider = StateNotifierProvider<ParcelleNotifier, ParcelleState>((ref) {
-  final dataSource = ref.watch(parcelleLocalDataSourceProvider).value;
-  if (dataSource == null) return ParcelleNotifier(null, null);
-  
-  final repository = ParcelleRepositoryImpl(dataSource);
-  return ParcelleNotifier(
-    GetParcellesUseCase(repository),
-    SaveParcelleUseCase(repository),
-  );
-});
+final parcelleNotifierProvider =
+    StateNotifierProvider<ParcelleNotifier, ParcelleState>((ref) {
+      final dataSource = ref.watch(parcelleLocalDataSourceProvider).value;
+      if (dataSource == null) return ParcelleNotifier(null, null);
+
+      final repository = ParcelleRepositoryImpl(dataSource);
+      return ParcelleNotifier(
+        GetParcellesUseCase(repository),
+        SaveParcelleUseCase(repository),
+      );
+    });
 
 class ParcelleNotifier extends StateNotifier<ParcelleState> {
   final GetParcellesUseCase? _getParcelles;
   final SaveParcelleUseCase? _saveParcelle;
   StreamSubscription<Position>? _positionSubscription;
 
-  ParcelleNotifier(this._getParcelles, this._saveParcelle) : super(const ParcelleState()) {
+  ParcelleNotifier(this._getParcelles, this._saveParcelle)
+    : super(const ParcelleState()) {
     if (_getParcelles != null) {
       loadParcelles();
     }
@@ -74,20 +76,50 @@ class ParcelleNotifier extends StateNotifier<ParcelleState> {
 
     state = state.copyWith(isRecording: true, recordedPath: []);
 
-    _positionSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 2, // Capture every 2 meters
-      ),
-    ).listen((Position position) {
-      final newCoord = ParcelleCoordinate(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
-      state = state.copyWith(
-        recordedPath: [...state.recordedPath, newCoord],
-      );
-    });
+    _positionSubscription =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter:
+                0, // Update more frequently for smooth movement and heading
+          ),
+        ).listen((Position position) {
+          final newCoord = ParcelleCoordinate(
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+
+          // Update real-time position and heading
+          state = state.copyWith(
+            currentLocation: newCoord,
+            heading: position.heading,
+          );
+
+          // Update path only if recording is active and we moved enough
+          // We'll use a manual distance check since we set distanceFilter to 0 for smoothness
+          if (state.isRecording) {
+            if (state.recordedPath.isEmpty) {
+              state = state.copyWith(
+                recordedPath: [...state.recordedPath, newCoord],
+              );
+            } else {
+              final lastPoint = state.recordedPath.last;
+              final distance = Geolocator.distanceBetween(
+                lastPoint.latitude,
+                lastPoint.longitude,
+                newCoord.latitude,
+                newCoord.longitude,
+              );
+
+              if (distance >= 2.0) {
+                // Every 2 meters
+                state = state.copyWith(
+                  recordedPath: [...state.recordedPath, newCoord],
+                );
+              }
+            }
+          }
+        });
   }
 
   Future<void> stopRecording() async {
@@ -96,17 +128,23 @@ class ParcelleNotifier extends StateNotifier<ParcelleState> {
     state = state.copyWith(isRecording: false);
   }
 
-  Future<void> saveParcelle(String name, String ownerName, String? description) async {
+  Future<void> saveParcelle(
+    String name,
+    String ownerName,
+    String? description,
+  ) async {
     final saveParcelle = _saveParcelle;
     if (saveParcelle == null || state.recordedPath.length < 3) {
-      state = state.copyWith(error: 'Il faut au moins 3 points pour définir une parcelle');
+      state = state.copyWith(
+        error: 'Il faut au moins 3 points pour définir une parcelle',
+      );
       return;
     }
 
     state = state.copyWith(isLoading: true);
 
     final area = _calculateArea(state.recordedPath);
-    
+
     final parcelle = Parcelle(
       id: const Uuid().v4(),
       name: name,
@@ -118,32 +156,32 @@ class ParcelleNotifier extends StateNotifier<ParcelleState> {
     );
 
     final result = await saveParcelle.call(parcelle);
-    result.fold(
-      (l) => state = state.copyWith(isLoading: false, error: l),
-      (r) {
-        state = state.copyWith(
-          isLoading: false,
-          parcelles: [...state.parcelles, r],
-          recordedPath: [],
-        );
-      },
-    );
+    result.fold((l) => state = state.copyWith(isLoading: false, error: l), (r) {
+      state = state.copyWith(
+        isLoading: false,
+        parcelles: [...state.parcelles, r],
+        recordedPath: [],
+      );
+    });
   }
 
   double _calculateArea(List<ParcelleCoordinate> path) {
     if (path.length < 3) return 0.0;
-    
+
     double area = 0.0;
     const double radius = 6378137.0; // WGS84 radius
 
     for (int i = 0; i < path.length; i++) {
       final p1 = path[i];
       final p2 = path[(i + 1) % path.length];
-      
-      area += _toRadians(p2.longitude - p1.longitude) * 
-              (2 + math.sin(_toRadians(p1.latitude)) + math.sin(_toRadians(p2.latitude)));
+
+      area +=
+          _toRadians(p2.longitude - p1.longitude) *
+          (2 +
+              math.sin(_toRadians(p1.latitude)) +
+              math.sin(_toRadians(p2.latitude)));
     }
-    
+
     area = area * radius * radius / 2.0;
     return (area.abs() / 10000.0); // Convert m2 to hectares
   }

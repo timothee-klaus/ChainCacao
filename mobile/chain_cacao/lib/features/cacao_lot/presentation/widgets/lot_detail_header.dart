@@ -9,7 +9,7 @@ class LotDetailHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCacao = lot.species.toLowerCase().contains('cacao');
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -17,10 +17,7 @@ class LotDetailHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.brown[900]!,
-            Colors.brown[800]!,
-          ],
+          colors: [Colors.brown[900]!, Colors.brown[800]!],
         ),
         borderRadius: BorderRadius.circular(32),
       ),

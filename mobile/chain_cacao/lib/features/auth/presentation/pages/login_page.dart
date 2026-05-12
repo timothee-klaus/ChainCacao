@@ -70,10 +70,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 40.0,
+                  ),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - 80, // On enlève le padding du calcul
+                      minHeight:
+                          constraints.maxHeight -
+                          80, // On enlève le padding du calcul
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -111,10 +116,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 obscureText: !_isPasswordVisible,
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                    _isPasswordVisible
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
                                     color: Colors.brown[300],
                                   ),
-                                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                                  onPressed: () => setState(
+                                    () => _isPasswordVisible =
+                                        !_isPasswordVisible,
+                                  ),
                                 ),
                               ),
                               Align(
@@ -123,7 +133,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   onPressed: () {},
                                   child: const Text(
                                     'Mot de passe oublié ?',
-                                    style: TextStyle(color: Colors.brown, fontSize: 12, fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                      color: Colors.brown,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -134,10 +148,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     child: AuthButton(
                                       text: 'Se connecter',
                                       isLoading: authState.isLoading,
-                                      onPressed: () => ref.read(authProvider.notifier).login(
-                                        _emailController.text,
-                                        _passwordController.text,
-                                      ),
+                                      onPressed: () => ref
+                                          .read(authProvider.notifier)
+                                          .login(
+                                            _emailController.text,
+                                            _passwordController.text,
+                                          ),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -147,10 +163,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.brown.withValues(alpha: 0.3)),
+                                      border: Border.all(
+                                        color: Colors.brown.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
                                     ),
                                     child: IconButton(
-                                      icon: const Icon(Icons.fingerprint, color: Colors.brown, size: 28),
+                                      icon: const Icon(
+                                        Icons.fingerprint,
+                                        color: Colors.brown,
+                                        size: 28,
+                                      ),
                                       onPressed: () {
                                         // Logic for biometrics
                                       },
@@ -165,7 +189,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 children: [
                                   const Text(
                                     "Pas encore de compte ?",
-                                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: () {},
@@ -183,12 +210,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               // Divider
                               const Row(
                                 children: [
-                                  Expanded(child: Divider(color: Colors.black26)),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text('OU', style: TextStyle(color: Colors.black45, fontWeight: FontWeight.bold)),
+                                  Expanded(
+                                    child: Divider(color: Colors.black26),
                                   ),
-                                  Expanded(child: Divider(color: Colors.black26)),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      'OU',
+                                      style: TextStyle(
+                                        color: Colors.black45,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Divider(color: Colors.black26),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -279,7 +318,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
         "|",
-        style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 11),
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.3),
+          fontSize: 11,
+        ),
       ),
     );
   }

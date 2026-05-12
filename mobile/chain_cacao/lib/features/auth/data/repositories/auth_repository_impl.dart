@@ -17,11 +17,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<String, User>> login(String email, String password) async {
     try {
       final authResponse = await remoteDataSource.login(email, password);
-      
+
       // Persistance du token et des données utilisateur pour l'auto-login
       await localStorageService.saveToken(authResponse.token);
-      await localStorageService.saveUserData(jsonEncode(authResponse.user.toJson()));
-      
+      await localStorageService.saveUserData(
+        jsonEncode(authResponse.user.toJson()),
+      );
+
       // Conversion transparente du modèle Data vers l'entité Domaine
       return right(authResponse.user.toEntity());
     } catch (e) {

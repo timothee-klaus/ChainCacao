@@ -17,7 +17,7 @@ class CacaoLotRepositoryImpl implements CacaoLotRepository {
     try {
       final isar = await isarService.db;
       final model = CacaoLotModel.fromEntity(lot);
-      
+
       // On crée un item dans la file de synchronisation
       final queueItem = QueueItem.create(
         payloadType: 'create_lot',
@@ -30,7 +30,7 @@ class CacaoLotRepositoryImpl implements CacaoLotRepository {
         // Sauvegarde dans la file de synchro
         await isar.collection<QueueItem>().put(queueItem);
       });
-      
+
       return right(model.toEntity());
     } catch (e, stack) {
       // Log détaillé pour le développeur
@@ -46,12 +46,12 @@ class CacaoLotRepositoryImpl implements CacaoLotRepository {
       final isar = await isarService.db;
       final models = await isar.collection<CacaoLotModel>().where().findAll();
       final entities = models.map((m) => m.toEntity()).toList();
-      
+
       // Injection de lots mocks pour la démo si la liste est vide ou pour compléter
       if (entities.length < 2) {
         entities.addAll(_getMockLots());
       }
-      
+
       return right(entities);
     } catch (e) {
       return left('Erreur lors de la récupération des lots : $e');
@@ -114,7 +114,8 @@ class CacaoLotRepositoryImpl implements CacaoLotRepository {
   Future<Either<String, List<CacaoLot>>> getPendingLots() async {
     try {
       final isar = await isarService.db;
-      final models = await isar.collection<CacaoLotModel>()
+      final models = await isar
+          .collection<CacaoLotModel>()
           .filter()
           .syncStatusEqualTo('pending')
           .findAll();
@@ -129,11 +130,16 @@ class CacaoLotRepositoryImpl implements CacaoLotRepository {
     try {
       final isar = await isarService.db;
       await isar.writeTxn(() async {
-        final lot = await isar.collection<CacaoLotModel>().filter().lotIdEqualTo(lotId).findFirst();
+        final lot = await isar
+            .collection<CacaoLotModel>()
+            .filter()
+            .lotIdEqualTo(lotId)
+            .findFirst();
         if (lot != null) {
           lot.syncStatus = 'synced';
           lot.lotHashOnChain = txHash;
-          lot.statut = 'pending'; // Passe de draft à pending (attente de validation coop)
+          lot.statut =
+              'pending'; // Passe de draft à pending (attente de validation coop)
           lot.updatedAt = DateTime.now();
           await isar.collection<CacaoLotModel>().put(lot);
         }

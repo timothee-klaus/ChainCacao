@@ -39,9 +39,9 @@ class CacaoLotNotifier extends StateNotifier<CacaoLotState> {
 
   Future<void> saveLot(CacaoLot lot) async {
     state = state.copyWith(isLoading: true, error: null, success: false);
-    
+
     final result = await saveCacaoLotUseCase(lot);
-    
+
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error),
       (lot) => state = state.copyWith(isLoading: false, success: true),
@@ -49,7 +49,8 @@ class CacaoLotNotifier extends StateNotifier<CacaoLotState> {
   }
 }
 
-final cacaoLotNotifierProvider = StateNotifierProvider<CacaoLotNotifier, CacaoLotState>((ref) {
-  final saveUseCase = ref.watch(saveCacaoLotUseCaseProvider);
-  return CacaoLotNotifier(saveUseCase);
-});
+final cacaoLotNotifierProvider =
+    StateNotifierProvider<CacaoLotNotifier, CacaoLotState>((ref) {
+      final saveUseCase = ref.watch(saveCacaoLotUseCaseProvider);
+      return CacaoLotNotifier(saveUseCase);
+    });

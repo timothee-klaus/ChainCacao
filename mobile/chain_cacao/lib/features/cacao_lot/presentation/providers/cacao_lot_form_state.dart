@@ -1,4 +1,3 @@
-
 import '../../domain/entities/cacao_lot.dart';
 
 class CacaoLotFormState {
@@ -6,7 +5,7 @@ class CacaoLotFormState {
   final String? error;
   final bool success;
   final CacaoLot? savedLot;
-  
+
   // Données du formulaire
   final String? parcelleId;
   final List<String> photos;

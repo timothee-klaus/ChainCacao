@@ -18,7 +18,7 @@ class CreateLotUseCase {
     if (lot.farmerId.isEmpty) {
       return left('L\'identifiant de l\'agriculteur est requis.');
     }
-    
+
     return await repository.saveLot(lot);
   }
 }

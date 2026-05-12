@@ -4,12 +4,16 @@ class ParcelleState {
   final bool isLoading;
   final String? error;
   final List<Parcelle> parcelles;
-  
+
   // Recording state
   final bool isRecording;
   final List<ParcelleCoordinate> recordedPath;
   final bool isLocationServiceEnabled;
   final bool hasLocationPermission;
+
+  // Real-time position
+  final ParcelleCoordinate? currentLocation;
+  final double? heading;
 
   const ParcelleState({
     this.isLoading = false,
@@ -19,6 +23,8 @@ class ParcelleState {
     this.recordedPath = const [],
     this.isLocationServiceEnabled = true,
     this.hasLocationPermission = true,
+    this.currentLocation,
+    this.heading,
   });
 
   ParcelleState copyWith({
@@ -29,6 +35,8 @@ class ParcelleState {
     List<ParcelleCoordinate>? recordedPath,
     bool? isLocationServiceEnabled,
     bool? hasLocationPermission,
+    ParcelleCoordinate? currentLocation,
+    double? heading,
   }) {
     return ParcelleState(
       isLoading: isLoading ?? this.isLoading,
@@ -36,8 +44,12 @@ class ParcelleState {
       parcelles: parcelles ?? this.parcelles,
       isRecording: isRecording ?? this.isRecording,
       recordedPath: recordedPath ?? this.recordedPath,
-      isLocationServiceEnabled: isLocationServiceEnabled ?? this.isLocationServiceEnabled,
-      hasLocationPermission: hasLocationPermission ?? this.hasLocationPermission,
+      isLocationServiceEnabled:
+          isLocationServiceEnabled ?? this.isLocationServiceEnabled,
+      hasLocationPermission:
+          hasLocationPermission ?? this.hasLocationPermission,
+      currentLocation: currentLocation ?? this.currentLocation,
+      heading: heading ?? this.heading,
     );
   }
 }

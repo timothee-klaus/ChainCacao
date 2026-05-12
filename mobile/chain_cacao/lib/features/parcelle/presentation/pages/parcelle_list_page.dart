@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../providers/parcelle_provider.dart';
 import '../widgets/parcelle_card.dart';
 import 'add_parcelle_page.dart';
+import 'parcelle_map_page.dart';
 
 class ParcelleListPage extends ConsumerWidget {
   const ParcelleListPage({super.key});
@@ -31,15 +32,23 @@ class ParcelleListPage extends ConsumerWidget {
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.parcelles.isEmpty
-              ? _buildEmptyState(context)
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: state.parcelles.length,
-                  itemBuilder: (context, index) {
-                    final parcelle = state.parcelles[index];
-                    return ParcelleCard(parcelle: parcelle);
-                  },
-                ),
+          ? _buildEmptyState(context)
+          : ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: state.parcelles.length,
+              itemBuilder: (context, index) {
+                final parcelle = state.parcelles[index];
+                return ParcelleCard(
+                  parcelle: parcelle,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ParcelleMapPage(parcelle: parcelle),
+                    ),
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _handleNewParcelle(context, ref),
         backgroundColor: const Color(0xFF1A1A1A),
@@ -64,11 +73,7 @@ class ParcelleListPage extends ConsumerWidget {
               color: Colors.brown[50],
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.map_outlined,
-              size: 64,
-              color: Colors.brown[200],
-            ),
+            child: Icon(Icons.map_outlined, size: 64, color: Colors.brown[200]),
           ),
           const SizedBox(height: 24),
           const Text(
@@ -105,8 +110,13 @@ class ParcelleListPage extends ConsumerWidget {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        if (context.mounted) Navigator.pop(context); // Close loading
-        _showError(context, 'Veuillez activer le service de localisation GPS.');
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading
+          _showError(
+            context,
+            'Veuillez activer le service de localisation GPS.',
+          );
+        }
         return;
       }
 
@@ -114,21 +124,33 @@ class ParcelleListPage extends ConsumerWidget {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          if (context.mounted) Navigator.pop(context); // Close loading
-          _showError(context, 'La permission de localisation est nécessaire.');
+          if (context.mounted) {
+            Navigator.pop(context); // Close loading
+            _showError(
+              context,
+              'La permission de localisation est nécessaire.',
+            );
+          }
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        if (context.mounted) Navigator.pop(context); // Close loading
-        _showError(context, 'Les permissions sont refusées de façon permanente.');
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading
+          _showError(
+            context,
+            'Les permissions sont refusées de façon permanente.',
+          );
+        }
         return;
       }
 
       // Pre-fetch position to ensure map starts at the right place
       await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high)
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       if (context.mounted) {
@@ -139,8 +161,10 @@ class ParcelleListPage extends ConsumerWidget {
         );
       }
     } catch (e) {
-      if (context.mounted) Navigator.pop(context); // Close loading
-      _showError(context, 'Erreur lors de l\'initialisation GPS : $e');
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        _showError(context, 'Erreur lors de l\'initialisation GPS : $e');
+      }
     }
   }
 

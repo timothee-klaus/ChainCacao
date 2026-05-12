@@ -25,7 +25,8 @@ class TransferFormState {
     this.success = false,
   });
 
-  double get totalWeight => selectedLots.fold(0, (sum, lot) => sum + lot.weightKg);
+  double get totalWeight =>
+      selectedLots.fold(0, (sum, lot) => sum + lot.weightKg);
 
   TransferFormState copyWith({
     List<CacaoLot>? selectedLots,
@@ -56,20 +57,23 @@ class TransferNotifier extends StateNotifier<TransferFormState> {
     final isSelected = state.selectedLots.any((l) => l.lotId == lot.lotId);
     if (isSelected) {
       state = state.copyWith(
-        selectedLots: state.selectedLots.where((l) => l.lotId != lot.lotId).toList(),
+        selectedLots: state.selectedLots
+            .where((l) => l.lotId != lot.lotId)
+            .toList(),
       );
     } else {
-      state = state.copyWith(
-        selectedLots: [...state.selectedLots, lot],
-      );
+      state = state.copyWith(selectedLots: [...state.selectedLots, lot]);
     }
   }
 
   void setCoop(String? coop) => state = state.copyWith(selectedCoop: coop);
-  void setTransporter(String? transporter) => state = state.copyWith(selectedTransporter: transporter);
+  void setTransporter(String? transporter) =>
+      state = state.copyWith(selectedTransporter: transporter);
 
   Future<void> submitTransfer() async {
-    if (state.selectedLots.isEmpty || state.selectedCoop == null || state.selectedTransporter == null) {
+    if (state.selectedLots.isEmpty ||
+        state.selectedCoop == null ||
+        state.selectedTransporter == null) {
       state = state.copyWith(error: 'Veuillez remplir tous les champs');
       return;
     }
@@ -86,11 +90,12 @@ class TransferNotifier extends StateNotifier<TransferFormState> {
         final transfer = TransferModel()
           ..transferId = transferId
           ..lotIds = state.selectedLots.map((l) => l.lotId).toList()
-          ..expediteurNom = 'Agriculteur' // Idéalement depuis authProvider
+          ..expediteurNom =
+              'Agriculteur' // Idéalement depuis authProvider
           ..destinataireNom = state.selectedCoop!
           ..syncStatus = 'pending'
           ..createdAt = DateTime.now();
-        
+
         await isar.collection<TransferModel>().put(transfer);
 
         // 2. Création de l'Ordre de Transport
@@ -107,11 +112,12 @@ class TransferNotifier extends StateNotifier<TransferFormState> {
 
         // 3. Mise à jour du statut des lots
         for (final lotEntity in state.selectedLots) {
-          final lotModel = await isar.collection<CacaoLotModel>()
+          final lotModel = await isar
+              .collection<CacaoLotModel>()
               .filter()
               .lotIdEqualTo(lotEntity.lotId)
               .findFirst();
-          
+
           if (lotModel != null) {
             lotModel.statut = 'transferred';
             lotModel.updatedAt = DateTime.now();
@@ -127,16 +133,16 @@ class TransferNotifier extends StateNotifier<TransferFormState> {
           ..tentatives = 0
           ..statut = 'pending'
           ..dateCreation = DateTime.now();
-        
+
         await isar.collection<QueueItem>().put(queueItem);
       });
-      
+
       // Simulation d'un délai réseau pour l'UI
       await Future.delayed(const Duration(seconds: 1));
-      
+
       // Rafraîchir les listes
       _ref.invalidate(cacaoLotListNotifierProvider);
-      
+
       state = state.copyWith(isLoading: false, success: true);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -148,7 +154,10 @@ class TransferNotifier extends StateNotifier<TransferFormState> {
   }
 }
 
-final transferNotifierProvider = StateNotifierProvider.autoDispose<TransferNotifier, TransferFormState>((ref) {
-  final isarService = ref.read(isarServiceProvider);
-  return TransferNotifier(ref, isarService);
-});
+final transferNotifierProvider =
+    StateNotifierProvider.autoDispose<TransferNotifier, TransferFormState>((
+      ref,
+    ) {
+      final isarService = ref.read(isarServiceProvider);
+      return TransferNotifier(ref, isarService);
+    });

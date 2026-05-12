@@ -12,9 +12,7 @@ class MediaService {
   }
 
   Future<List<String>> pickMultipleImages() async {
-    final List<XFile> photos = await _picker.pickMultiImage(
-      imageQuality: 70,
-    );
+    final List<XFile> photos = await _picker.pickMultiImage(imageQuality: 70);
     return photos.map((p) => p.path).toList();
   }
 }

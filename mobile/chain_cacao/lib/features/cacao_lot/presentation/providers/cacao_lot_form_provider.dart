@@ -19,15 +19,15 @@ class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
     required LocationService locationService,
     required MediaService mediaService,
     required this.ref,
-  })  : _saveUseCase = saveUseCase,
-        _locationService = locationService,
-        _mediaService = mediaService,
-        super(CacaoLotFormState());
+  }) : _saveUseCase = saveUseCase,
+       _locationService = locationService,
+       _mediaService = mediaService,
+       super(CacaoLotFormState());
 
   Future<void> captureLocation() async {
     state = state.copyWith(isCapturingLocation: true, error: null);
     final position = await _locationService.getCurrentPosition();
-    
+
     if (position != null) {
       state = state.copyWith(
         latitude: position.latitude,
@@ -38,7 +38,8 @@ class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
     } else {
       state = state.copyWith(
         isCapturingLocation: false,
-        error: 'Impossible de récupérer la position GPS. Vérifiez vos permissions.',
+        error:
+            'Impossible de récupérer la position GPS. Vérifiez vos permissions.',
       );
     }
   }
@@ -61,7 +62,7 @@ class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
 
   Future<void> submitLot(CacaoLot lot) async {
     state = state.copyWith(isLoading: true, error: null, success: false);
-    
+
     // On injecte les données gérées par le controller (GPS, Photos) dans l'entité
     final finalLot = lot.copyWith(
       latitude: state.latitude,
@@ -71,12 +72,12 @@ class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
     );
 
     final result = await _saveUseCase(finalLot);
-    
+
     result.fold(
       (error) => state = state.copyWith(isLoading: false, error: error),
       (successLot) {
         state = state.copyWith(
-          isLoading: false, 
+          isLoading: false,
           success: true,
           savedLot: successLot,
         );
@@ -87,11 +88,14 @@ class CacaoLotFormNotifier extends StateNotifier<CacaoLotFormState> {
   }
 }
 
-final cacaoLotFormNotifierProvider = StateNotifierProvider.autoDispose<CacaoLotFormNotifier, CacaoLotFormState>((ref) {
-  return CacaoLotFormNotifier(
-    saveUseCase: ref.watch(saveCacaoLotUseCaseProvider),
-    locationService: ref.watch(locationServiceProvider),
-    mediaService: ref.watch(mediaServiceProvider),
-    ref: ref,
-  );
-});
+final cacaoLotFormNotifierProvider =
+    StateNotifierProvider.autoDispose<CacaoLotFormNotifier, CacaoLotFormState>((
+      ref,
+    ) {
+      return CacaoLotFormNotifier(
+        saveUseCase: ref.watch(saveCacaoLotUseCaseProvider),
+        locationService: ref.watch(locationServiceProvider),
+        mediaService: ref.watch(mediaServiceProvider),
+        ref: ref,
+      );
+    });

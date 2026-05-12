@@ -17,7 +17,7 @@ class CacaoLotLocalDataSourceImpl implements CacaoLotLocalDataSource {
   @override
   Future<void> saveLot(CacaoLotModel lot) async {
     final isar = await isarService.db;
-    
+
     // Création de l'item dans la file d'attente pour la synchronisation ultérieure
     final queueItem = QueueItem.create(
       payloadType: 'create_lot',

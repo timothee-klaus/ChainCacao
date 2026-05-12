@@ -26,9 +26,11 @@ class ParcelleModel {
       ..ownerName = parcelle.ownerName
       ..area = parcelle.area
       ..polygon = parcelle.polygon
-          .map((c) => CoordinateModel()
-            ..latitude = c.latitude
-            ..longitude = c.longitude)
+          .map(
+            (c) => CoordinateModel()
+              ..latitude = c.latitude
+              ..longitude = c.longitude,
+          )
           .toList()
       ..createdAt = parcelle.createdAt
       ..description = parcelle.description;
@@ -41,10 +43,12 @@ class ParcelleModel {
       ownerName: ownerName,
       area: area,
       polygon: polygon
-          .map((c) => entity.ParcelleCoordinate(
-                latitude: c.latitude,
-                longitude: c.longitude,
-              ))
+          .map(
+            (c) => entity.ParcelleCoordinate(
+              latitude: c.latitude,
+              longitude: c.longitude,
+            ),
+          )
           .toList(),
       createdAt: createdAt,
       description: description,

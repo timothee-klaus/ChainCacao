@@ -23,6 +23,7 @@ class CacaoLotListNotifier extends AsyncNotifier<List<CacaoLot>> {
   }
 }
 
-final cacaoLotListNotifierProvider = AsyncNotifierProvider<CacaoLotListNotifier, List<CacaoLot>>(() {
-  return CacaoLotListNotifier();
-});
+final cacaoLotListNotifierProvider =
+    AsyncNotifierProvider<CacaoLotListNotifier, List<CacaoLot>>(() {
+      return CacaoLotListNotifier();
+    });

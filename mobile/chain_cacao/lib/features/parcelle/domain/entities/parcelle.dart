@@ -24,8 +24,5 @@ class ParcelleCoordinate {
   final double latitude;
   final double longitude;
 
-  const ParcelleCoordinate({
-    required this.latitude,
-    required this.longitude,
-  });
+  const ParcelleCoordinate({required this.latitude, required this.longitude});
 }

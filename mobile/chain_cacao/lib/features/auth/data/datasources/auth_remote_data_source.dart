@@ -14,10 +14,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponse> login(String email, String password) async {
     try {
-      final response = await dio.post('/auth/login', data: {
-        'email': email,
-        'password': password,
-      });
+      final response = await dio.post(
+        '/auth/login',
+        data: {'email': email, 'password': password},
+      );
 
       if (response.statusCode == 200) {
         return AuthResponse.fromJson(response.data as Map<String, dynamic>);
@@ -26,7 +26,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } on DioException catch (e) {
       // Gestion propre des erreurs Dio
-      final message = e.response?.data?['detail'] ?? 'Erreur lors de la connexion au serveur.';
+      final message =
+          e.response?.data?['detail'] ??
+          'Erreur lors de la connexion au serveur.';
       throw Exception(message);
     }
   }

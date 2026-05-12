@@ -15,20 +15,20 @@ class CacaoLotModel {
   String? parcelleId;
   List<String> photoUrls = [];
   List<String> photoHashes = [];
-  
+
   double? latitude;
   double? longitude;
-  
+
   String region = 'Plateaux';
   double weightKg = 0;
   String species = 'Cacao';
   String variete = '';
   DateTime dateCollecte = DateTime.now();
   String coopName = '';
-  
-  String statut = 'draft'; 
-  String syncStatus = 'pending'; 
-  
+
+  String statut = 'draft';
+  String syncStatus = 'pending';
+
   String createdBy = '';
   DateTime createdAt = DateTime.now();
   DateTime updatedAt = DateTime.now();

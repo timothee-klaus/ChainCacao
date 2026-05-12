@@ -14,41 +14,67 @@ class LotLocationCard extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: state.isLocationCaptured 
-            ? [Colors.green[800]!, Colors.green[900]!] 
-            : [Colors.brown[700]!, Colors.brown[900]!],
+          colors: state.isLocationCaptured
+              ? [Colors.green[800]!, Colors.green[900]!]
+              : [Colors.brown[700]!, Colors.brown[900]!],
         ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         children: [
-          Icon(state.isLocationCaptured ? Icons.gps_fixed : Icons.gps_not_fixed, color: Colors.white70),
+          Icon(
+            state.isLocationCaptured ? Icons.gps_fixed : Icons.gps_not_fixed,
+            color: Colors.white70,
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('LOCALISATION GPS', style: TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.bold)),
+                const Text(
+                  'LOCALISATION GPS',
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Text(
-                  state.isLocationCaptured 
-                    ? '${state.latitude!.toStringAsFixed(4)}, ${state.longitude!.toStringAsFixed(4)}' 
-                    : (state.isCapturingLocation ? 'Recherche en cours...' : 'Non définie'),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  state.isLocationCaptured
+                      ? '${state.latitude!.toStringAsFixed(4)}, ${state.longitude!.toStringAsFixed(4)}'
+                      : (state.isCapturingLocation
+                            ? 'Recherche en cours...'
+                            : 'Non définie'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ),
           ElevatedButton(
-            onPressed: state.isCapturingLocation ? null : controller.captureLocation,
+            onPressed: state.isCapturingLocation
+                ? null
+                : controller.captureLocation,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white24,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            child: state.isCapturingLocation 
-              ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : Text(state.isLocationCaptured ? 'ACTUALISER' : 'CAPTURER'),
+            child: state.isCapturingLocation
+                ? const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(state.isLocationCaptured ? 'ACTUALISER' : 'CAPTURER'),
           ),
         ],
       ),

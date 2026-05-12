@@ -34,20 +34,12 @@ class LotDetailInfoCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Divider(height: 1),
           ),
-          _buildInfoRow(
-            Icons.business_outlined,
-            'Coopérative',
-            lot.coopName,
-          ),
+          _buildInfoRow(Icons.business_outlined, 'Coopérative', lot.coopName),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Divider(height: 1),
           ),
-          _buildInfoRow(
-            Icons.location_on_outlined,
-            'Région',
-            lot.region,
-          ),
+          _buildInfoRow(Icons.location_on_outlined, 'Région', lot.region),
         ],
       ),
     );

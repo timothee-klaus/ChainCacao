@@ -20,7 +20,7 @@ class LoginUseCase {
     if (password.length < 6) {
       return left('Le mot de passe doit contenir au moins 6 caractères.');
     }
-    
+
     // Appel au repository pour la suite du traitement
     return await repository.login(email, password);
   }

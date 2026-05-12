@@ -24,7 +24,7 @@ class LotSuccessPage extends ConsumerWidget {
               backgroundColor: Colors.brown[50]!.withValues(alpha: 0.5),
             ),
           ),
-          
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -32,7 +32,7 @@ class LotSuccessPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Spacer(),
-                  
+
                   // Animated-like Success Badge (BROWN)
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -53,9 +53,9 @@ class LotSuccessPage extends ConsumerWidget {
                       size: 64,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   Text(
                     'RÉCOLTE SÉCURISÉE',
                     style: TextStyle(
@@ -65,9 +65,9 @@ class LotSuccessPage extends ConsumerWidget {
                       color: Colors.brown[900],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
@@ -80,19 +80,19 @@ class LotSuccessPage extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // QR Code Premium Card (BROWN)
                   _buildQRCodeCard(),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Quick Stats Row
                   _buildQuickStats(),
-                  
+
                   const Spacer(),
-                  
+
                   // Action Button
                   SizedBox(
                     width: double.infinity,
@@ -102,7 +102,9 @@ class LotSuccessPage extends ConsumerWidget {
                         // On change d'onglet d'abord
                         ref.read(navIndexProvider.notifier).state = 2;
                         // On retourne à l'accueil (MainNavigationShell)
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(
+                          context,
+                        ).popUntil((route) => route.isFirst);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.brown[900],
@@ -184,7 +186,10 @@ class LotSuccessPage extends ConsumerWidget {
       children: [
         _buildStatItem('POIDS', '${lot.weightKg} Kg'),
         Container(width: 1, height: 30, color: Colors.grey[300]),
-        _buildStatItem('ESPÈCE', '${lot.species} (${lot.variete.isEmpty ? "Non spécifiée" : lot.variete})'),
+        _buildStatItem(
+          'ESPÈCE',
+          '${lot.species} (${lot.variete.isEmpty ? "Non spécifiée" : lot.variete})',
+        ),
         Container(width: 1, height: 30, color: Colors.grey[300]),
         _buildStatItem('RÉGION', lot.region),
       ],

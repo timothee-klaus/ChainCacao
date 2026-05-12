@@ -120,10 +120,12 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
                     const SizedBox(height: 32),
                     _buildSectionTitle('Sélection de la parcelle'),
                     const SizedBox(height: 16),
-                    
+
                     Consumer(
                       builder: (context, ref, child) {
-                        final parcelleState = ref.watch(parcelleNotifierProvider);
+                        final parcelleState = ref.watch(
+                          parcelleNotifierProvider,
+                        );
                         if (parcelleState.isLoading) {
                           return const LinearProgressIndicator();
                         }
@@ -140,10 +142,15 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
                                 const Text(
                                   'Aucune parcelle trouvée. Vous devez d\'abord enregistrer votre parcelle.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context), // Should go back to dashboard
+                                  onPressed: () => Navigator.pop(
+                                    context,
+                                  ), // Should go back to dashboard
                                   child: const Text('Retourner à l\'accueil'),
                                 ),
                               ],
@@ -151,7 +158,7 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
                           );
                         }
                         return DropdownButtonFormField<String>(
-                          value: state.parcelleId,
+                          initialValue: state.parcelleId,
                           decoration: _buildInputDecoration(
                             'Choisir la parcelle',
                             Icons.map_outlined,
@@ -160,12 +167,18 @@ class _AddCacaoLotPageState extends ConsumerState<AddLotPage> {
                               .map(
                                 (p) => DropdownMenuItem(
                                   value: p.id,
-                                  child: Text('${p.name} (${p.area.toStringAsFixed(2)} ha)'),
+                                  child: Text(
+                                    '${p.name} (${p.area.toStringAsFixed(2)} ha)',
+                                  ),
                                 ),
                               )
                               .toList(),
-                          validator: (value) => value == null ? 'Veuillez sélectionner une parcelle' : null,
-                          onChanged: (value) => ref.read(cacaoLotFormNotifierProvider.notifier).setParcelleId(value),
+                          validator: (value) => value == null
+                              ? 'Veuillez sélectionner une parcelle'
+                              : null,
+                          onChanged: (value) => ref
+                              .read(cacaoLotFormNotifierProvider.notifier)
+                              .setParcelleId(value),
                         );
                       },
                     ),

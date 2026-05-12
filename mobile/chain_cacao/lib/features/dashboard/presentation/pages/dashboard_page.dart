@@ -123,11 +123,7 @@ class DashboardPage extends ConsumerWidget {
   }
 
   Widget _buildDivider() {
-    return Container(
-      height: 25,
-      width: 1,
-      color: Colors.brown[50],
-    );
+    return Container(height: 25, width: 1, color: Colors.brown[50]);
   }
 
   Widget _buildHeaderStat(String label, String value, IconData icon) {
@@ -207,7 +203,9 @@ class DashboardPage extends ConsumerWidget {
               const Color(0xFF27AE60),
               () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ParcelleListPage()),
+                MaterialPageRoute(
+                  builder: (context) => const ParcelleListPage(),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -282,7 +280,11 @@ class DashboardPage extends ConsumerWidget {
                   color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.hub_outlined, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.hub_outlined,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -305,7 +307,11 @@ class DashboardPage extends ConsumerWidget {
                   children: [
                     Text(
                       'Lots en attente',
-                      style: TextStyle(color: Colors.white60, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Colors.white60,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     SizedBox(height: 4),
                     Text(
@@ -324,7 +330,10 @@ class DashboardPage extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF2D1E17),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -336,7 +345,10 @@ class DashboardPage extends ConsumerWidget {
                     SizedBox(width: 8),
                     Text(
                       'SYNC',
-                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),

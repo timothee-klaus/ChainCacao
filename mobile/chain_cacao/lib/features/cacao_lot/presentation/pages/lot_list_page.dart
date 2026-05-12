@@ -18,7 +18,14 @@ class LotListPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('MES RÉCOLTES', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+        title: const Text(
+          'MES RÉCOLTES',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -26,7 +33,8 @@ class LotListPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(cacaoLotListNotifierProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(cacaoLotListNotifierProvider.notifier).refresh(),
           ),
         ],
       ),
@@ -35,14 +43,17 @@ class LotListPage extends ConsumerWidget {
           _buildSyncHeader(context, ref),
           Expanded(
             child: lotsAsync.when(
-              data: (lots) => lots.isEmpty 
-                ? _buildEmptyState() 
-                : ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: lots.length,
-                    itemBuilder: (context, index) => _buildLotCard(context, lots[index]),
-                  ),
-              loading: () => const Center(child: CircularProgressIndicator(color: Colors.brown)),
+              data: (lots) => lots.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: lots.length,
+                      itemBuilder: (context, index) =>
+                          _buildLotCard(context, lots[index]),
+                    ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: Colors.brown),
+              ),
               error: (err, stack) => Center(child: Text('Erreur: $err')),
             ),
           ),
@@ -56,10 +67,11 @@ class LotListPage extends ConsumerWidget {
     final pendingCountAsync = ref.watch(pendingSyncCountProvider);
 
     final hasConnection = connectivityAsync.when(
-      data: (results) => results.any((r) => 
-        r == ConnectivityResult.mobile || 
-        r == ConnectivityResult.wifi || 
-        r == ConnectivityResult.ethernet
+      data: (results) => results.any(
+        (r) =>
+            r == ConnectivityResult.mobile ||
+            r == ConnectivityResult.wifi ||
+            r == ConnectivityResult.ethernet,
       ),
       loading: () => false,
       error: (error, stack) => false,
@@ -102,7 +114,8 @@ class LotListPage extends ConsumerWidget {
               children: [
                 Text(
                   pendingCountAsync.when(
-                    data: (count) => count > 0 ? '$count LOTS EN LOCAL' : 'TOUT EST À JOUR',
+                    data: (count) =>
+                        count > 0 ? '$count LOTS EN LOCAL' : 'TOUT EST À JOUR',
                     loading: () => 'CHARGEMENT...',
                     error: (error, stack) => 'ERREUR SYNCHRO',
                   ),
@@ -136,12 +149,19 @@ class LotListPage extends ConsumerWidget {
           ),
           if (pendingCount > 0)
             ElevatedButton(
-              onPressed: hasConnection ? () => ref.read(syncServiceProvider).triggerSync() : null,
+              onPressed: hasConnection
+                  ? () => ref.read(syncServiceProvider).triggerSync()
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: const Color(0xFF2D1E17),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 0,
               ),
               child: const Text(
@@ -161,9 +181,18 @@ class LotListPage extends ConsumerWidget {
         children: [
           Icon(Icons.inventory_2_outlined, size: 80, color: Colors.brown[100]),
           const SizedBox(height: 16),
-          Text('Aucun lot enregistré', style: TextStyle(color: Colors.brown[300], fontWeight: FontWeight.bold)),
+          Text(
+            'Aucun lot enregistré',
+            style: TextStyle(
+              color: Colors.brown[300],
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          const Text('Commencez par ajouter une nouvelle récolte.', style: TextStyle(color: Colors.black38, fontSize: 12)),
+          const Text(
+            'Commencez par ajouter une nouvelle récolte.',
+            style: TextStyle(color: Colors.black38, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -171,7 +200,7 @@ class LotListPage extends ConsumerWidget {
 
   Widget _buildLotCard(BuildContext context, CacaoLot lot) {
     final isCacao = lot.species.toLowerCase().contains('cacao');
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -194,7 +223,9 @@ class LotListPage extends ConsumerWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LotDetailPage(lot: lot)),
+                MaterialPageRoute(
+                  builder: (context) => LotDetailPage(lot: lot),
+                ),
               );
             },
             child: Padding(
@@ -206,7 +237,8 @@ class LotListPage extends ConsumerWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: (isCacao ? Colors.brown[800] : Colors.orange[800])!.withValues(alpha: 0.1),
+                      color: (isCacao ? Colors.brown[800] : Colors.orange[800])!
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -226,7 +258,11 @@ class LotListPage extends ConsumerWidget {
                           children: [
                             Text(
                               lot.species.toUpperCase(),
-                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                             _buildStatusBadge(lot.syncStatus),
                           ],
@@ -235,8 +271,8 @@ class LotListPage extends ConsumerWidget {
                         Text(
                           'Variété : ${lot.variete.isEmpty ? "Non spécifiée" : lot.variete}',
                           style: TextStyle(
-                            color: Colors.brown[400], 
-                            fontSize: 12, 
+                            color: Colors.brown[400],
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -244,7 +280,10 @@ class LotListPage extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.brown[50],
                                 borderRadius: BorderRadius.circular(4),
@@ -259,18 +298,32 @@ class LotListPage extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Icon(Icons.calendar_today, size: 12, color: Colors.brown[200]),
+                            Icon(
+                              Icons.calendar_today,
+                              size: 12,
+                              color: Colors.brown[200],
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               DateFormat('dd MMM').format(lot.dateCollecte),
-                              style: TextStyle(color: Colors.brown[200], fontSize: 11),
+                              style: TextStyle(
+                                color: Colors.brown[200],
+                                fontSize: 11,
+                              ),
                             ),
                             const Spacer(),
-                            Icon(Icons.map_outlined, size: 12, color: Colors.brown[200]),
+                            Icon(
+                              Icons.map_outlined,
+                              size: 12,
+                              color: Colors.brown[200],
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               lot.region,
-                              style: TextStyle(color: Colors.brown[200], fontSize: 11),
+                              style: TextStyle(
+                                color: Colors.brown[200],
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -322,7 +375,12 @@ class LotListPage extends ConsumerWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+            style: TextStyle(
+              color: color,
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
           ),
         ],
       ),
