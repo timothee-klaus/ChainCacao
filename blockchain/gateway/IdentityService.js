@@ -1,6 +1,5 @@
 const FabricCAServices = require('fabric-ca-client');
-const { Wallets } = require('fabric-network');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const networkConfig = require('./networkConfig');
 
@@ -9,18 +8,35 @@ class IdentityService {
         this.orgsRoot = orgsRoot;
     }
 
-    async getWallet(orgName) {
+    async getWalletPath(orgName) {
         const walletPath = path.join(this.orgsRoot, 'wallets', orgName);
-        return await Wallets.newFileSystemWallet(walletPath);
+        await fs.mkdir(walletPath, { recursive: true });
+        return walletPath;
+    }
+
+    async getFromWallet(orgName, userId) {
+        const walletPath = await this.getWalletPath(orgName);
+        const identityPath = path.join(walletPath, `${userId}.id`);
+        try {
+            const data = await fs.readFile(identityPath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            return null; // Identity not found
+        }
+    }
+
+    async putInWallet(orgName, userId, identity) {
+        const walletPath = await this.getWalletPath(orgName);
+        const identityPath = path.join(walletPath, `${userId}.id`);
+        await fs.writeFile(identityPath, JSON.stringify(identity, null, 2));
     }
 
     async getIdentity(orgName, userId = 'admin') {
-        const wallet = await this.getWallet(orgName);
-        let identity = await wallet.get(userId);
+        let identity = await this.getFromWallet(orgName, userId);
 
         if (!identity && userId === 'admin') {
             await this.enrollAdminInWallet(orgName);
-            identity = await wallet.get('admin');
+            identity = await this.getFromWallet(orgName, 'admin');
         }
 
         if (!identity) {
@@ -35,10 +51,9 @@ class IdentityService {
         if (!orgConfig) throw new Error(`Configuration non trouvée pour l'organisation: ${orgName}`);
 
         const caUrl = orgConfig.caUrl;
-        const wallet = await this.getWallet(orgName);
-
+        
         const tlsCertPath = path.join(this.orgsRoot, 'fabric-ca', orgName, 'ca-cert.pem');
-        const tlsCert = fs.readFileSync(tlsCertPath).toString();
+        const tlsCert = await fs.readFile(tlsCertPath, 'utf8');
         const caService = new FabricCAServices(caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
 
         const enrollment = await caService.enroll({
@@ -55,7 +70,7 @@ class IdentityService {
             type: 'X.509',
         };
 
-        await wallet.put('admin', x509Identity);
+        await this.putInWallet(orgName, 'admin', x509Identity);
         console.log(`Admin for ${orgName} enrolled successfully.`);
     }
 
@@ -64,21 +79,37 @@ class IdentityService {
         if (!orgConfig) throw new Error(`Configuration non trouvée pour l'organisation: ${orgName}`);
 
         const caUrl = orgConfig.caUrl;
-        const wallet = await this.getWallet(orgName);
-
-        if (await wallet.get(userId)) {
+        
+        if (await this.getFromWallet(orgName, userId)) {
             throw new Error(`L'utilisateur ${userId} existe déjà dans le wallet.`);
         }
 
         const tlsCertPath = path.join(this.orgsRoot, 'fabric-ca', orgName, 'ca-cert.pem');
-        const tlsCert = fs.readFileSync(tlsCertPath).toString();
+        const tlsCert = await fs.readFile(tlsCertPath, 'utf8');
         const caService = new FabricCAServices(caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
 
-        const adminIdentity = await this.getIdentity(orgName, 'admin');
-        const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-        const adminUser = await provider.getUserContext(adminIdentity, 'admin');
+        // Enrol admin dynamically if not present
+        let adminIdentity = await this.getFromWallet(orgName, 'admin');
+        if (!adminIdentity) {
+            await this.enrollAdminInWallet(orgName);
+            adminIdentity = await this.getFromWallet(orgName, 'admin');
+        }
+        
+        // Mock a user object for fabric-ca-client registrar using basic methods
+        const adminUser = {
+            getName: () => 'admin',
+            getSigningIdentity: () => ({
+                _certificate: adminIdentity.credentials.certificate,
+                sign: (msg) => {
+                    const crypto = require('crypto');
+                    const sign = crypto.createSign('SHA256');
+                    sign.update(msg);
+                    const privateKey = crypto.createPrivateKey(adminIdentity.credentials.privateKey);
+                    return sign.sign(privateKey, 'hex');
+                }
+            })
+        };
 
-        // Use a generated secret instead of a hardcoded one
         const enrollmentSecret = Math.random().toString(36).slice(-10);
 
         await caService.register({
@@ -102,7 +133,7 @@ class IdentityService {
             type: 'X.509',
         };
 
-        await wallet.put(userId, x509Identity);
+        await this.putInWallet(orgName, userId, x509Identity);
         return { success: true, userId, secret: enrollmentSecret };
     }
 }

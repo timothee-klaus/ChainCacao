@@ -19,9 +19,10 @@ blockchain/organizations/
 blockchain/network/system-genesis-block/
 blockchain/network/channel-artifacts/
 blockchain/network/organizations/
-blockchain/bin/
-blockchain/config/
-blockchain/builders/
+blockchain/test-network/organizations/
+blockchain/test-network/bin/
+blockchain/test-network/config/
+blockchain/test-network/builders/
 *.tar.gz
 *.block
 *.tx
@@ -53,3 +54,6 @@ blockchain/chaincode/node_modules/
 
 backend/uploads/
 
+blockchain/bin/
+blockchain/builders/
+blockchain/test-network/log.txt

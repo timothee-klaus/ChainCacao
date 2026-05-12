@@ -1,0 +1,147 @@
+Organizations:
+    - &OrgTest
+        Name: OrgTestMSP
+        ID: OrgTestMSP
+        MSPDir: organizations/peerOrganizations/test.chaincacao.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrgTestMSP.admin', 'OrgTestMSP.peer', 'OrgTestMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrgTestMSP.admin', 'OrgTestMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrgTestMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('OrgTestMSP.peer')"
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    Addresses:
+        - orderer.test.chaincacao.com:17050
+    EtcdRaft:
+        Consenters:
+            - Host: orderer.test.chaincacao.com
+              Port: 17050
+              ClientTLSCert: organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.crt
+              ServerTLSCert: organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.crt
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+    TestChannel:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - Name: OrdererOrg
+                  ID: OrdererMSP
+                  MSPDir: organizations/ordererOrganizations/test.chaincacao.com/msp
+                  Policies:
+                      Readers:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.member')"
+                      Writers:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.member')"
+                      Admins:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.admin')"
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *OrgTest
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+    TestOrdererGenesis:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *OrdererCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - Name: OrdererOrg
+                  ID: OrdererMSP
+                  MSPDir: organizations/ordererOrganizations/test.chaincacao.com/msp
+                  Policies:
+                      Readers:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.member')"
+                      Writers:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.member')"
+                      Admins:
+                          Type: Signature
+                          Rule: "OR('OrdererMSP.admin')"
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *OrgTest

@@ -36,6 +36,13 @@ const networkConfig = {
             caUrl: 'https://localhost:11054',
             caName: 'ca-transformateurs',
             peerHost: 'peer0.transformateurs.chaincacao.com'
+        },
+        'test': {
+            mspId: 'OrgTestMSP',
+            peerPort: 17051,
+            caUrl: 'https://localhost:17054',
+            caName: 'ca-test',
+            peerHost: 'peer0.test.chaincacao.com'
         }
     }
 };

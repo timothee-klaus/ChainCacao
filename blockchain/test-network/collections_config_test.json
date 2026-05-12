@@ -1,0 +1,11 @@
+[
+  {
+    "name": "collectionPrivateLots",
+    "policy": "OR('OrgTestMSP.member')",
+    "requiredPeerCount": 0,
+    "maxPeerCount": 1,
+    "blockToLive": 1000000,
+    "memberOnlyRead": true,
+    "memberOnlyWrite": true
+  }
+]
