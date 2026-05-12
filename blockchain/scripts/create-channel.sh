@@ -39,4 +39,3 @@ done
 
 println "Joining peers to channel ${CHANNEL_NAME}..."
 docker exec cli ./scripts/internal-channel-join.sh || error_exit "Failed to join peers to channel"
-

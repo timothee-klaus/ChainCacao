@@ -118,9 +118,10 @@ function registerPeer() {
     cp "$CA_CERT" "$PEER_DIR/msp/tlscacerts/"
 
     # Copy Org Admin cert to Peer MSP (Required to validate admin commands)
-    ADMIN_CERT="$ORG_DIR/users/Admin@${org}.chaincacao.com/msp/signcerts/"*
+    # FIXED: Added quotes and handled wildcard correctly
+    ADMIN_CERT_DIR="$ORG_DIR/users/Admin@${org}.chaincacao.com/msp/signcerts"
     mkdir -p "$PEER_DIR/msp/admincerts"
-    cp $ADMIN_CERT "$PEER_DIR/msp/admincerts/"
+    cp "$ADMIN_CERT_DIR"/* "$PEER_DIR/msp/admincerts/"
 }
 
 function registerOrderer() {

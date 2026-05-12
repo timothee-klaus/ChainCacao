@@ -1,172 +1,170 @@
-        #!/bin/bash
-        # ChainCacao - Complete Network Reset and Startup Script
+#!/bin/bash
+# ChainCacao - Complete Network Reset and Startup Script
 
-        set -e
+set -e
 
-        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-        BLOCKCHAIN_DIR="$PROJECT_ROOT"
-        NETWORK_DIR="$BLOCKCHAIN_DIR/network"
-        SCRIPTS_DIR="$BLOCKCHAIN_DIR/scripts"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+BLOCKCHAIN_DIR="$PROJECT_ROOT"
+NETWORK_DIR="$BLOCKCHAIN_DIR/network"
+SCRIPTS_DIR="$BLOCKCHAIN_DIR/scripts"
 
-        # Colors
-        RED='\033[0;31m'
-        GREEN='\033[0;32m'
-        BLUE='\033[0;34m'
-        NC='\033[0m'
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-        println() {
-        echo -e "${BLUE}==>${NC} $1"
-        }
+println() {
+echo -e "${BLUE}==>${NC} $1"
+}
 
-        success() {
-        echo -e "${GREEN}✓${NC} $1"
-        }
+success() {
+echo -e "${GREEN}✓${NC} $1"
+}
 
-        error() {
-        echo -e "${RED}Error:${NC} $1"
-        exit 1
-        }
+error() {
+echo -e "${RED}Error:${NC} $1"
+exit 1
+}
 
-        # Check if Fabric binaries exist
-        check_fabric_binaries() {
-        # Check in local bin or system PATH
-        if [ -d "$BLOCKCHAIN_DIR/bin" ]; then
-            export PATH="$BLOCKCHAIN_DIR/bin:$PATH"
-        fi
+# Check if Fabric binaries exist
+check_fabric_binaries() {
+# Check in local bin or system PATH
+if [ -d "$BLOCKCHAIN_DIR/bin" ]; then
+    export PATH="$BLOCKCHAIN_DIR/bin:$PATH"
+fi
 
-        export FABRIC_CFG_PATH="$NETWORK_DIR"
+export FABRIC_CFG_PATH="$NETWORK_DIR"
 
-        if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
-            println "Fabric binaries not found. Installing..."
-            cd "$BLOCKCHAIN_DIR"
-            curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
-            chmod +x install-fabric.sh
-            ./install-fabric.sh binary
-            export PATH="$BLOCKCHAIN_DIR/bin:$PATH"
-            rm install-fabric.sh
-            if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
-                error "Failed to install Fabric binaries."
-            fi
-            cd - > /dev/null
-        fi
-        }
+if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
+    println "Fabric binaries not found. Installing..."
+    cd "$BLOCKCHAIN_DIR"
+    curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh
+    chmod +x install-fabric.sh
+    ./install-fabric.sh binary
+    export PATH="$BLOCKCHAIN_DIR/bin:$PATH"
+    rm install-fabric.sh
+    if ! command -v fabric-ca-client &> /dev/null || ! command -v configtxgen &> /dev/null; then
+        error "Failed to install Fabric binaries."
+    fi
+    cd - > /dev/null
+fi
+}
 
-        # Clean up existing containers and artifacts
-        cleanup() {
-        println "Cleaning up existing containers and artifacts..."
+# Clean up existing containers and artifacts
+cleanup() {
+println "Cleaning up existing containers and artifacts..."
 
-        # Force remove any lingering containers with conflicting names
-        docker rm -f ca_producteurs ca_exportateurs ca_certif ca_ministere ca_transformateurs ca_orderer 2>/dev/null || true
-        docker rm -f peer0.producteurs.chaincacao.com peer0.exportateurs.chaincacao.com peer0.certif.chaincacao.com peer0.ministere.chaincacao.com peer0.transformateurs.chaincacao.com orderer.chaincacao.com 2>/dev/null || true
-        docker rm -f couchdb0 couchdb1 couchdb2 couchdb3 couchdb4 2>/dev/null || true
-        docker rm -f cli 2>/dev/null || true
+# Force remove any lingering containers with conflicting names
+docker rm -f ca_producteurs ca_exportateurs ca_certif ca_ministere ca_transformateurs ca_orderer 2>/dev/null || true
+docker rm -f peer0.producteurs.chaincacao.com peer0.exportateurs.chaincacao.com peer0.certif.chaincacao.com peer0.ministere.chaincacao.com peer0.transformateurs.chaincacao.com orderer.chaincacao.com 2>/dev/null || true
+docker rm -f couchdb0 couchdb1 couchdb2 couchdb3 couchdb4 2>/dev/null || true
+docker rm -f cli 2>/dev/null || true
 
-        # Stop and remove containers via compose
-        docker-compose -f "$NETWORK_DIR/docker-compose.yaml" down --volumes --remove-orphans 2>/dev/null || true
+# Stop and remove containers via compose
+docker-compose -f "$NETWORK_DIR/docker-compose.yaml" down --volumes --remove-orphans 2>/dev/null || true
 
-        # Remove crypto materials and genesis block
-        rm -rf "$BLOCKCHAIN_DIR/organizations"
-        rm -rf "$NETWORK_DIR/system-genesis-block"
+# Remove crypto materials and genesis block
+rm -rf "$BLOCKCHAIN_DIR/organizations"
+rm -rf "$NETWORK_DIR/system-genesis-block"
 
-        # Remove Docker volumes
-        docker volume rm $(docker volume ls -q | grep chaincacao) 2>/dev/null || true
+# Remove Docker volumes
+docker volume rm $(docker volume ls -q | grep chaincacao) 2>/dev/null || true
 
-        success "Cleanup completed"
-        }
+success "Cleanup completed"
+}
 
-        # Generate crypto materials using Fabric CA
-        generate_crypto() {
-        println "Generating crypto material using Fabric CA..."
+# Generate crypto materials using Fabric CA
+generate_crypto() {
+println "Generating crypto material using Fabric CA..."
 
-        # 1. Start CAs first
-        docker-compose -f "$NETWORK_DIR/docker-compose.yaml" up -d \
-            ca.producteurs.chaincacao.com \
-            ca.exportateurs.chaincacao.com \
-            ca.certif.chaincacao.com \
-            ca.ministere.chaincacao.com \
-            ca.transformateurs.chaincacao.com \
-            ca.orderer.chaincacao.com
-
-
-        
-        println "Waiting for CAs to start (port 7054)..."
-        MAX_RETRY=15
-        COUNT=0
-        while [ $COUNT -lt $MAX_RETRY ]; do
-            # Using curl instead of nc because nc might not be installed on Windows Git Bash
-            if curl -s -k https://127.0.0.1:7054/cainfo > /dev/null; then
-                success "CAs are up!"
-                sleep 2 # Extra safety
-                break
-            fi
-            echo "Waiting ($COUNT/$MAX_RETRY)..."
-            sleep 2
-            COUNT=$((COUNT+1))
-        done
-
-        if [ $COUNT -eq $MAX_RETRY ]; then
-            error "CAs failed to start. Check logs with: docker logs ca_producteurs"
-        fi
+# 1. Start CAs first
+docker-compose -f "$NETWORK_DIR/docker-compose.yaml" up -d \
+    ca.producteurs.chaincacao.com \
+    ca.exportateurs.chaincacao.com \
+    ca.certif.chaincacao.com \
+    ca.ministere.chaincacao.com \
+    ca.transformateurs.chaincacao.com \
+    ca.orderer.chaincacao.com
 
 
+println "Waiting for CAs to start (port 7054)..."
+MAX_RETRY=15
+COUNT=0
+while [ $COUNT -lt $MAX_RETRY ]; do
+    # Using curl instead of nc because nc might not be installed on Windows Git Bash
+    if curl -s -k https://127.0.0.1:7054/cainfo > /dev/null; then
+        success "CAs are up!"
+        sleep 2 # Extra safety
+        break
+    fi
+    echo "Waiting ($COUNT/$MAX_RETRY)..."
+    sleep 2
+    COUNT=$((COUNT+1))
+done
 
-        # 2. Run the registration script
-        chmod +x "$SCRIPTS_DIR/register-identities.sh"
-        "$SCRIPTS_DIR/register-identities.sh" || error "Failed to register identities via CA"
-
-        success "Crypto material generated via CA"
-        }
-
-        # Start network (the rest of the nodes)
-        start_network() {
-        println "Starting remaining Network Nodes (Orderers, Peers)..."
-
-        docker-compose -f "$NETWORK_DIR/docker-compose.yaml" up -d \
-            || error "Failed to start remaining docker containers"
+if [ $COUNT -eq $MAX_RETRY ]; then
+    error "CAs failed to start. Check logs with: docker logs ca_producteurs"
+fi
 
 
-        println "Network is UP. Checking health..."
-        sleep 5
 
-        docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
+# 2. Run the registration script
+chmod +x "$SCRIPTS_DIR/register-identities.sh"
+"$SCRIPTS_DIR/register-identities.sh" || error "Failed to register identities via CA"
 
-        success "Network started successfully"
+success "Crypto material generated via CA"
+}
 
-        }
+# Start network (the rest of the nodes)
+start_network() {
+println "Starting remaining Network Nodes (Orderers, Peers)..."
 
-        # Main execution
-        # Generate genesis block
-        generate_genesis() {
-        println "Creating System Genesis Block..."
+docker-compose -f "$NETWORK_DIR/docker-compose.yaml" up -d \
+    || error "Failed to start remaining docker containers"
 
-        mkdir -p "$NETWORK_DIR/system-genesis-block"
 
-        configtxgen \
-            -profile ChainCacaoOrdererGenesis \
-            -channelID system-channel \
-            -outputBlock "$NETWORK_DIR/system-genesis-block/genesis.block" \
-            || error "Failed to generate genesis block"
+println "Network is UP. Checking health..."
+sleep 5
 
-        success "Genesis block created"
-        }
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
 
-        # Main execution
-        main() {
-        println "ChainCacao Network - Complete Reset and Startup (Enterprise Mode: CA)"
-        println "================================================="
+success "Network started successfully"
 
-        check_fabric_binaries
-        cleanup
-        generate_crypto   # This now starts CAs and runs registration
-        generate_genesis
-        start_network
+}
 
-        println ""
-        success "ChainCacao network is ready (Enterprise Mode: CA)!"
-        println "Next steps:"
-        echo "  1. Create channel: ./scripts/create-channel.sh"
-        echo "  2. Deploy chaincode: ./scripts/deploy-chaincode.sh"
-        }
-        main "$@"
+# Main execution
+# Generate genesis block
+generate_genesis() {
+println "Creating System Genesis Block..."
 
+mkdir -p "$NETWORK_DIR/system-genesis-block"
+
+configtxgen \
+    -profile ChainCacaoOrdererGenesis \
+    -channelID system-channel \
+    -outputBlock "$NETWORK_DIR/system-genesis-block/genesis.block" \
+    || error "Failed to generate genesis block"
+
+success "Genesis block created"
+}
+
+# Main execution
+main() {
+println "ChainCacao Network - Complete Reset and Startup (Enterprise Mode: CA)"
+println "================================================="
+
+check_fabric_binaries
+cleanup
+generate_crypto   # This now starts CAs and runs registration
+generate_genesis
+start_network
+
+println ""
+success "ChainCacao network is ready (Enterprise Mode: CA)!"
+println "Next steps:"
+echo "  1. Create channel: ./scripts/create-channel.sh"
+echo "  2. Deploy chaincode: ./scripts/deploy-chaincode.sh"
+}
+main "$@"
