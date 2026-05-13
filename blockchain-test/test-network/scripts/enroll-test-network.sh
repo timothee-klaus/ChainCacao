@@ -58,11 +58,17 @@ docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledge
   -M /tmp/network/${ORG_DIR}/users/Admin@${DOMAIN}/msp \
   --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem
 
-# Copy Admin cert to peer/msp/admincerts (Mandatory for peer commands)
+# Copy Admin cert to peer/msp/admincerts (Mandatory for peer node)
 mkdir -p "${ORG_DIR}/peers/peer0.${DOMAIN}/msp/admincerts"
 cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORG_DIR}/peers/peer0.${DOMAIN}/msp/admincerts/"
+
+# Copy Admin cert to Global Org MSP
 mkdir -p "${ORG_DIR}/msp/admincerts"
 cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORG_DIR}/msp/admincerts/"
+
+# Copy Admin cert to Admin User's own MSP (Mandatory for CLI commands)
+mkdir -p "${ORG_DIR}/users/Admin@${DOMAIN}/msp/admincerts"
+cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORG_DIR}/users/Admin@${DOMAIN}/msp/admincerts/"
 
 echo "### 5. Registering and Enrolling Orderer..."
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
