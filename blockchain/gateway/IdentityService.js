@@ -106,7 +106,13 @@ class IdentityService {
         await adminUser.setEnrollment(privKey, adminIdentity.credentials.certificate, adminIdentity.mspId);
 
         const secret = Math.random().toString(36).slice(-10);
-        await caService.register({ enrollmentID: userId, enrollmentSecret: secret, role, maxEnrollments: -1 }, adminUser);
+        await caService.register({ 
+            enrollmentID: userId, 
+            enrollmentSecret: secret, 
+            role: role, 
+            affiliation: "", 
+            maxEnrollments: -1 
+        }, adminUser);
         
         const enrollment = await caService.enroll({ enrollmentID: userId, enrollmentSecret: secret });
         const identity = {
