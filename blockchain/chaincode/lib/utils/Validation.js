@@ -34,11 +34,27 @@ class Validation {
     }
 
     /**
-     * Check GPS object structure.
+     * Check GPS structure (can be a single point or an array of points for a polygon).
      */
     static checkGPS(gps) {
-        if (!gps || typeof gps.latitude !== 'number' || typeof gps.longitude !== 'number') {
-            throw new Error(`VALIDATION_ERREUR: Le champ [gps] doit contenir latitude et longitude (nombres).`);
+        if (!gps) {
+            throw new Error(`VALIDATION_ERREUR: Le champ [gps] est manquant.`);
+        }
+        
+        const checkPoint = (point) => {
+            if (typeof point.latitude !== 'number' || typeof point.longitude !== 'number') {
+                throw new Error(`VALIDATION_ERREUR: Un point GPS doit contenir latitude et longitude (nombres).`);
+            }
+        };
+
+        if (Array.isArray(gps)) {
+            if (gps.length < 3) {
+                throw new Error(`VALIDATION_ERREUR: Un polygone GPS doit contenir au moins 3 points.`);
+            }
+            gps.forEach(checkPoint);
+        } else {
+            // Rétrocompatibilité : point unique
+            checkPoint(gps);
         }
     }
 

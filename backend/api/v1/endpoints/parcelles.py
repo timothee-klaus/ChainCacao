@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 from models.schemas import ParcelleCreate, ParcelleResponse
 from database import User
 import security
+import uuid
 from services.blockchain_gateway import BlockchainGateway
 
 router = APIRouter()
@@ -26,6 +27,9 @@ async def register_parcelle(
     # Force le farmer_id à être celui de l'utilisateur connecté
     parcelle_data = parcelle.model_dump()
     parcelle_data["farmer_id"] = current_user.blockchain_id
+    
+    # Génération automatique du parcelle_id
+    parcelle_data["parcelle_id"] = f"PARC-{uuid.uuid4().hex[:8].upper()}"
 
 
     result = await blockchain.register_parcelle(
@@ -38,6 +42,8 @@ async def register_parcelle(
     if not result.get("success"):
         raise HTTPException(status_code=400, detail=result.get("error"))
     
+    # On renvoie l'ID généré au frontend
+    result["parcelle_id"] = parcelle_data["parcelle_id"]
     return result
 
 @router.get("/me", response_model=List[Any])

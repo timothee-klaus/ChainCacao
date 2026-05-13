@@ -23,14 +23,14 @@ class GPSModel(BaseModel):
 
 class ParcelleCreate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-    parcelle_id: str = Field(alias="parcelleId")
     farmer_id: Optional[str] = Field(None, alias="farmerId")
 
-    gps: GPSModel
+    gps: List[GPSModel] = Field(..., min_length=3, description="Au moins 3 points GPS pour délimiter le polygone de la parcelle")
     culture: str
     surface: float
 
 class ParcelleResponse(ParcelleCreate):
+    parcelle_id: str = Field(alias="parcelleId")
     date_enregistrement: str = Field(alias="dateEnregistrement")
 
 class LotCreate(BaseModel):
@@ -214,7 +214,7 @@ class UserPublicResponse(BaseModel):
     """Profil utilisateur retourné après inscription / login (sans données sensibles)."""
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
-    email: str
+    email: Optional[str] = None
     full_name: str
     numero_telephone: Optional[str] = None
     role: str

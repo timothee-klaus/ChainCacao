@@ -24,14 +24,14 @@ def migrate():
                 print(f"Tentative d'ajout de la colonne '{col}'...")
                 conn.execute(text(f"ALTER TABLE users ADD COLUMN {col} {type_info}"))
                 conn.commit()
-                print(f"✅ Colonne '{col}' ajoutée avec succès.")
+                print(f"Column '{col}' added successfully.")
             except Exception as e:
                 if "already exists" in str(e).lower() or "duplicate column" in str(e).lower():
-                    print(f"ℹ️ La colonne '{col}' existe déjà.")
+                    print(f"Info: Column '{col}' already exists.")
                 else:
-                    print(f"❌ Erreur lors de l'ajout de '{col}': {e}")
+                    print(f"Error adding '{col}': {e}")
     
-    print("Migration terminée.")
+    print("Migration finished.")
 
 if __name__ == "__main__":
     migrate()

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source scripts/envVar.sh
+[ -f scripts/envVar.sh ] && source scripts/envVar.sh || source ./envVar.sh
 export PATH=${PWD}/../bin:$PATH
 
 CC_NAME=${1:-"chaincacao"}
