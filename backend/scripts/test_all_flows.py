@@ -5,7 +5,7 @@ import os
 import uuid
 
 # Configuration
-BASE_URL = "http://localhost:8000/api/v1"
+BASE_URL = "https://chaincacao-production-363c.up.railway.app/api/v1"
 ADMIN_EMAIL = "admin@ministere.tg"
 ADMIN_PWD = "Ministere2026!"
 

@@ -109,9 +109,7 @@ class IdentityService {
         await caService.register({ 
             enrollmentID: userId, 
             enrollmentSecret: secret, 
-            role: role, 
-            affiliation: "", 
-            maxEnrollments: -1 
+            role: role
         }, adminUser);
         
         const enrollment = await caService.enroll({ enrollmentID: userId, enrollmentSecret: secret });
