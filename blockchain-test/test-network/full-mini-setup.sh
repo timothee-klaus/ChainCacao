@@ -26,13 +26,13 @@ fi
 
 # 4. Start Network
 echo "### 4. Starting Peer and Orderer..."
-docker-compose -f docker-compose-test.yaml up -d peer0.test.chaincacao.com orderer.test.chaincacao.com couchdb_test cli_test
+docker-compose -f docker-compose-test.yaml up -d peer0.test.chaincacao.com orderer.test.chaincacao.com couchdb_test cli
 sleep 5
 
 # 5. Join Channel
 echo "### 5. Joining Channel..."
-# Join Orderer (via Participation API)
-docker exec cli_test osnadmin channel join --channelID testchannel --config-block ./testchannel.block -o orderer.test.chaincacao.com:17053 --ca-file /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/ca.crt --client-cert /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.crt --client-key /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.key
+# Join Orderer (via Participation API, bypassing internal DNS using host network)
+docker run --rm --network host -v ${PWD}:/tmp/network hyperledger/fabric-tools:2.5 osnadmin channel join --channelID testchannel --config-block /tmp/network/testchannel.block -o localhost:17053 --ca-file /tmp/network/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/ca.crt --client-cert /tmp/network/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.crt --client-key /tmp/network/organizations/ordererOrganizations/test.chaincacao.com/orderers/orderer.test.chaincacao.com/tls/server.key
 
 # Join Peer
 docker exec cli_test peer channel join -b testchannel.block
