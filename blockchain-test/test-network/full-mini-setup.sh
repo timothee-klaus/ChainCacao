@@ -48,20 +48,7 @@ echo "### 6. Deploying Chaincode with OrgTestMSP policy..."
 docker exec cli_test ./scripts/deployCC.sh
 
 # 7. Setup Gateway Identity
-echo "### 7. Configuring Gateway Identity (Import Admin)..."
-CERT=$(cat organizations/peerOrganizations/test.chaincacao.com/users/Admin@test.chaincacao.com/msp/signcerts/*.pem | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
-KEY=$(cat organizations/peerOrganizations/test.chaincacao.com/users/Admin@test.chaincacao.com/msp/keystore/*_sk | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
-
-mkdir -p organizations/wallets/test
-echo "{
-  \"credentials\": {
-    \"certificate\": $CERT,
-    \"privateKey\": $KEY
-  },
-  \"mspId\": \"OrgTestMSP\",
-  \"type\": \"X.509\"
-}" > organizations/wallets/test/admin.id
-
+echo "### 7. Gateway will automatically enroll its root admin upon first request."
 # 8. Restart Gateway
 echo "### 8. Restarting Gateway with PM2..."
 # On suppose que la gateway est dans le dossier frère 'gateway'
