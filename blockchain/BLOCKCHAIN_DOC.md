@@ -40,3 +40,25 @@ Le chaincode est développé en Node.js et suit une architecture modulaire avanc
 ## 3. Contrôle d'Accès (RBAC) & Confidentialité
 *   **Contrôle Strict** : Le contrat vérifie le `MSPID` de l'appelant via le module `AccessControl` pour garantir que seules les entités autorisées peuvent exécuter certaines fonctions (ex: Seul un `PRODUCTEUR` peut créer un lot, seul un `EXPORTATEUR` peut expédier).
 *   **Private Data Collections (PDC)** : L'architecture supporte le stockage de données sensibles dans des collections privées (ex: `collectionPrivateLots`) afin que seules les organisations autorisées (comme le Ministère ou les Exportateurs) puissent y accéder en clair, tandis que le hash reste sur le registre public.
+
+---
+
+## 4. Infrastructure de Test (AWS VM)
+Pour la phase actuelle de validation, le réseau est déployé sur une instance AWS de test.
+
+### Configuration du Réseau "Ultra-Light"
+En raison des ressources limitées (1 Go RAM), nous utilisons le `test-network` simplifié :
+- **MSP** : `OrgTestMSP` uniquement.
+- **Canal** : `chaincacaochannel`.
+- **Note** : La Gateway force l'utilisation de cette organisation pour toutes les transactions afin de garantir la compatibilité.
+
+### Gateway & Connectivité
+- **Port** : `3001` (Exposé publiquement).
+- **Sécurité** : Le port doit être autorisé dans le **Security Group AWS** et via **UFW** sur la VM (`sudo ufw allow 3001/tcp`).
+- **Gestionnaire** : Tourne sous **PM2** (`chaincacao-gateway`).
+- **Endpoint** : `http://15.236.207.106:3001`
+
+### Scripts et Déploiement
+Le script de déploiement automatisé a été déplacé pour une meilleure organisation :
+- **Localisation** : `blockchain/tests/test-network/full-mini-setup.sh`
+- **Usage** : Ce script réinitialise le réseau, déploie le chaincode et redémarre la gateway.

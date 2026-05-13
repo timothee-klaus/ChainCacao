@@ -34,9 +34,16 @@ Le projet est structuré pour permettre une collaboration fluide entre les diff�
 - Langages : Java, Python, Dart, JavaScript.
 
 ## Installation et Déploiement
-Les instructions détaillées pour lancer le réseau blockchain et les services applicatifs se trouvent dans les fichiers README respectifs de chaque dossier. Pour un lancement rapide de l'environnement de développement :
+
+### Environnement de Test Actuel (Recommandé)
+Le projet est actuellement déployé sur une instance AWS de test.
+- **Blockchain** : Réseau simplifié (OrgTestMSP). Voir [BLOCKCHAIN_DOC.md](./blockchain/BLOCKCHAIN_DOC.md).
+- **Backend** : API FastAPI sur Railway. Voir [API_DOC.md](./backend/API_DOC.md).
+
+### Lancement Local (Développement)
 1. Cloner le dépôt.
-2. Exécuter le script de démarrage global : `./scripts/start_all.sh`.
+2. Configurer les variables d'environnement dans `/backend/.env`.
+3. Exécuter le script de démarrage global : `./scripts/start_all.sh`.
 
 ## Équipe TG-23 (BeGeek)
 Projet développé dans le cadre du MIABE HACKATHON 2026.
