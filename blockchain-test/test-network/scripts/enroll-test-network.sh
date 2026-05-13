@@ -29,7 +29,7 @@ cp organizations/fabric-ca/test/ca-cert.pem "${ORG_DIR}/msp/cacerts/"
 
 echo "### 3. Registering and Enrolling Peer0..."
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
-  fabric-ca-client register --caname ca-test --id.name peer0 --id.secret peer0pw --id.type peer \
+  fabric-ca-client register -u https://admin:adminpw@localhost:${CA_PORT} --caname ca-test --id.name peer0 --id.secret peer0pw --id.type peer \
   --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem \
   --mspdir /tmp/network/${ORG_DIR}/msp
 
@@ -47,7 +47,7 @@ cp organizations/fabric-ca/test/ca-cert.pem "${ORG_DIR}/peers/peer0.${DOMAIN}/tl
 
 echo "### 4. Registering and Enrolling Admin User..."
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
-  fabric-ca-client register --caname ca-test --id.name admin-org --id.secret admin-org-pw --id.type admin \
+  fabric-ca-client register -u https://admin:adminpw@localhost:${CA_PORT} --caname ca-test --id.name admin-org --id.secret admin-org-pw --id.type admin \
   --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem \
   --mspdir /tmp/network/${ORG_DIR}/msp
 
