@@ -88,8 +88,12 @@ cp organizations/fabric-ca/test/ca-cert.pem "organizations/ordererOrganizations/
 mkdir -p "organizations/ordererOrganizations/${DOMAIN}/msp/tlscacerts"
 cp organizations/fabric-ca/test/ca-cert.pem "organizations/ordererOrganizations/${DOMAIN}/msp/tlscacerts/"
 
-# Orderer Admin
+# Orderer Admin (Global)
 mkdir -p "organizations/ordererOrganizations/${DOMAIN}/msp/admincerts"
 cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "organizations/ordererOrganizations/${DOMAIN}/msp/admincerts/"
+
+# Orderer Admin (Local Node)
+mkdir -p "${ORDERER_DIR}/msp/admincerts"
+cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORDERER_DIR}/msp/admincerts/"
 
 echo "### Enrollment completed successfully! ###"
