@@ -39,6 +39,10 @@ docker run --rm --network host -v ${PWD}:/tmp/network hyperledger/fabric-tools:2
 # Join Peer
 docker exec cli_test peer channel join -b testchannel.block
 
+# Wait for Raft leader election to complete
+echo "Waiting for Orderer Raft election..."
+sleep 3
+
 # 6. Deploy Chaincode
 echo "### 6. Deploying Chaincode with OrgTestMSP policy..."
 docker exec cli_test ./scripts/deployCC.sh
