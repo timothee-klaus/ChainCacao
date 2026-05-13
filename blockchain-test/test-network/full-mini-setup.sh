@@ -25,7 +25,9 @@ else
 fi
 
 # 4. Start Network
-echo "### 4. Starting Peer and Orderer..."
+echo "### 4. Pulling Chaincode Builder Image and Starting Network..."
+docker pull hyperledger/fabric-nodeenv:2.5
+echo "Starting Peer and Orderer..."
 docker-compose -f docker-compose-test.yaml up -d peer0.test.chaincacao.com orderer.test.chaincacao.com couchdb_test cli
 sleep 5
 
