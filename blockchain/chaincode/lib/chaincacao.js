@@ -24,8 +24,8 @@ class ChainCacaoContract extends Contract {
         const callerId = AccessControl.getCallerId(ctx);
 
         // Hiérarchie de contrôle
-        if (callerMSP === AccessControl.ROLES.MINISTERE) {
-            // Le Ministère peut enregistrer n'importe qui (Coopératives, Exportateurs, etc.)
+        if (callerMSP === AccessControl.ROLES.MINISTERE || callerMSP === AccessControl.ROLES.TEST) {
+            // Le Ministère ou l'organisation de TEST peut enregistrer n'importe qui
         } else if (callerMSP === AccessControl.ROLES.PRODUCTEUR) {
             // Une Coopérative (MSP Producteur) ne peut enregistrer que des producteurs
             if (typeActeur !== 'PRODUCTEUR') {
@@ -34,8 +34,9 @@ class ChainCacaoContract extends Contract {
         } else if (callerMSP === AccessControl.ROLES.CERTIFICATEUR) {
             // Un certificateur peut enregistrer des entités s'il a reçu mandat
         } else {
-            throw new Error(`ACCES_REFUSE: Votre organisation (${callerMSP}) n'est pas autorisée à enregistrer des acteurs.`);
+            throw new Error(`ACCES_REFUSE: Votre organisation (${callerMSP}) n'est pas autorisée à effectuer cette action.`);
         }
+
 
         const logic = new ActorLogic(ctx);
         const result = await logic.registerActor(actorIdHash, typeActeur, clePublique, callerId, metadata);

@@ -104,7 +104,14 @@ class BlockchainGateway:
                     f"{self.gateway_url}/register",
                     json={"userId": user_id, "orgName": org_name, "role": role}
                 )
-                response.raise_for_status()
+                
+                if response.status_code not in (200, 201):
+                    try:
+                        error_json = response.json()
+                        return {"success": False, "error": error_json.get("error", response.text)}
+                    except:
+                        return {"success": False, "error": response.text}
+                        
                 return response.json()
         except Exception as e:
             self.logger.error(f"Error registering user: {str(e)}")

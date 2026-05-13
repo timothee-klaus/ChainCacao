@@ -146,14 +146,20 @@ class StorageService:
             return True
         return False
 
-    def get_users(self, db: Session, role: str | None = None, parent_id: str | None = None) -> list[User]:
-        """Retourne tous les utilisateurs, éventuellement filtrés par rôle ou parent."""
+    def get_users(self, db: Session, role: str | None = None, parent_id: str | None = None, validated: bool | None = None) -> list[User]:
+        """Retourne tous les utilisateurs, éventuellement filtrés par rôle, parent ou statut de validation."""
+        logger.info(f"Recherche utilisateurs : role={role}, parent_id={parent_id}, validated={validated}")
         query = db.query(User)
         if role:
             query = query.filter(User.role == role)
         if parent_id:
             query = query.filter(User.parent_id == parent_id)
-        return query.all()
+        if validated is not None:
+            query = query.filter(User.blockchain_validated == validated)
+        
+        results = query.all()
+        logger.info(f"Nombre de résultats trouvés : {len(results)}")
+        return results
 
     def set_user_blockchain_validated(self, db: Session, blockchain_id: str, status: bool = True) -> bool:
         """Marque un utilisateur comme validé sur la blockchain."""

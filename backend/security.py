@@ -44,13 +44,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: str = payload.get("sub")
+        if user_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
         
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(User.blockchain_id == user_id).first()
     if user is None:
         raise credentials_exception
     return user
@@ -61,18 +61,24 @@ async def get_optional_current_user(token: Optional[str] = Depends(OAuth2Passwor
         return None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        user_id: str = payload.get("sub")
+        if user_id is None:
             return None
-        return db.query(User).filter(User.email == email).first()
+        return db.query(User).filter(User.blockchain_id == user_id).first()
     except:
         return None
 
 async def get_validated_user(current_user: User = Depends(get_current_user)) -> User:
     """Vérifie que l'utilisateur a été validé par le Ministère sur la Blockchain."""
     if not current_user.blockchain_validated and current_user.role != "MINISTERE":
+        detail_msg = "Votre compte est en attente de validation. "
+        if current_user.role == "PRODUCTEUR":
+            detail_msg += "Veuillez contacter votre coopérative pour activer votre compte."
+        else:
+            detail_msg += "Veuillez attendre la validation du Ministère."
+            
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Votre compte est en attente de validation par le Ministère. Vous ne pouvez pas encore effectuer d'actions sur la blockchain."
+            detail=detail_msg
         )
     return current_user

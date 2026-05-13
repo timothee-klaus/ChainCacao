@@ -9,6 +9,9 @@
 
 Le backend ChainCacao est un pont entre les applications clientes et le réseau Hyperledger Fabric. Il gère :
 
+> [!NOTE]
+> **Configuration de Test** : Pour la phase actuelle, toutes les interactions blockchain sont mappées sur le réseau `test-network` (OrgTestMSP) hébergé sur une VM AWS. Cela permet de valider les flux métier même sur des infrastructures à ressources limitées.
+
 - **L'authentification** des utilisateurs (JWT / OAuth2)
 - **La création et la lecture** des lots de cacao (formulaire multipart + fichier image)
 - **Le stockage des médias** (images de récolte, hash SHA-256)

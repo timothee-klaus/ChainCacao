@@ -28,26 +28,28 @@ function removeUnusedImages() {
 }
 
 function networkUp() {
-  # 1. Generate crypto material using Fabric CA (simplified for this script: using cryptogen for speed)
-  # In a real scenario, use CA scripts. Here we use cryptogen for the "ultra-light" requirement.
-  if [ ! -d "organizations/peerOrganizations" ]; then
-    echo "### Generating crypto material ###"
-    cryptogen generate --config=./crypto-config.yaml --output="organizations"
-  fi
-  # Fix Windows backslashes in config.yaml for Linux containers
-  find organizations -name "config.yaml" -exec sed -i 's/\\/\//g' {} +
+  # 1. Start Fabric CA first
+  echo "### Starting Fabric CA ###"
+  docker-compose -f docker-compose-test.yaml up -d ca.test.chaincacao.com
+  sleep 5 # Wait for CA to be ready
 
-  # 2. Generate genesis block
+  # 2. Generate crypto material using Fabric CA
+  if [ ! -d "organizations/peerOrganizations" ]; then
+    echo "### Generating crypto material via CA ###"
+    bash ./scripts/enroll-test-network.sh
+  fi
+
+  # 3. Generate genesis block (if not present)
   if [ ! -d "system-genesis-block" ]; then
     mkdir system-genesis-block
     echo "### Generating orderer genesis block ###"
     MSYS_NO_PATHCONV=1 docker run --rm -v ${PWD}:/opt/gopath/src/github.com/hyperledger/fabric/peer -w /opt/gopath/src/github.com/hyperledger/fabric/peer -e FABRIC_CFG_PATH=/opt/gopath/src/github.com/hyperledger/fabric/peer hyperledger/fabric-tools:${IMAGE_TAG:-2.5} configtxgen -profile TestOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block
   fi
 
-  # 3. Start containers
+  # 4. Start the rest of the network
   docker-compose -f docker-compose-test.yaml up -d
 
-  echo "### Network is UP ###"
+  echo "### Network is UP & Synced with CA ###"
 }
 
 function networkDown() {

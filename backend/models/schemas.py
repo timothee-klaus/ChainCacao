@@ -23,13 +23,14 @@ class GPSModel(BaseModel):
 
 class ParcelleCreate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-    parcelle_id: str = Field(alias="parcelleId")
-    farmer_id: str = Field(alias="farmerId")
-    gps: GPSModel
+    farmer_id: Optional[str] = Field(None, alias="farmerId")
+
+    gps: List[GPSModel] = Field(..., min_length=3, description="Au moins 3 points GPS pour délimiter le polygone de la parcelle")
     culture: str
     surface: float
 
 class ParcelleResponse(ParcelleCreate):
+    parcelle_id: str = Field(alias="parcelleId")
     date_enregistrement: str = Field(alias="dateEnregistrement")
 
 class LotCreate(BaseModel):
@@ -177,13 +178,13 @@ class ActorResponse(ActorRegister):
     revoque: bool
 
 ROLE_TO_ORG: Dict[str, str] = {
-    "PRODUCTEUR": "producteurs",
-    "COOPERATIVE": "producteurs",
-    "TRANSPORTEUR": "producteurs", # Les transporteurs opèrent sous l'égide des producteurs/coopératives pour le moment
-    "EXPORTATEUR": "exportateurs",
-    "CERTIF": "certif",
-    "MINISTERE": "ministere",
-    "TRANSFORMATEUR": "transformateurs",
+    "PRODUCTEUR": "test",
+    "COOPERATIVE": "test",
+    "TRANSPORTEUR": "test",
+    "EXPORTATEUR": "test",
+    "CERTIF": "test",
+    "MINISTERE": "test",
+    "TRANSFORMATEUR": "test",
 }
 
 class UserRegister(BaseModel):
@@ -213,7 +214,7 @@ class UserPublicResponse(BaseModel):
     """Profil utilisateur retourné après inscription / login (sans données sensibles)."""
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
-    email: str
+    email: Optional[str] = None
     full_name: str
     numero_telephone: Optional[str] = None
     role: str

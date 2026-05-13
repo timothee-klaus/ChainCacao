@@ -131,7 +131,7 @@ async def login(
         )
 
     access_token = security.create_access_token(
-        data={"sub": user.email},
+        data={"sub": user.blockchain_id},
         expires_delta=timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 

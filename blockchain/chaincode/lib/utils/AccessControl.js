@@ -9,7 +9,8 @@ class AccessControl {
         EXPORTATEUR: 'OrgExportateursMSP',
         CERTIFICATEUR: 'OrgCertifMSP',
         MINISTERE: 'OrgMinistereMSP',
-        TRANSFORMATEUR: 'OrgTransformateursMSP'
+        TRANSFORMATEUR: 'OrgTransformateursMSP',
+        TEST: 'OrgTestMSP'
     };
 
     /**
@@ -19,10 +20,17 @@ class AccessControl {
      */
     static checkRole(ctx, allowedMSPs) {
         const clientMSP = ctx.clientIdentity.getMSPID();
+        
+        // Autorise OrgTestMSP pour faciliter les tests sur la VM
+        if (clientMSP === this.ROLES.TEST) {
+            return;
+        }
+
         if (!allowedMSPs.includes(clientMSP)) {
             throw new Error(`ACCES_REFUSE: L'organisation ${clientMSP} n'est pas autorisée à effectuer cette action.`);
         }
     }
+
 
     /**
      * Get the Client Identity (ID) from the certificate.

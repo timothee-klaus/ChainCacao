@@ -6,16 +6,16 @@ Organizations:
         Policies:
             Readers:
                 Type: Signature
-                Rule: "OR('OrgTestMSP.admin', 'OrgTestMSP.peer', 'OrgTestMSP.client')"
+                Rule: "OR('OrgTestMSP.member')"
             Writers:
                 Type: Signature
-                Rule: "OR('OrgTestMSP.admin', 'OrgTestMSP.client')"
+                Rule: "OR('OrgTestMSP.member')"
             Admins:
                 Type: Signature
                 Rule: "OR('OrgTestMSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('OrgTestMSP.peer')"
+                Rule: "OR('OrgTestMSP.member')"
 
 Capabilities:
     Channel: &ChannelCapabilities

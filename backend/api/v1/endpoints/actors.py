@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from models.schemas import ActorRegister
+from models.schemas import ActorRegister, UserPublicResponse
+from typing import List
 from services.blockchain_gateway import BlockchainGateway
 from sqlalchemy.orm import Session
 from database import User, get_db
@@ -8,6 +9,24 @@ import security
 
 router = APIRouter()
 gateway = BlockchainGateway()
+
+@router.get("/producers/pending", response_model=List[UserPublicResponse], summary="Lister les producteurs en attente de validation")
+async def list_pending_producers(
+    current_user: User = Depends(security.get_current_user),
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage)
+):
+    """
+    Retourne la liste des producteurs qui ont choisi cette coopérative 
+    mais qui n'ont pas encore été enregistrés sur la blockchain.
+    """
+    if current_user.role != "COOPERATIVE":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seules les coopératives peuvent consulter leurs producteurs en attente."
+        )
+    
+    return storage.get_users(db, role="PRODUCTEUR", parent_id=current_user.blockchain_id, validated=False)
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_actor(
