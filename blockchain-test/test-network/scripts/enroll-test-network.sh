@@ -37,6 +37,7 @@ mkdir -p "${ORG_DIR}/peers/peer0.${DOMAIN}/msp"
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
   fabric-ca-client enroll -u https://peer0:peer0pw@localhost:${CA_PORT} --caname ca-test \
   -M /tmp/network/${ORG_DIR}/peers/peer0.${DOMAIN}/msp \
+  --csr.hosts peer0.${DOMAIN},localhost,127.0.0.1 \
   --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem
 
 # Peer TLS
@@ -74,6 +75,7 @@ mkdir -p "${ORDERER_DIR}/msp"
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
   fabric-ca-client enroll -u https://orderer:ordererpw@localhost:${CA_PORT} --caname ca-test \
   -M /tmp/network/${ORDERER_DIR}/msp \
+  --csr.hosts orderer.${DOMAIN},localhost,127.0.0.1 \
   --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem
 
 # Orderer TLS
