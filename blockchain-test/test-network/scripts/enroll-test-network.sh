@@ -26,6 +26,8 @@ docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledge
 # Fix folder structure
 mkdir -p "${ORG_DIR}/msp/cacerts"
 cp organizations/fabric-ca/test/ca-cert.pem "${ORG_DIR}/msp/cacerts/"
+mkdir -p "${ORG_DIR}/msp/tlscacerts"
+cp organizations/fabric-ca/test/ca-cert.pem "${ORG_DIR}/msp/tlscacerts/"
 
 echo "### 3. Registering and Enrolling Peer0..."
 docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
