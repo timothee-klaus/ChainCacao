@@ -63,4 +63,33 @@ cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORG_DIR}/peers/peer0.${
 mkdir -p "${ORG_DIR}/msp/admincerts"
 cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "${ORG_DIR}/msp/admincerts/"
 
+echo "### 5. Registering and Enrolling Orderer..."
+docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
+  fabric-ca-client register -u https://admin:adminpw@localhost:${CA_PORT} --caname ca-test --id.name orderer --id.secret ordererpw --id.type orderer \
+  --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem \
+  --mspdir /tmp/network/${ORG_DIR}/msp
+
+ORDERER_DIR="organizations/ordererOrganizations/${DOMAIN}/orderers/orderer.${DOMAIN}"
+mkdir -p "${ORDERER_DIR}/msp"
+docker run --rm --network host -v ${PWD}:/tmp/network -w /tmp/network hyperledger/fabric-ca:${CA_IMAGE_TAG} \
+  fabric-ca-client enroll -u https://orderer:ordererpw@localhost:${CA_PORT} --caname ca-test \
+  -M /tmp/network/${ORDERER_DIR}/msp \
+  --tls.certfiles /tmp/network/organizations/fabric-ca/test/tls-cert.pem
+
+# Orderer TLS
+mkdir -p "${ORDERER_DIR}/tls"
+cp "${ORDERER_DIR}/msp/signcerts/"* "${ORDERER_DIR}/tls/server.crt"
+cp "${ORDERER_DIR}/msp/keystore/"* "${ORDERER_DIR}/tls/server.key"
+cp organizations/fabric-ca/test/ca-cert.pem "${ORDERER_DIR}/tls/ca.crt"
+
+# Orderer Global MSP
+mkdir -p "organizations/ordererOrganizations/${DOMAIN}/msp/cacerts"
+cp organizations/fabric-ca/test/ca-cert.pem "organizations/ordererOrganizations/${DOMAIN}/msp/cacerts/"
+mkdir -p "organizations/ordererOrganizations/${DOMAIN}/msp/tlscacerts"
+cp organizations/fabric-ca/test/ca-cert.pem "organizations/ordererOrganizations/${DOMAIN}/msp/tlscacerts/"
+
+# Orderer Admin
+mkdir -p "organizations/ordererOrganizations/${DOMAIN}/msp/admincerts"
+cp "${ORG_DIR}/users/Admin@${DOMAIN}/msp/signcerts/"* "organizations/ordererOrganizations/${DOMAIN}/msp/admincerts/"
+
 echo "### Enrollment completed successfully! ###"
