@@ -194,7 +194,7 @@ class BlockchainGateway:
 
     async def add_certification(self, data: Dict, org_name: str, user_id: str):
         args = [
-            data['cert_hash'], data['lot_hash'], data['verificateur_id'],
+            data['cert_hash'], data['ref_hash'], data['verificateur_id'],
             data['statut'], data['rapport_hash']
         ]
         return await self.invoke_transaction("AddCertification", args, org_name, user_id)

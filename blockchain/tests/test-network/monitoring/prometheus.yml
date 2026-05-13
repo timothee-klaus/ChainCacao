@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'fabric-test-network'
+    static_configs:
+      - targets:
+        - 'peer0.test.chaincacao.com:9443'
+        - 'orderer.test.chaincacao.com:9443'

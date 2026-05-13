@@ -1,0 +1,27 @@
+version: '3.7'
+
+networks:
+  chaincacao_test:
+    external:
+      name: chaincacao_test_network
+
+services:
+  prometheus:
+    container_name: prometheus_test
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9091:9090
+    networks:
+      - chaincacao_test
+
+  grafana:
+    container_name: grafana_test
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - 3002:3000
+    networks:
+      - chaincacao_test
