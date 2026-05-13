@@ -5,7 +5,7 @@ set -e
 # 1. Bring down everything and clean
 echo "### 1. Cleaning environment..."
 docker-compose -f docker-compose-test.yaml down --volumes --remove-orphans
-rm -rf organizations/peerOrganizations organizations/ordererOrganizations system-genesis-block *.block *.tx
+rm -rf organizations/peerOrganizations organizations/ordererOrganizations organizations/fabric-ca system-genesis-block *.block *.tx
 rm -rf organizations/wallets/*
 
 # 2. Start CA and enroll
