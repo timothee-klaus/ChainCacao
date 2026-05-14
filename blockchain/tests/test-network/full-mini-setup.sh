@@ -58,7 +58,7 @@ chmod -R 777 organizations
 echo "### 8. Restarting Gateway with PM2..."
 # On suppose que la gateway est dans blockchain/gateway
 if [ -d "../../gateway" ]; then
-    (cd "../../gateway" && pm2 restart all --update-env)
+    (cd "../../gateway" && pm2 restart all --update-env || pm2 start index.js --name "chaincacao-gateway")
 fi
 
 # 9. Start Monitoring
