@@ -10,6 +10,7 @@ import {
   PackageOpen,
   ShieldCheck,
   Truck,
+  UserCog,
   UserRound,
   Warehouse,
   ChartColumn,
@@ -78,6 +79,7 @@ const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
     items: [
       { title: "Tableau de bord", href: "/cooperative", icon: Home },
       { title: "Gestion lots", href: "/cooperative/lots", icon: Warehouse },
+      { title: "Gestion membres", href: "/cooperative/management", icon: UserCog },
       { title: "Tous les lots", href: "/all-lots", icon: PackageOpen },
     ],
     footerItems: [
@@ -178,6 +180,7 @@ const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
     ctaHref: "/ministry/rapports",
     items: [
       { title: "Accueil", href: "/ministry", icon: Home },
+      { title: "Gestion acteurs", href: "/ministry/management", icon: UserCog },
       { title: "Rapports", href: "/ministry/rapports", icon: ChartColumn },
       { title: "Tous les lots", href: "/all-lots", icon: PackageOpen },
     ],

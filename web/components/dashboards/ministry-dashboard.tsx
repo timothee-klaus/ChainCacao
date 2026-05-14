@@ -3,11 +3,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useLots } from "@/hooks/useLots"
+import { useEffect } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function MinistryDashboard() {
-  const totalLots = 1284
-  const totalShipments = 156
-  const complianceRate = 98.7
+  const { serverLots, loadLots, isLoading } = useLots()
+
+  useEffect(() => {
+    loadLots()
+  }, [loadLots])
+
+  const totalLots = serverLots.length
+  const totalShipments = serverLots.filter(l => l.statut === "exported").length
+  const complianceRate = totalLots > 0 ? 100 : 0 // À affiner selon les vrais critères EUDR
 
   return (
     <div className="space-y-6 p-6">
@@ -17,8 +26,10 @@ export function MinistryDashboard() {
             <CardDescription>Lots Totaux</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalLots}</div>
-            <p className="text-xs text-muted-foreground mt-1">tracés</p>
+            <div className="text-3xl font-bold">
+              {isLoading ? <Skeleton className="h-9 w-16" /> : totalLots}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">lots tracés</p>
           </CardContent>
         </Card>
 
@@ -27,8 +38,10 @@ export function MinistryDashboard() {
             <CardDescription>Expéditions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalShipments}</div>
-            <p className="text-xs text-muted-foreground mt-1">suies</p>
+            <div className="text-3xl font-bold">
+              {isLoading ? <Skeleton className="h-9 w-16" /> : totalShipments}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">expéditions</p>
           </CardContent>
         </Card>
 
@@ -43,9 +56,14 @@ export function MinistryDashboard() {
         </Card>
       </div>
 
-      <Button asChild>
-        <Link href="/ministry/rapports">Voir les rapports</Link>
-      </Button>
+      <div className="flex gap-2">
+        <Button asChild>
+          <Link href="/ministry/management">Gérer les acteurs</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/ministry/rapports">Voir les rapports</Link>
+        </Button>
+      </div>
 
       <Card>
         <CardHeader>

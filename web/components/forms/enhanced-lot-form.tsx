@@ -36,7 +36,7 @@ export function EnhancedLotForm({
   defaultValues?: Partial<LotFormData>
   submitLabel?: string
   secondaryAction?: React.ReactNode
-  onSubmit: (values: LotFormData) => void | Promise<void>
+  onSubmit: (values: LotFormData, files: File[]) => void | Promise<void>
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [geoLoading, setGeoLoading] = useState(true)
@@ -133,7 +133,7 @@ export function EnhancedLotForm({
   const submit = handleSubmit(async (values) => {
     setIsSubmitting(true)
     try {
-      await onSubmit(values as LotFormData)
+      await onSubmit(values as LotFormData, uploadedImages)
     } finally {
       setIsSubmitting(false)
     }

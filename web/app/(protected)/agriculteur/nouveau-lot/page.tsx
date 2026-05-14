@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useUser } from "@/context/useUser"
-import { useLotsStore } from "@/store/lots"
+import { useLots } from "@/hooks/useLots"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { EnhancedLotForm } from "@/components/forms/enhanced-lot-form"
 import { Card } from "@/components/ui/card"
@@ -11,49 +11,41 @@ import type { LotFormData } from "@/lib/schemas/lot"
 export default function NouveauLotPage() {
   const router = useRouter()
   const { user } = useUser()
-  const { addLot } = useLotsStore()
+  const { createLot, isSubmitting } = useLots()
   const { addAction } = useLotActionsStore()
 
-  const handleSubmit = async (data: LotFormData) => {
+  const handleSubmit = async (values: LotFormData, files: File[]) => {
     if (!user) return
 
     try {
-      const lot = addLot({
-        farmerId: user.userId,
-        photoUrls: data.photoUrls || [],
-        photoHashes: [],
-        gps: {
-          latitude: data.gpsLatitude,
-          longitude: data.gpsLongitude,
-        },
-        region: data.region,
-        poidsKg: data.poidsKg,
-        espece: data.espece,
-        dateCollecte: data.dateCollecte.getTime(),
-        coopName: data.coopName || "",
-        statut: "draft",
-        syncStatus: "pending",
-        createdBy: user.userId,
+      await createLot({
+        espece: values.espece,
+        poidsKg: values.poidsKg,
+        dateCollecte: values.dateCollecte.toISOString(),
+        region: values.region,
+        gpsLatitude: values.gpsLatitude,
+        gpsLongitude: values.gpsLongitude,
+        coopName: values.coopName,
+        photos: files,
+      }, (lot) => {
+        // Optionnel : Enregistrer une action locale pour l'UI immédiate si besoin
+        addAction({
+          lotId: lot.id || "temp",
+          actor: "Agriculteur",
+          actorName: user.nomAffiche,
+          actorId: user.userId,
+          action: "created",
+          phase: "recolte",
+          status: "draft",
+          description: "Enregistrement de récolte créé avec succès sur la blockchain.",
+          metadata: {
+            gps: { latitude: values.gpsLatitude, longitude: values.gpsLongitude },
+            region: values.region,
+            photos: files.length,
+          },
+        })
+        router.push(`/agriculteur/lots`)
       })
-
-      addAction({
-        lotId: lot.lotId,
-        actor: "Agriculteur",
-        actorName: user.nomAffiche,
-        actorId: user.userId,
-        action: "created",
-        phase: "recolte",
-        status: "draft",
-        description:
-          "Enregistrement de récolte créé depuis la parcelle avec GPS et photos.",
-        metadata: {
-          gps: lot.gps,
-          region: lot.region,
-          photos: lot.photoUrls.length,
-        },
-      })
-
-      router.push(`/agriculteur/lots/${lot.lotId}`)
     } catch (error) {
       console.error("Error creating lot:", error)
     }

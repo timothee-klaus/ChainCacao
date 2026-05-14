@@ -1,0 +1,252 @@
+"use client"
+
+import { useEffect } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ShieldAlert, Users, Clock, CheckCircle2 } from "lucide-react"
+import { useActors } from "@/hooks/useActors"
+import { useTraceability } from "@/hooks/useTraceability"
+import { ActorsTable } from "@/components/actors/actors-table"
+import { RegisterAgentDialog } from "@/components/actors/register-agent-dialog"
+import { SelectedLotCompliance } from "@/components/exporter/selected-lot-compliance"
+import { mapEUDRToComplianceProps } from "@/lib/utils/traceability-adapters"
+import type { RegisterAgentPayload } from "@/types/api-actors"
+import { useState } from "react"
+
+/** Rôles que le Ministère peut créer (tous sauf MINISTERE lui-même) */
+const MINISTRY_AGENT_ROLES = [
+  { value: "PRODUCTEUR" as const, label: "Producteur" },
+  { value: "COOPERATIVE" as const, label: "Coopérative" },
+  { value: "EXPORTATEUR" as const, label: "Exportateur" },
+  { value: "TRANSFORMATEUR" as const, label: "Transformateur" },
+  { value: "CERTIF" as const, label: "Organisme de Certification" },
+]
+
+export function MinistryManagement() {
+  const {
+    users,
+    pendingUsers,
+    isLoading,
+    isSubmitting,
+    loadUsers,
+    loadPendingRegistrations,
+    validateOnBlockchain,
+    addAgent,
+  } = useActors()
+
+  const { eudrReport, loadEUDRReport, isLoading: isLoadingAudit } = useTraceability()
+  const [selectedLotHash, setSelectedLotHash] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadUsers()
+    loadPendingRegistrations()
+  }, [loadUsers, loadPendingRegistrations])
+
+  const handleViewAudit = (lotHash: string) => {
+    setSelectedLotHash(lotHash)
+    loadEUDRReport(lotHash)
+  }
+
+  const handleAddAgent = (data: RegisterAgentPayload, onSuccess: () => void) => {
+    addAgent(data, onSuccess)
+  }
+
+  const validatedCount = users.filter((u) => u.blockchain_validated).length
+  const pendingCount = pendingUsers.length
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* En-tête */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Gestion des Acteurs
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Supervisez et validez les enregistrements de tous les acteurs de la chaîne.
+          </p>
+        </div>
+        <RegisterAgentDialog
+          availableRoles={MINISTRY_AGENT_ROLES}
+          isSubmitting={isSubmitting}
+          onSubmit={handleAddAgent}
+        />
+      </div>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
+            <Users className="size-4 text-muted-foreground" />
+            <CardDescription>Acteurs enregistrés</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{users.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
+            <CheckCircle2 className="size-4 text-emerald-600" />
+            <CardDescription>Validés Blockchain</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-emerald-600">{validatedCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
+            <Clock className="size-4 text-amber-500" />
+            <CardDescription>En attente de validation</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center gap-2">
+            <div className="text-3xl font-bold text-amber-600">{pendingCount}</div>
+            {pendingCount > 0 && (
+              <Badge variant="destructive" className="text-xs">
+                Action requise
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Onglets */}
+      <Tabs defaultValue="pending">
+        <TabsList>
+          <TabsTrigger value="pending" className="gap-2">
+            <ShieldAlert className="size-4" />
+            En attente
+            {pendingCount > 0 && (
+              <Badge className="ml-1 h-5 rounded-full px-1.5 text-[10px]">
+                {pendingCount}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="all" className="gap-2">
+            <Users className="size-4" />
+            Tous les acteurs
+          </TabsTrigger>
+          <TabsTrigger value="producers" className="gap-2">
+            Producteurs
+          </TabsTrigger>
+          <TabsTrigger value="institutions" className="gap-2">
+            Institutions
+          </TabsTrigger>
+        </TabsList>
+
+        {/* En attente de validation blockchain */}
+        <TabsContent value="pending" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Inscriptions en attente</CardTitle>
+              <CardDescription>
+                Ces acteurs se sont inscrits mais n'ont pas encore été validés sur la Blockchain Fabric.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActorsTable
+                users={pendingUsers}
+                isLoading={isLoading}
+                showValidate
+                showAudit={true}
+                onAudit={handleViewAudit}
+                isSubmitting={isSubmitting}
+                onValidate={validateOnBlockchain}
+                emptyMessage="Aucune inscription en attente de validation."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tous les acteurs */}
+        <TabsContent value="all" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tous les acteurs</CardTitle>
+              <CardDescription>
+                Liste complète des acteurs enregistrés dans le système.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActorsTable
+                users={users}
+                isLoading={isLoading}
+                showValidate
+                showAudit={true}
+                onAudit={handleViewAudit}
+                isSubmitting={isSubmitting}
+                onValidate={validateOnBlockchain}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Producteurs uniquement */}
+        <TabsContent value="producers" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Producteurs</CardTitle>
+              <CardDescription>
+                Agriculteurs et producteurs de cacao enregistrés.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActorsTable
+                users={users.filter((u) => u.role === "PRODUCTEUR")}
+                isLoading={isLoading}
+                showValidate
+                isSubmitting={isSubmitting}
+                onValidate={validateOnBlockchain}
+                emptyMessage="Aucun producteur enregistré."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Acteurs institutionnels */}
+        <TabsContent value="institutions" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Acteurs Institutionnels</CardTitle>
+              <CardDescription>
+                Coopératives, exportateurs, transformateurs et organismes de certification.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActorsTable
+                users={users.filter((u) =>
+                  ["COOPERATIVE", "EXPORTATEUR", "TRANSFORMATEUR", "CERTIF"].includes(u.role)
+                )}
+                isLoading={isLoading}
+                showValidate
+                isSubmitting={isSubmitting}
+                onValidate={validateOnBlockchain}
+                emptyMessage="Aucun acteur institutionnel enregistré."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Section Audit EUDR (Si un lot est sélectionné) */}
+      {selectedLotHash && (
+        <div className="mt-12 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold tracking-tight">Audit de Conformité : {selectedLotHash}</h2>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedLotHash(null)}>Fermer l'audit</Button>
+          </div>
+          
+          {isLoadingAudit ? (
+            <Skeleton className="h-[600px] w-full rounded-3xl" />
+          ) : eudrReport ? (
+            <SelectedLotCompliance {...mapEUDRToComplianceProps(eudrReport)} />
+          ) : (
+            <Card className="p-12 text-center text-muted-foreground border-dashed">
+              Erreur lors de la génération du rapport pour ce lot.
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

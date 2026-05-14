@@ -8,6 +8,9 @@ import { useLotsStore } from "@/store/lots"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { useCooperativeStore } from "@/store/cooperative"
 import { useUser } from "@/context/useUser"
+import { useLots } from "@/hooks/useLots"
+import { useEffect } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { LotDetailModal } from "@/components/lot/lot-detail-modal"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -47,7 +50,8 @@ const averageCoordinates = (lots: Lot[]) => {
 
 export default function GestionLotsPage() {
   const { user } = useUser()
-  const { lots, addLot, getLotById } = useLotsStore()
+  const { addLot, getLotById } = useLotsStore()
+  const { serverLots, loadLots, isLoading } = useLots()
   const { addAction } = useLotActionsStore()
   const { createGroup, getGroupsByManager, setGroupLotId } = useCooperativeStore()
   const allGroups = useCooperativeStore((state) => state.groups)
@@ -58,16 +62,27 @@ export default function GestionLotsPage() {
   const [lotDetailOpen, setLotDetailOpen] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
+  useEffect(() => {
+    loadLots()
+  }, [loadLots])
+
+  // On fusionne les lots du store (pour les créations récentes) et du serveur
+  const allLots = useMemo(() => {
+    const combined = [...serverLots]
+    // Optionnel: ajouter ceux du store qui n'y sont pas encore
+    return combined
+  }, [serverLots])
+
   const groupedLotIds = useMemo(
     () => new Set(allGroups.flatMap((group) => group.lotIds)),
     [allGroups]
   )
   const coopLots = useMemo(
-    () => lots.filter((lot) => lot.coopName && !lot.isGroup && !groupedLotIds.has(lot.lotId)),
-    [groupedLotIds, lots]
+    () => allLots.filter((lot) => (lot.coopName || lot.coop_name) && !lot.isGroup && !groupedLotIds.has(lot.lotId || lot.id)),
+    [groupedLotIds, allLots]
   )
   const selectedLot = selectedLotId
-    ? lots.find((lot) => lot.lotId === selectedLotId) ?? null
+    ? allLots.find((lot) => (lot.lotId || lot.id) === selectedLotId) ?? null
     : null
   const groups = user ? getGroupsByManager(user.userId) : []
 
@@ -268,7 +283,13 @@ export default function GestionLotsPage() {
           <CardTitle>Lots Disponibles ({coopLots.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {coopLots.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : coopLots.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -284,16 +305,16 @@ export default function GestionLotsPage() {
                 <tbody>
                   {coopLots.map((lot) => (
                     <tr
-                      key={lot.lotId}
+                      key={lot.lotId || lot.id}
                       className="cursor-pointer border-b hover:bg-muted/50"
                       onClick={() => {
-                        setSelectedLotId(lot.lotId)
+                        setSelectedLotId(lot.lotId || lot.id)
                         setLotDetailOpen(true)
                       }}
                     >
-                      <td className="px-4 py-3 font-mono text-xs">{lot.lotId}</td>
-                      <td className="px-4 py-3">{lot.coopName}</td>
-                      <td className="px-4 py-3">{lot.poidsKg} kg</td>
+                      <td className="px-4 py-3 font-mono text-xs">{lot.lotId || lot.id}</td>
+                      <td className="px-4 py-3">{lot.coopName || lot.coop_name}</td>
+                      <td className="px-4 py-3">{lot.poidsKg || lot.poids_kg} kg</td>
                       <td className="px-4 py-3">{lot.region}</td>
                       <td className="px-4 py-3">
                         <Badge variant="outline">{translateStatus(lot.statut)}</Badge>

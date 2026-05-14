@@ -1,15 +1,17 @@
 "use client"
 
 import { useUser } from "@/context/useUser"
-import { useLotsStore } from "@/store/lots"
+import { useLots } from "@/hooks/useLots"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
-  draft: { label: "Brouillon", variant: "outline" },
+  draft: { label: "Initialisé", variant: "outline" },
   pending: { label: "En attente", variant: "secondary" },
   transferred: { label: "Transféré", variant: "secondary" },
   transformed: { label: "Transformé", variant: "default" },
@@ -18,9 +20,14 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 
 export default function MesLotsPage() {
   const { user } = useUser()
-  const { getLotsForFarmer } = useLotsStore()
+  const { serverLots, loadLots, isLoading } = useLots()
 
-  const lots = user ? getLotsForFarmer(user.userId) : []
+  useEffect(() => {
+    loadLots()
+  }, [loadLots])
+
+  // On filtre par l'ID de l'agriculteur (si l'API ne le fait pas déjà)
+  const lots = user ? serverLots.filter(l => l.farmer_id === user.userId || l.farmerId === user.userId) : []
 
   return (
     <div className="space-y-6 p-6">
@@ -42,7 +49,13 @@ export default function MesLotsPage() {
           <CardTitle>Liste des Lots ({lots.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {lots.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : lots.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -58,20 +71,20 @@ export default function MesLotsPage() {
                 </thead>
                 <tbody>
                   {lots.map((lot) => (
-                    <tr key={lot.lotId} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-4 font-mono text-xs">{lot.lotId}</td>
+                    <tr key={lot.lotId || lot.id} className="border-b hover:bg-muted/50">
+                      <td className="py-3 px-4 font-mono text-xs">{lot.lotId || lot.id}</td>
                       <td className="py-3 px-4">{lot.espece}</td>
-                      <td className="py-3 px-4">{lot.poidsKg}</td>
+                      <td className="py-3 px-4">{lot.poidsKg || lot.poids_kg}</td>
                       <td className="py-3 px-4">{lot.region}</td>
                       <td className="py-3 px-4">
                         <Badge variant={statusLabels[lot.statut]?.variant || "outline"}>
                           {statusLabels[lot.statut]?.label || lot.statut}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-xs">{lot.coopName}</td>
+                      <td className="py-3 px-4 text-xs">{lot.coopName || lot.coop_name}</td>
                       <td className="py-3 px-4">
                         <Button asChild variant="outline" size="sm" className="rounded-full">
-                          <Link href={`/agriculteur/lots/${lot.lotId}`}>Voir</Link>
+                          <Link href={`/agriculteur/lots/${lot.lotId || lot.id}`}>Voir</Link>
                         </Button>
                       </td>
                     </tr>
