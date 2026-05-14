@@ -1,9 +1,15 @@
 "use client"
 
 import { useUser } from "@/context/useUser"
-import { useLotActionsStore } from "@/store/lot-actions"
-import { useLotsStore } from "@/store/lots"
+import { useTraceability } from "@/hooks/useTraceability"
 import type { Lot, UserRole } from "@/types/types"
+import type { 
+  TransferPayload, 
+  TransformationPayload, 
+  ShipmentPayload, 
+  CertificationPayload 
+} from "@/types/api-traceability"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock, CheckCircle2, Truck, PackageOpen, ShieldCheck, FileCheck2, ClipboardList } from "lucide-react"
@@ -156,8 +162,13 @@ const roleActions: Partial<Record<UserRole, ActionTemplate[]>> = {
 
 export function LotActionsPanel({ lot }: LotActionsPanelProps) {
   const { user, activeRole } = useUser()
-  const { addAction, hasLotAction } = useLotActionsStore()
-  const { updateLotStatus } = useLotsStore()
+  const { 
+    createTransfer, 
+    createTransformation, 
+    createShipment, 
+    createCertification,
+    isSubmitting 
+  } = useTraceability()
 
   if (!user || !activeRole) return null
 
@@ -253,33 +264,57 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
     return (roleActions[normalizedRole] ?? []).map(customizeForGroup)
   }
 
-  const handleAction = (template: ActionTemplate) => {
-    if (hasLotAction(lot.lotId, template.action, template.phase)) return
+  const handleAction = async (template: ActionTemplate) => {
+    try {
+      switch (template.action) {
+        case "transferred":
+          const transferPayload: TransferPayload = {
+            lot_hashes: [lot.lotId],
+            recipient_id: "0x...", // Normalement sélectionné via un dialogue, ici on met un placeholder ou on utilise un dialogue
+            metadata: { action: "transferred", phase: "transfert" }
+          }
+          await createTransfer(transferPayload)
+          break
+        
+        case "transformed":
+          const transformPayload: TransformationPayload = {
+            lot_hashes: [lot.lotId],
+            new_espece: lot.espece,
+            new_weight: lot.poidsKg,
+            metadata: { action: "transformed", phase: "transformation" }
+          }
+          await createTransformation(transformPayload)
+          break
 
-    addAction({
-      lotId: lot.lotId,
-      actor: normalizedRole,
-      actorName: user.nomAffiche,
-      actorId: user.userId,
-      action: template.action,
-      phase: template.phase,
-      status: template.status,
-      description: template.description,
-      metadata: {
-        lotId: lot.lotId,
-        previousStatus: lot.statut,
-        actorRole: normalizedRole,
-      },
-    })
+        case "exported":
+          const shipmentPayload: ShipmentPayload = {
+            lotHashes: [lot.lotId],
+            recipientId: "0x...",
+            vesselName: "MV ChainCacao",
+            metadata: { action: "exported", phase: "controle" }
+          }
+          await createShipment(shipmentPayload)
+          break
 
-    if (template.status !== lot.statut) {
-      updateLotStatus(lot.lotId, template.status)
+        case "verified":
+          const certPayload: CertificationPayload = {
+            refHash: lot.lotId,
+            certType: "EUDR",
+            issuerId: user.userId,
+            metadata: { action: "verified", phase: "controle" }
+          }
+          await createCertification(certPayload)
+          break
+
+        default:
+          console.log("Action non gérée via API directe:", template.action)
+      }
+    } catch (error) {
+      console.error("Action error:", error)
     }
   }
 
-  const actions = getActionsForLot().filter(
-    (action) => !hasLotAction(lot.lotId, action.action, action.phase)
-  )
+  const actions = getActionsForLot()
 
   if (!canAct() || actions.length === 0) {
     return (
@@ -309,9 +344,10 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
               onClick={() => handleAction(action)}
               variant="outline"
               className="w-full justify-start rounded-xl"
+              disabled={isSubmitting}
             >
               <Icon className="mr-2 h-4 w-4" />
-              {action.label}
+              {isSubmitting ? "En cours..." : action.label}
             </Button>
           )
         })}

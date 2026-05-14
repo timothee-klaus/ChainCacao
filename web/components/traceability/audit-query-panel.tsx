@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { useAuditQueryStatus, useAuditQueryFarmer, useAuditQueryCertifications } from "@/hooks/useTraceability"
+import { useAuditQueryStatus, useAuditQueryFarmer, useAuditQueryCertifications, useShipmentReport } from "@/hooks/useTraceability"
+import { Download } from "lucide-react"
+import { traceabilityService } from "@/lib/services/traceability.service"
 
-type SearchType = "status" | "farmer" | "certifications"
+type SearchType = "status" | "farmer" | "certifications" | "shipment"
 
 export function AuditQueryPanel() {
   const [searchType, setSearchType] = useState<SearchType>("status")
@@ -31,14 +33,19 @@ export function AuditQueryPanel() {
   const { data: certData, isLoading: isCertLoading } = useAuditQueryCertifications(
     activeSearch?.type === "certifications" ? activeSearch.value : ""
   )
+  const { data: shipmentData, isLoading: isShipmentLoading } = useShipmentReport(
+    activeSearch?.type === "shipment" ? activeSearch.value : ""
+  )
 
-  const isLoading = isStatusLoading || isFarmerLoading || isCertLoading
+  const isLoading = isStatusLoading || isFarmerLoading || isCertLoading || isShipmentLoading
   const responseData =
     activeSearch?.type === "status"
       ? statusData
       : activeSearch?.type === "farmer"
       ? farmerData
-      : certData
+      : activeSearch?.type === "certifications"
+      ? certData
+      : shipmentData
 
   const results = responseData?.success ? responseData.data : []
 
@@ -67,6 +74,7 @@ export function AuditQueryPanel() {
               <SelectItem value="status">Par Statut</SelectItem>
               <SelectItem value="farmer">Par ID Producteur</SelectItem>
               <SelectItem value="certifications">Par Réf. Certification</SelectItem>
+              <SelectItem value="shipment">Rapport d'Expédition (ID)</SelectItem>
             </SelectContent>
           </Select>
 
@@ -87,7 +95,9 @@ export function AuditQueryPanel() {
               placeholder={
                 searchType === "farmer"
                   ? "Ex: FARMER-001"
-                  : "Ex: CERT-ABC-123"
+                  : searchType === "certifications"
+                  ? "Ex: CERT-ABC-123"
+                  : "Ex: SHIP-XYZ-789"
               }
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -102,7 +112,7 @@ export function AuditQueryPanel() {
           </Button>
         </div>
 
-        {activeSearch && (
+        {activeSearch && activeSearch.type !== "shipment" && (
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -146,6 +156,52 @@ export function AuditQueryPanel() {
                 )}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+        {activeSearch && activeSearch.type === "shipment" && shipmentData && (
+          <div className="space-y-4">
+            <Card className="bg-muted/30 border-dashed">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold">Rapport d'Expédition : {activeSearch.value}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Généré le {new Date(shipmentData.report_timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={async () => {
+                      const blob = await traceabilityService.getShipmentReportPdf(activeSearch.value)
+                      const url = window.URL.createObjectURL(blob)
+                      const a = document.createElement("a")
+                      a.href = url
+                      a.download = `Shipment_Report_${activeSearch.value}.pdf`
+                      document.body.appendChild(a)
+                      a.click()
+                      window.URL.revokeObjectURL(url)
+                    }}
+                  >
+                    <Download className="size-4" />
+                    PDF
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="p-3 rounded bg-background border">
+                    <p className="text-[10px] text-muted-foreground uppercase">Lots inclus</p>
+                    <p className="text-xl font-bold">{shipmentData.lots.length}</p>
+                  </div>
+                  <div className="p-3 rounded bg-background border">
+                    <p className="text-[10px] text-muted-foreground uppercase">Preuve Blockchain</p>
+                    <p className="text-xs font-mono truncate">{shipmentData.proof_hash}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </CardContent>

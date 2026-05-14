@@ -60,6 +60,7 @@ export function MultiStepSignupForm({ className }: { className?: string }) {
   const { addUser } = useUsersStore()
   const router = useRouter()
   const { setUser } = useUser()
+  const { setToken } = useUsersStore()
 
   const {
     register,
@@ -314,13 +315,39 @@ export function MultiStepSignupForm({ className }: { className?: string }) {
         derniereConnexion: Date.now(),
       }
 
-      setUser(newUser)
-      addUser(newUser)
+      // Automatically log in the user after registration
+      try {
+        const loginResponse = await api.post<{
+          access_token: string
+          token_type: string
+          user: any
+        }>(
+          "/api/v1/auth/login",
+          {
+            username: data.email,
+            password: data.password,
+          },
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          }
+        )
 
-      // Since we don't have a token yet, we might want to redirect to login
-      // or if the backend auto-logs in, we need that token.
-      // For now, let's redirect to login to be safe, or just to the dashboard if the app allows it.
-      router.push("/auth")
+        if (loginResponse.access_token) {
+          setToken(loginResponse.access_token)
+          newUser.token = loginResponse.access_token
+          setUser(newUser)
+          addUser(newUser)
+          // Redirect to dashboard instead of login
+          router.push("/")
+          return
+        }
+      } catch (loginErr) {
+        console.error("Auto-login failed after registration:", loginErr)
+        // Fallback: redirect to login
+        router.push("/auth")
+      }
     } catch (err: any) {
       setError(err.message || "Échec de l'inscription. Veuillez réessayer.")
       console.error("Registration error:", err)

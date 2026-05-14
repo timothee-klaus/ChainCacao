@@ -7,6 +7,8 @@ import type {
   ShipmentPayload,
   VerificationResponse,
   AuditQueryResponse,
+  CertificationPayload,
+  ShipmentReport,
 } from "@/types/api-traceability"
 
 export const traceabilityService = {
@@ -28,6 +30,18 @@ export const traceabilityService = {
   queryCertifications: (refHash: string) =>
     api.get<AuditQueryResponse>(`/api/v1/audit/query/certifications/${refHash}`),
     
+  createCertification: (payload: CertificationPayload) =>
+    api.post<any>("/api/v1/audit/certifications", payload),
+
+  getEUDRReportPdf: (lotHash: string) =>
+    api.get<Blob>(`/api/v1/audit/eudr-report/${lotHash}/pdf`, { responseType: "blob" }),
+
+  getShipmentReport: (shipmentHash: string) =>
+    api.get<ShipmentReport>(`/api/v1/audit/shipment-report/${shipmentHash}`),
+
+  getShipmentReportPdf: (shipmentHash: string) =>
+    api.get<Blob>(`/api/v1/audit/shipment-report/${shipmentHash}/pdf`, { responseType: "blob" }),
+
   createTransfer: (payload: TransferPayload) => 
     api.post<any>("/api/v1/traceability/transfers", payload),
     

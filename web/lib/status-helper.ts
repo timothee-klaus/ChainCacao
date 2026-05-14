@@ -29,6 +29,7 @@ export const translateStatus = (status: string | undefined): string => {
     
     // KYC & Validation
     verified: "Vérifié",
+    certified: "Certifié",
     rejected: "Rejeté",
     confirmed: "Confirmé",
   };

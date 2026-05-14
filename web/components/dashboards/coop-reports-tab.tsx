@@ -28,25 +28,14 @@ export function CoopReportsTab() {
   const totalVolume = lots.reduce((sum, l) => sum + (l.poidsKg || 0), 0)
   
   // Mock monthly data (in a real app, this would come from an API or be aggregated by date)
-  const monthlyData = [
-    { month: "Jan", cacao: 1200, cafe: 800 },
-    { month: "Feb", cacao: 1400, cafe: 900 },
-    { month: "Mar", cacao: 1100, cafe: 1100 },
-    { month: "Apr", cacao: 1600, cafe: 700 },
-    { month: "May", cacao: 1900, cafe: 850 },
-    { month: "Jun", cacao: 1428, cafe: 1200 },
-  ]
+  const monthlyData: any[] = []
  
   const volumeConfig = {
     cacao: { label: "Cacao", color: "hsl(var(--primary))" },
     cafe: { label: "Café", color: "hsl(var(--muted-foreground))" },
   } satisfies ChartConfig
  
-  const qualityData = [
-    { name: "gradeA", value: 68, fill: "var(--color-gradeA)" },
-    { name: "gradeB", value: 24, fill: "var(--color-gradeB)" },
-    { name: "gradeC", value: 8, fill: "var(--color-gradeC)" },
-  ]
+  const qualityData: any[] = []
  
   const qualityConfig = {
     gradeA: { label: "Grade A (Premium)", color: "#f59e0b" },
@@ -54,11 +43,7 @@ export function CoopReportsTab() {
     gradeC: { label: "Grade C (Refus)", color: "#e2e8f0" },
   } satisfies ChartConfig
  
-  const recentReports = [
-    { id: 1, name: "Rapport Annuel de Récolte 2023", type: "Production Summary", date: "12 Juin 2024", status: "VALIDÉ" },
-    { id: 2, name: "Analyse Qualité - Secteur Nord", type: "Quality Assurance", date: "08 Juin 2024", status: "VALIDÉ" },
-    { id: 3, name: "Exportation Trimestrielle Q2", type: "Logistics & Sales", date: "01 Juin 2024", status: "EN COURS" },
-  ]
+  const recentReports: any[] = []
  
   return (
     <div className="space-y-6 mt-4">

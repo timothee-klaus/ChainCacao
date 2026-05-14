@@ -12,7 +12,6 @@ export interface UserContextType {
   setUser: (user: User) => void
   logout: () => void
   switchRole: (role: UserRole) => void
-  switchAccount: (userId: string, role?: UserRole | null) => void
   canAccess: (requiredRole: UserRole) => boolean
   isLoading: boolean
 }
@@ -37,6 +36,7 @@ export function UserProvider({ children }: UserProviderProps) {
     currentRole,
     currentUserId,
     setToken,
+    addUser,
   } = useUsersStore()
 
   useEffect(() => {
@@ -69,11 +69,9 @@ export function UserProvider({ children }: UserProviderProps) {
   const setUser = useCallback(
     (newUser: User) => {
       setUserState(newUser)
-      setCurrentUser(newUser.userId, newUser.roles[0] ?? null)
-      setActiveRole(newUser.roles[0] ?? null)
-      setCurrentRole(newUser.roles[0] ?? null)
+      addUser(newUser)
     },
-    [setCurrentRole, setCurrentUser]
+    [addUser]
   )
 
   const logout = useCallback(() => {
@@ -85,20 +83,7 @@ export function UserProvider({ children }: UserProviderProps) {
     router.push("/auth")
   }, [router, setCurrentRole, setCurrentUser, setToken])
 
-  const switchAccount = useCallback(
-    (userId: string, role: UserRole | null = null) => {
-      const nextUser = getUserById(userId)
-      if (!nextUser) return
 
-      const nextRole = role ?? nextUser.roles[0] ?? null
-      setUserState(nextUser)
-      setActiveRole(nextRole)
-      setCurrentUser(nextUser.userId, nextRole)
-      setCurrentRole(nextRole)
-      router.push(getRoleRoute(nextRole))
-    },
-    [getUserById, router, setCurrentRole, setCurrentUser]
-  )
 
   const switchRole = useCallback(
     (role: UserRole) => {
@@ -128,7 +113,6 @@ export function UserProvider({ children }: UserProviderProps) {
     setUser,
     logout,
     switchRole,
-    switchAccount,
     canAccess,
     isLoading,
   }

@@ -1,14 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '@/types/types';
-import { mockUsers } from '@/mock/mockData';
 
 interface UsersStore {
   users: User[];
   addUser: (user: User) => void;
   updateUser: (user: User) => void;
   getUserById: (userId: string) => User | undefined;
-  getUserByEmail: (email: string) => User | undefined;
   getCurrentUser: () => User | null;
   setCurrentUser: (userId: string | null, role?: User['roles'][number] | null) => void;
   currentUserId: string | null;
@@ -21,7 +19,7 @@ interface UsersStore {
 export const useUsersStore = create(
   persist<UsersStore>(
     (set, get) => ({
-      users: mockUsers,
+      users: [],
       currentUserId: null,
       currentRole: null,
       token: null,
@@ -41,11 +39,6 @@ export const useUsersStore = create(
       getUserById: (userId: string) => {
         const { users } = get();
         return users.find((u) => u.userId === userId);
-      },
-
-      getUserByEmail: (email: string) => {
-        const { users } = get();
-        return users.find((user) => user.email.toLowerCase() === email.toLowerCase());
       },
 
       getCurrentUser: () => {

@@ -24,22 +24,13 @@ export function MinistryReportsTab() {
   const coopsCount = users.filter(u => u.role === "COOPERATIVE").length
   
   // Aggregate volume by region
-  const regionData = [
-    { month: "Abengourou", volume: 4500 },
-    { month: "Daloa", volume: 6200 },
-    { month: "Gagnoa", volume: 3800 },
-    { month: "Man", volume: 5100 },
-    { month: "San-Pedro", volume: 7400 },
-  ]
+  const regionData: any[] = []
  
   const regionConfig = {
     volume: { label: "Volume (t)", color: "hsl(var(--primary))" },
   } satisfies ChartConfig
  
-  const complianceData = [
-    { name: "conforme", value: 85, fill: "var(--color-conforme)" },
-    { name: "nonConforme", value: 15, fill: "var(--color-nonConforme)" },
-  ]
+  const complianceData: any[] = []
  
   const complianceConfig = {
     conforme: { label: "Conforme EUDR", color: "#10b981" },

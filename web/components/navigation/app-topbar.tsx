@@ -25,7 +25,7 @@ import { Bell, LogOut, Repeat, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function AppTopbar() {
-  const { user, activeRole, logout, switchAccount, switchRole } = useUser()
+  const { user, activeRole, logout, switchRole } = useUser()
   const { users } = useUsersStore()
 
   const initials = user?.nomAffiche
@@ -136,49 +136,7 @@ export function AppTopbar() {
                 </div>
               )*/}
 
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Changer de compte
-                </p>
-                <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-                  {users.map((account) => {
-                    const isCurrent = account.userId === user?.userId
 
-                    return (
-                      <button
-                        key={account.userId}
-                        type="button"
-                        onClick={() => switchAccount(account.userId)}
-                        className={cn(
-                          "w-full rounded-2xl border p-3 text-left transition hover:border-primary/60 hover:bg-muted/50",
-                          isCurrent && "border-primary bg-primary/5"
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold">
-                              {account.nomAffiche}
-                            </p>
-                            <p className="truncate text-xs text-muted-foreground">
-                              {account.email}
-                            </p>
-                          </div>
-                          <Badge variant={isCurrent ? "default" : "secondary"} className="rounded-full">
-                            {isCurrent ? "Actif" : "Ouvrir"}
-                          </Badge>
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {account.roles.map((role) => (
-                            <Badge key={role} variant="outline" className="rounded-full text-[10px]">
-                              {role}
-                            </Badge>
-                          ))}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <Button asChild variant="outline" className="justify-start rounded-xl">

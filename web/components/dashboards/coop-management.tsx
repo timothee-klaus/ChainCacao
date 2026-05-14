@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Users, UserCheck, ShieldCheck, UserPlus, ArrowRightLeft, Search, FileText, LayoutDashboard } from "lucide-react"
 import { useActors } from "@/hooks/useActors"
 import { useTraceability } from "@/hooks/useTraceability"
-import { useLotsStore } from "@/store/lots"
+import { useLots } from "@/hooks/useLots"
 import { ActorsTable } from "@/components/actors/actors-table"
 import { RegisterProducerDialog } from "@/components/actors/register-producer-dialog"
 import { RegisterAgentDialog } from "@/components/actors/register-agent-dialog"
@@ -41,7 +41,7 @@ export function CoopManagement() {
   } = useActors()
 
   const { createTransfer, isSubmitting: isSubmittingTransfer } = useTraceability()
-  const { lots } = useLotsStore()
+  const { serverLots: lots } = useLots()
   const [selectedLots, setSelectedLots] = useState<string[]>([])
 
   useEffect(() => {

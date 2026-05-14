@@ -7,8 +7,17 @@ import type {
   TransferPayload,
   TransformationPayload,
   ShipmentPayload,
+  CertificationPayload,
 } from "@/types/api-traceability"
 import { queryKeys } from "@/lib/query-keys"
+
+export function useShipmentReport(shipmentHash: string) {
+  return useQuery({
+    queryKey: ["audit", "shipment", shipmentHash],
+    queryFn: () => traceabilityService.getShipmentReport(shipmentHash),
+    enabled: !!shipmentHash,
+  })
+}
 
 export function useLotHistory(assetHash: string) {
   return useQuery({
@@ -101,11 +110,26 @@ export function useTraceability() {
     },
   })
 
+  const createCertificationMutation = useMutation({
+    mutationFn: (payload: CertificationPayload) => traceabilityService.createCertification(payload),
+    onSuccess: () => {
+      toast.success("Certification enregistrée avec succès sur la blockchain")
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Échec de l'enregistrement de la certification")
+    },
+  })
+
   return {
-    isSubmitting: createTransferMutation.isPending || createTransformationMutation.isPending || createShipmentMutation.isPending,
+    isSubmitting: 
+      createTransferMutation.isPending || 
+      createTransformationMutation.isPending || 
+      createShipmentMutation.isPending ||
+      createCertificationMutation.isPending,
     createTransfer: createTransferMutation.mutateAsync,
     createTransformation: createTransformationMutation.mutateAsync,
     createShipment: createShipmentMutation.mutateAsync,
+    createCertification: createCertificationMutation.mutateAsync,
   }
 }
 

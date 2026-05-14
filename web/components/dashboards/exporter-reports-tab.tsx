@@ -10,8 +10,14 @@ import {
   ShieldCheck, 
   PackageCheck, 
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  FileText,
+  Download
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { traceabilityService } from "@/lib/services/traceability.service"
+import { useState } from "react"
 import { ChartConfig } from "@/components/ui/chart"
 import { useUser } from "@/context/useUser"
  
@@ -94,7 +100,6 @@ export function ExporterReportsTab() {
         />
       </div>
  
-      {/* Charts Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <VolumeChart 
           title="Flux d'Expédition Mensuel" 
@@ -112,6 +117,53 @@ export function ExporterReportsTab() {
           centerLabel="Inventaire"
         />
       </div>
+
+      {/* Shipment Report Generator */}
+      <Card className="border-dashed bg-muted/20">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <FileText className="size-4" />
+            Générateur de Rapports d'Expédition
+          </CardTitle>
+          <CardDescription>
+            Saisissez un ID d'expédition pour générer un rapport consolidé et le PDF associé.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Input 
+              placeholder="ID de l'expédition (ex: SHIP-2024-001)" 
+              className="max-w-md bg-background"
+              id="shipment-id-input"
+            />
+            <Button 
+              className="gap-2"
+              onClick={async () => {
+                const input = document.getElementById("shipment-id-input") as HTMLInputElement
+                const id = input?.value
+                if (!id) return
+                
+                try {
+                  const blob = await traceabilityService.getShipmentReportPdf(id)
+                  const url = window.URL.createObjectURL(blob)
+                  const a = document.createElement("a")
+                  a.href = url
+                  a.download = `Shipment_Report_${id}.pdf`
+                  document.body.appendChild(a)
+                  a.click()
+                  window.URL.revokeObjectURL(url)
+                  document.body.removeChild(a)
+                } catch (error) {
+                  alert("Erreur lors de la génération du rapport d'expédition.")
+                }
+              }}
+            >
+              <Download className="size-4" />
+              Générer PDF
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

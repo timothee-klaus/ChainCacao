@@ -82,3 +82,20 @@ export interface AuditQueryResponse {
   success: boolean
   data: AuditQueryLot[]
 }
+
+export interface CertificationPayload {
+  lot_hash: string
+  certifier_id: string
+  type: string
+  ref_hash: string
+  metadata?: Record<string, any>
+}
+
+export interface ShipmentReport {
+  success: boolean
+  report_timestamp: string
+  shipment: Record<string, any>
+  lots: Record<string, any>[]
+  compliance_summary: any
+  proof_hash: string
+}

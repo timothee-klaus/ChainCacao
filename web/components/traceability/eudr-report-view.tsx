@@ -2,8 +2,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShieldCheck, ShieldAlert, MapPin, Calendar, FileText, CheckCircle2 } from "lucide-react"
+import { ShieldCheck, ShieldAlert, MapPin, Calendar, FileText, CheckCircle2, Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { EUDRReport } from "@/types/api-traceability"
+import { traceabilityService } from "@/lib/services/traceability.service"
+import { useState } from "react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 
@@ -13,6 +16,29 @@ interface EUDRReportViewProps {
 }
 
 export function EUDRReportView({ report, isLoading }: EUDRReportViewProps) {
+  const [isDownloading, setIsDownloading] = useState(false)
+
+  const handleDownloadPdf = async () => {
+    if (!report) return
+    setIsDownloading(true)
+    try {
+      const lotHash = report.data.lot.lotHash || report.proof_hash
+      const blob = await traceabilityService.getEUDRReportPdf(lotHash)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `EUDR_Report_${lotHash}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error("Failed to download PDF:", error)
+      alert("Erreur lors du téléchargement du PDF.")
+    } finally {
+      setIsDownloading(false)
+    }
+  }
   if (isLoading) {
     return <div className="h-64 w-full bg-muted animate-pulse rounded-lg" />
   }
@@ -49,9 +75,21 @@ export function EUDRReportView({ report, isLoading }: EUDRReportViewProps) {
                 </p>
               </div>
             </div>
-            <Badge className={isCompliant ? "bg-emerald-600" : "bg-destructive"}>
-              {report.compliance_status}
-            </Badge>
+            <div className="flex flex-col items-end gap-2">
+              <Badge className={isCompliant ? "bg-emerald-600" : "bg-destructive"}>
+                {report.compliance_status}
+              </Badge>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 gap-2"
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+              >
+                <Download className="size-3" />
+                {isDownloading ? "..." : "PDF"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

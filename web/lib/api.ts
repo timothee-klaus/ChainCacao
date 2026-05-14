@@ -7,6 +7,7 @@ type RequestOptions = {
   headers?: Record<string, string>
   body?: any
   isFormData?: boolean
+  responseType?: "json" | "blob"
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -26,11 +27,16 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   
   if (token && token !== "null" && token !== "undefined") {
     requestHeaders["Authorization"] = `Bearer ${token}`
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] ${method} ${endpoint} - Token: ${token.substring(0, 10)}...`)
-    }
   } else {
-    console.warn(`[API] ${method} ${endpoint} - No valid token found in store`)
+    const isPublic = 
+      endpoint.includes("/auth/login") || 
+      endpoint.includes("/auth/register") || 
+      endpoint.includes("/auth/cooperatives/public") ||
+      endpoint.includes("/audit/verify/")
+    
+    if (!isPublic && process.env.NODE_ENV === 'development') {
+      console.warn(`[API] ${method} ${endpoint} - No valid token found in store`)
+    }
   }
 
   let requestBody = body
@@ -53,6 +59,10 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+  }
+
+  if (options.responseType === "blob") {
+    return response.blob() as unknown as Promise<T>
   }
 
   return response.json() as Promise<T>
