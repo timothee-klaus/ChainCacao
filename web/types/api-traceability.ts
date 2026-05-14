@@ -64,3 +64,21 @@ export interface VerificationResponse {
   }[]
   blockchain_verified: boolean
 }
+
+export interface AuditQueryLot {
+  docType: string
+  lotHash: string
+  farmerId: string
+  espece: string
+  poidsKg: number
+  dateCollecte: string
+  statut: LotStatus
+  coopId?: string
+  gps?: { latitude: number; longitude: number }
+  mediaHash?: string
+}
+
+export interface AuditQueryResponse {
+  success: boolean
+  data: AuditQueryLot[]
+}

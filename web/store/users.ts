@@ -10,7 +10,7 @@ interface UsersStore {
   getUserById: (userId: string) => User | undefined;
   getUserByEmail: (email: string) => User | undefined;
   getCurrentUser: () => User | null;
-  setCurrentUser: (userId: string, role?: User['roles'][number] | null) => void;
+  setCurrentUser: (userId: string | null, role?: User['roles'][number] | null) => void;
   currentUserId: string | null;
   currentRole: User['roles'][number] | null;
   setCurrentRole: (role: User['roles'][number] | null) => void;
@@ -54,8 +54,14 @@ export const useUsersStore = create(
         return users.find((u) => u.userId === currentUserId) || null;
       },
 
-      setCurrentUser: (userId: string, role = null) =>
+      setCurrentUser: (userId: string | null, role = null) =>
         set((state) => {
+          if (!userId) {
+            return {
+              currentUserId: null,
+              currentRole: null,
+            };
+          }
           const nextUser = state.users.find((user) => user.userId === userId);
           return {
             currentUserId: userId,

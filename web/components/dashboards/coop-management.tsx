@@ -4,17 +4,20 @@ import { useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, UserCheck, ShieldCheck, UserPlus } from "lucide-react"
+import { Users, UserCheck, ShieldCheck, UserPlus, ArrowRightLeft, Search, FileText, LayoutDashboard } from "lucide-react"
 import { useActors } from "@/hooks/useActors"
 import { useTraceability } from "@/hooks/useTraceability"
 import { useLotsStore } from "@/store/lots"
 import { ActorsTable } from "@/components/actors/actors-table"
 import { RegisterProducerDialog } from "@/components/actors/register-producer-dialog"
 import { RegisterAgentDialog } from "@/components/actors/register-agent-dialog"
+import { AuditQueryPanel } from "@/components/traceability/audit-query-panel"
 import { TransferLotDialog } from "@/components/traceability/transfer-lot-dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
+import { CoopReportsTab } from "./coop-reports-tab"
+import { normalizeRole } from "@/lib/navigation/role-config"
 import type { RegisterAgentPayload, RegisterProducerPayload } from "@/types/api-actors"
 import type { TransferPayload } from "@/types/api-traceability"
 
@@ -45,19 +48,22 @@ export function CoopManagement() {
     loadUsers()
   }, [loadUsers])
 
-  const producers = users.filter((u) => u.role === "PRODUCTEUR")
-  const delegates = users.filter((u) => u.role !== "PRODUCTEUR")
+  const producers = users.filter((u) => normalizeRole(u.role) === "Agriculteur")
+  const delegates = users.filter((u) => normalizeRole(u.role) !== "Agriculteur")
   const pendingCount = producers.filter((u) => !u.blockchain_validated).length
   const validatedCount = producers.filter((u) => u.blockchain_validated).length
 
   // Filtrer les lots de la coopérative qui ne sont pas encore transférés
   const availableLots = lots.filter(l => l.statut === "pending" || l.statut === "verified")
 
-  const handleTransfer = (data: TransferPayload, onSuccess: () => void) => {
-    createTransfer(data, () => {
+  const handleTransfer = async (data: TransferPayload, onSuccess: () => void) => {
+    try {
+      await createTransfer(data)
       setSelectedLots([])
       onSuccess()
-    })
+    } catch (error) {
+      console.error("Transfer error:", error)
+    }
   }
 
   const toggleLot = (hash: string) => {
@@ -66,12 +72,22 @@ export function CoopManagement() {
     )
   }
 
-  const handleAddProducer = (data: RegisterProducerPayload, onSuccess: () => void) => {
-    addProducer(data, onSuccess)
+  const handleAddProducer = async (data: RegisterProducerPayload, onSuccess: () => void) => {
+    try {
+      await addProducer(data)
+      onSuccess()
+    } catch (error) {
+      console.error("Add producer error:", error)
+    }
   }
 
-  const handleAddAgent = (data: RegisterAgentPayload, onSuccess: () => void) => {
-    addAgent(data, onSuccess)
+  const handleAddAgent = async (data: RegisterAgentPayload, onSuccess: () => void) => {
+    try {
+      await addAgent(data)
+      onSuccess()
+    } catch (error) {
+      console.error("Add agent error:", error)
+    }
   }
 
   return (
@@ -88,12 +104,12 @@ export function CoopManagement() {
         </div>
         <div className="flex items-center gap-2">
           <RegisterProducerDialog
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmittingActor}
             onSubmit={handleAddProducer}
           />
           <RegisterAgentDialog
             availableRoles={COOP_AGENT_ROLES}
-            isSubmitting={isSubmitting}
+            isSubmitting={isSubmittingActor}
             onSubmit={handleAddAgent}
           />
         </div>
@@ -138,8 +154,12 @@ export function CoopManagement() {
       </div>
 
       {/* Onglets */}
-      <Tabs defaultValue="producers">
+      <Tabs defaultValue="reports">
         <TabsList>
+          <TabsTrigger value="reports" className="gap-2">
+            <LayoutDashboard className="size-4" />
+            Vue d'ensemble
+          </TabsTrigger>
           <TabsTrigger value="producers" className="gap-2">
             <Users className="size-4" />
             Producteurs
@@ -166,8 +186,17 @@ export function CoopManagement() {
             <UserPlus className="size-4" />
             Agents / Délégués
           </TabsTrigger>
+          <TabsTrigger value="audit" className="gap-2">
+            <Search className="size-4" />
+            Audit Lots
+          </TabsTrigger>
         </TabsList>
-
+ 
+        {/* Rapports / Vue d'ensemble */}
+        <TabsContent value="reports" className="mt-4">
+          <CoopReportsTab />
+        </TabsContent>
+ 
         {/* Lots à transférer */}
         <TabsContent value="lots" className="mt-4">
           <Card>
@@ -240,7 +269,7 @@ export function CoopManagement() {
                 users={producers}
                 isLoading={isLoading}
                 showValidate
-                isSubmitting={isSubmitting}
+                isSubmitting={isSubmittingActor}
                 onValidate={validateOnBlockchain}
                 emptyMessage="Aucun producteur inscrit. Utilisez le bouton ci-dessus pour en ajouter un."
               />
@@ -263,7 +292,7 @@ export function CoopManagement() {
                 users={producers.filter((u) => !u.blockchain_validated)}
                 isLoading={isLoading}
                 showValidate
-                isSubmitting={isSubmitting}
+                isSubmitting={isSubmittingActor}
                 onValidate={validateOnBlockchain}
                 emptyMessage="Tous vos producteurs sont validés sur la Blockchain ✓"
               />
@@ -289,6 +318,16 @@ export function CoopManagement() {
               />
             </CardContent>
           </Card>
+        </TabsContent>
+ 
+        {/* Audit Avancé */}
+        <TabsContent value="audit" className="mt-4">
+          <AuditQueryPanel />
+        </TabsContent>
+
+        {/* Rapports */}
+        <TabsContent value="reports" className="mt-4">
+          <CoopReportsTab />
         </TabsContent>
       </Tabs>
     </div>

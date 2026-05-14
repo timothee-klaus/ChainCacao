@@ -51,13 +51,12 @@ export function TransformationDialog({ lotHashes, onSuccess }: TransformationDia
     
     // Ajout d'une méthode au hook si elle manque, ou utilisation directe du service
     try {
-      await createTransformation(payload, () => {
-        reset()
-        setOpen(false)
-        onSuccess?.()
-      })
+      await createTransformation(payload)
+      reset()
+      setOpen(false)
+      onSuccess?.()
     } catch (e) {
-      // Erreur gérée par le hook
+      console.error("Transformation error:", e)
     }
   }
 

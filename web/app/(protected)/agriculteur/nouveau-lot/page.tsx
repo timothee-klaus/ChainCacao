@@ -18,7 +18,7 @@ export default function NouveauLotPage() {
     if (!user) return
 
     try {
-      await createLot({
+      const lot = await createLot({
         espece: values.espece,
         poidsKg: values.poidsKg,
         dateCollecte: values.dateCollecte.toISOString(),
@@ -27,25 +27,25 @@ export default function NouveauLotPage() {
         gpsLongitude: values.gpsLongitude,
         coopName: values.coopName,
         photos: files,
-      }, (lot) => {
-        // Optionnel : Enregistrer une action locale pour l'UI immédiate si besoin
-        addAction({
-          lotId: lot.id || "temp",
-          actor: "Agriculteur",
-          actorName: user.nomAffiche,
-          actorId: user.userId,
-          action: "created",
-          phase: "recolte",
-          status: "draft",
-          description: "Enregistrement de récolte créé avec succès sur la blockchain.",
-          metadata: {
-            gps: { latitude: values.gpsLatitude, longitude: values.gpsLongitude },
-            region: values.region,
-            photos: files.length,
-          },
-        })
-        router.push(`/agriculteur/lots`)
       })
+
+      // Optionnel : Enregistrer une action locale pour l'UI immédiate si besoin
+      addAction({
+        lotId: lot.id || "temp",
+        actor: "Agriculteur",
+        actorName: user.nomAffiche,
+        actorId: user.userId,
+        action: "created",
+        phase: "recolte",
+        status: "draft",
+        description: "Enregistrement de récolte créé avec succès sur la blockchain.",
+        metadata: {
+          gps: { latitude: values.gpsLatitude, longitude: values.gpsLongitude },
+          region: values.region,
+          photos: files.length,
+        },
+      })
+      router.push(`/agriculteur/lots`)
     } catch (error) {
       console.error("Error creating lot:", error)
     }

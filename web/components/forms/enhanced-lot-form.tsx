@@ -246,7 +246,7 @@ export function EnhancedLotForm({
                     <img
                       src={preview}
                       alt={`Preview ${index}`}
-                      className="h-20 w-full rounded border object-cover"
+                      className="aspect-square w-full rounded border object-cover"
                     />
                     <button
                       type="button"

@@ -6,6 +6,7 @@ import type {
   TransformationPayload,
   ShipmentPayload,
   VerificationResponse,
+  AuditQueryResponse,
 } from "@/types/api-traceability"
 
 export const traceabilityService = {
@@ -17,6 +18,15 @@ export const traceabilityService = {
     
   getEUDRReport: (lotHash: string) => 
     api.get<EUDRReport>(`/api/v1/audit/eudr-report/${lotHash}`),
+
+  queryByStatus: (status: string) =>
+    api.get<AuditQueryResponse>(`/api/v1/audit/query/status/${status}`),
+
+  queryByFarmer: (farmerId: string) =>
+    api.get<AuditQueryResponse>(`/api/v1/audit/query/farmer/${farmerId}`),
+
+  queryCertifications: (refHash: string) =>
+    api.get<AuditQueryResponse>(`/api/v1/audit/query/certifications/${refHash}`),
     
   createTransfer: (payload: TransferPayload) => 
     api.post<any>("/api/v1/traceability/transfers", payload),

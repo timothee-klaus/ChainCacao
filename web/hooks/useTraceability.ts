@@ -1,108 +1,112 @@
 "use client"
 
-import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { traceabilityService } from "@/lib/services/traceability.service"
 import type {
-  HistoryEntry,
-  EUDRReport,
   TransferPayload,
-  VerificationResponse,
+  TransformationPayload,
+  ShipmentPayload,
 } from "@/types/api-traceability"
+import { queryKeys } from "@/lib/query-keys"
+
+export function useLotHistory(assetHash: string) {
+  return useQuery({
+    queryKey: [queryKeys.history(assetHash)],
+    queryFn: () => traceabilityService.getHistory(assetHash),
+    enabled: !!assetHash,
+  })
+}
+
+export function useLotEUDR(lotHash: string) {
+  return useQuery({
+    queryKey: [queryKeys.eudr(lotHash)],
+    queryFn: () => traceabilityService.getEUDRReport(lotHash),
+    enabled: !!lotHash,
+  })
+}
+
+export function useLotVerification(lotHash: string) {
+  return useQuery({
+    queryKey: [queryKeys.verification(lotHash)],
+    queryFn: () => traceabilityService.verifyLot(lotHash),
+    enabled: !!lotHash,
+  })
+}
+
+export function useAuditQueryStatus(status: string) {
+  return useQuery({
+    queryKey: ["audit", "status", status],
+    queryFn: () => traceabilityService.queryByStatus(status),
+    enabled: !!status,
+  })
+}
+
+export function useAuditQueryFarmer(farmerId: string) {
+  return useQuery({
+    queryKey: ["audit", "farmer", farmerId],
+    queryFn: () => traceabilityService.queryByFarmer(farmerId),
+    enabled: !!farmerId,
+  })
+}
+
+export function useAuditQueryCertifications(refHash: string) {
+  return useQuery({
+    queryKey: ["audit", "certifications", refHash],
+    queryFn: () => traceabilityService.queryCertifications(refHash),
+    enabled: !!refHash,
+  })
+}
 
 export function useTraceability() {
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [eudrReport, setEudrReport] = useState<EUDRReport | null>(null)
-  const [verification, setVerification] = useState<VerificationResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const queryClient = useQueryClient()
 
-  const loadHistory = async (assetHash: string) => {
-    setIsLoading(true)
-    try {
-      const data = await traceabilityService.getHistory(assetHash)
-      setHistory(data)
-    } catch (err: any) {
-      toast.error(err.message || "Impossible de charger l'historique")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const loadEUDRReport = async (lotHash: string) => {
-    setIsLoading(true)
-    try {
-      const data = await traceabilityService.getEUDRReport(lotHash)
-      setEudrReport(data)
-    } catch (err: any) {
-      toast.error(err.message || "Impossible de charger le rapport EUDR")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const verifyLot = async (lotHash: string) => {
-    setIsLoading(true)
-    try {
-      const data = await traceabilityService.verifyLot(lotHash)
-      setVerification(data)
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la vérification du lot")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const createTransfer = async (payload: TransferPayload, onSuccess?: () => void) => {
-    setIsSubmitting(true)
-    try {
-      await traceabilityService.createTransfer(payload)
+  // Mutations
+  const createTransferMutation = useMutation({
+    mutationFn: (payload: TransferPayload) => traceabilityService.createTransfer(payload),
+    onSuccess: (response, variables) => {
       toast.success("Transfert enregistré avec succès sur la blockchain")
-      onSuccess?.()
-    } catch (err: any) {
+      if (variables.lot_hashes.length > 0) {
+        queryClient.invalidateQueries({ queryKey: [queryKeys.history(variables.lot_hashes[0])] })
+      }
+    },
+    onError: (err: any) => {
       toast.error(err.message || "Échec de l'enregistrement du transfert")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    },
+  })
 
-  const createTransformation = async (payload: TransformationPayload, onSuccess?: () => void) => {
-    setIsSubmitting(true)
-    try {
-      await traceabilityService.createTransformation(payload)
+  const createTransformationMutation = useMutation({
+    mutationFn: (payload: TransformationPayload) => traceabilityService.createTransformation(payload),
+    onSuccess: (response, variables) => {
       toast.success("Transformation enregistrée avec succès sur la blockchain")
-      onSuccess?.()
-    } catch (err: any) {
+      if (variables.lot_hashes.length > 0) {
+        queryClient.invalidateQueries({ queryKey: [queryKeys.history(variables.lot_hashes[0])] })
+      }
+    },
+    onError: (err: any) => {
       toast.error(err.message || "Échec de l'enregistrement de la transformation")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    },
+  })
 
-  const createShipment = async (payload: ShipmentPayload, onSuccess?: () => void) => {
-    setIsSubmitting(true)
-    try {
-      await traceabilityService.createShipment(payload)
+  const createShipmentMutation = useMutation({
+    mutationFn: (payload: ShipmentPayload) => traceabilityService.createShipment(payload),
+    onSuccess: (response, variables) => {
       toast.success("Expédition enregistrée avec succès sur la blockchain")
-      onSuccess?.()
-    } catch (err: any) {
+      if (variables.lotHashes.length > 0) {
+        queryClient.invalidateQueries({ queryKey: [queryKeys.history(variables.lotHashes[0])] })
+      }
+    },
+    onError: (err: any) => {
       toast.error(err.message || "Échec de l'enregistrement de l'expédition")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    },
+  })
 
   return {
-    history,
-    eudrReport,
-    verification,
-    isLoading,
-    isSubmitting,
-    loadHistory,
-    loadEUDRReport,
-    verifyLot,
-    createTransfer,
-    createTransformation,
-    createShipment,
+    isSubmitting: createTransferMutation.isPending || createTransformationMutation.isPending || createShipmentMutation.isPending,
+    createTransfer: createTransferMutation.mutateAsync,
+    createTransformation: createTransformationMutation.mutateAsync,
+    createShipment: createShipmentMutation.mutateAsync,
   }
 }
+
+

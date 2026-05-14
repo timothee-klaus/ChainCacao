@@ -15,13 +15,22 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
 
   const requestHeaders: Record<string, string> = {
+    "Accept": "application/json",
     ...headers,
   }
 
   // Add Authorization header if token exists
-  const token = useUsersStore.getState().token
-  if (token) {
+  // On récupère le token directement du store Zustand
+  const state = useUsersStore.getState()
+  const token = state.token
+  
+  if (token && token !== "null" && token !== "undefined") {
     requestHeaders["Authorization"] = `Bearer ${token}`
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API] ${method} ${endpoint} - Token: ${token.substring(0, 10)}...`)
+    }
+  } else {
+    console.warn(`[API] ${method} ${endpoint} - No valid token found in store`)
   }
 
   let requestBody = body

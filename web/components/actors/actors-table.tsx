@@ -23,6 +23,9 @@ interface ActorsTableProps {
   showValidate?: boolean
   isSubmitting?: boolean
   onValidate?: (user: ApiUser) => void
+  /** Afficher le bouton d'audit EUDR */
+  showAudit?: boolean
+  onAudit?: (lotHash: string) => void
   emptyMessage?: string
 }
 

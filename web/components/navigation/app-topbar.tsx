@@ -9,6 +9,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -38,10 +46,33 @@ export function AppTopbar() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative rounded-full">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
-        </Button>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative rounded-full">
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-[350px] sm:w-[450px]">
+            <SheetHeader className="border-b pb-4">
+              <SheetTitle>Notifications</SheetTitle>
+              <SheetDescription>
+                Gérez vos alertes et mises à jour de lots.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex flex-col gap-4 py-6">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 rounded-full bg-muted p-4">
+                  <Bell className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium">Aucune nouvelle notification</p>
+                <p className="text-xs text-muted-foreground">
+                  Vous serez informé dès qu'il y aura du nouveau sur vos lots.
+                </p>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <Popover>
           <PopoverTrigger asChild>
@@ -157,6 +188,7 @@ export function AppTopbar() {
                   </Link>
                 </Button>
                 <Button
+                  type="button"
                   variant="destructive"
                   className="justify-start rounded-xl"
                   onClick={logout}

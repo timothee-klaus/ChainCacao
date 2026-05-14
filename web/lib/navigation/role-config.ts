@@ -116,7 +116,7 @@ const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
       { title: "Tous les lots", href: "/all-lots", icon: PackageOpen },
     ],
     footerItems: [
-      { title: "Expéditions", href: "/exporter/conformite", icon: Truck },
+      { title: "Expéditions", href: "/exporter", icon: Truck },
       { title: "Support", href: "/support", icon: CheckCircle2 },
     ],
   },
@@ -208,15 +208,29 @@ const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
   },
 }
 
-function normalizeRole(role: UserRole): UserRole {
-  switch (role) {
-    case "PRODUCTEUR": return "Agriculteur"
-    case "COOPERATIVE": return "CoopManager"
-    case "TRANSFORMATEUR": return "Transformer"
-    case "EXPORTATEUR": return "Exporter"
-    case "CERTIF": return "Verifier"
-    case "MINISTERE": return "MinistryAnalyst"
-    default: return role
+export function normalizeRole(role: string): UserRole {
+  const upperRole = role.toUpperCase();
+  switch (upperRole) {
+    case "PRODUCTEUR":
+    case "AGRICULTEUR": 
+      return "Agriculteur"
+    case "COOPERATIVE":
+    case "COOPMANAGER": 
+      return "CoopManager"
+    case "TRANSFORMATEUR":
+    case "TRANSFORMER": 
+      return "Transformer"
+    case "EXPORTATEUR":
+    case "EXPORTER": 
+      return "Exporter"
+    case "CERTIF":
+    case "VERIFIER": 
+      return "Verifier"
+    case "MINISTERE":
+    case "MINISTRYANALYST": 
+      return "MinistryAnalyst"
+    default: 
+      return role as UserRole
   }
 }
 

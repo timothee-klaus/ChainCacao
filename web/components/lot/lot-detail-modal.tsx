@@ -8,8 +8,9 @@ import { Copy, Download, QrCode } from "lucide-react"
 import { useUser } from "@/context/useUser"
 import type { Lot } from "@/types/types"
 import { useCooperativeStore } from "@/store/cooperative"
-import { useLotActionsStore } from "@/store/lot-actions"
+import { useLotActionsStore, type LotAction } from "@/store/lot-actions"
 import { useEUDRStore } from "@/store/eudr"
+import { useLotHistory } from "@/hooks/useTraceability"
 import { getLotHistoryIds, getLotLineageIds } from "@/lib/lot-lineage"
 import { translateStatus } from "@/lib/status-helper"
 import { LotActionsPanel } from "@/components/lot/lot-actions-panel"
@@ -49,6 +50,7 @@ export function LotDetailModal({
   const { activeRole } = useUser()
   const { Canvas } = useQRCode()
   const { getLotTimeline } = useLotActionsStore()
+  const { data: serverTimeline } = useLotHistory(lot?.lotId || "")
   const groups = useCooperativeStore((state) => state.groups)
   const { getEUDRForLot } = useEUDRStore()
   const qrBoxRef = useRef<HTMLDivElement>(null)
@@ -56,7 +58,25 @@ export function LotDetailModal({
 
   if (!lot) return null
 
-  const timeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
+  const mockTimeline = getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups))
+  const timeline: LotAction[] = serverTimeline && serverTimeline.length > 0 
+    ? serverTimeline.map((entry: any) => ({
+        actionId: entry.txId,
+        lotId: lot.lotId,
+        actor: (entry.value.actor || "Inconnu") as any,
+        actorName: entry.value.actorName || "Acteur Blockchain",
+        actorId: entry.value.actorId || "0x...",
+        action: (entry.value.action || "validated") as any,
+        phase: (entry.value.phase || "transfert") as any,
+        status: (entry.value.statut || "pending") as any,
+        description: entry.value.description || "Action enregistrée sur la blockchain",
+        timestamp: new Date(entry.timestamp).getTime(),
+        chainStatus: "recorded" as const,
+        chainHash: entry.txId,
+        metadata: entry.value.metadata || {}
+      })) 
+    : mockTimeline
+
   const eudrRecord = getEUDRForLot(lot.lotId)
   const qrValue = `chaincacao://lot/${lot.lotId}`
   const metaActions = timeline.flatMap((action) => {

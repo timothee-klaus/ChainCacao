@@ -46,12 +46,13 @@ export function ShipmentDialog({ lotHashes, onSuccess }: ShipmentDialogProps) {
     }
     
     try {
-      await createShipment(payload, () => {
-        reset()
-        setOpen(false)
-        onSuccess?.()
-      })
-    } catch (e) {}
+      await createShipment(payload)
+      reset()
+      setOpen(false)
+      onSuccess?.()
+    } catch (e) {
+      console.error("Shipment error:", e)
+    }
   }
 
   const canSubmit = lotHashes.length > 0 && watch("destination") && watch("dateDepart")

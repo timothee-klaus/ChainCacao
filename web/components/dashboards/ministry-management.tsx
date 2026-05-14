@@ -2,15 +2,20 @@
 
 import { useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShieldAlert, Users, Clock, CheckCircle2 } from "lucide-react"
+import { ShieldAlert, Users, Clock, CheckCircle2, Search, FileBarChart, LayoutDashboard } from "lucide-react"
 import { useActors } from "@/hooks/useActors"
-import { useTraceability } from "@/hooks/useTraceability"
+import { useTraceability, useLotEUDR } from "@/hooks/useTraceability"
 import { ActorsTable } from "@/components/actors/actors-table"
 import { RegisterAgentDialog } from "@/components/actors/register-agent-dialog"
+import { AuditQueryPanel } from "@/components/traceability/audit-query-panel"
+import { MinistryReportsTab } from "./ministry-reports-tab"
 import { SelectedLotCompliance } from "@/components/exporter/selected-lot-compliance"
 import { mapEUDRToComplianceProps } from "@/lib/utils/traceability-adapters"
+import { normalizeRole } from "@/lib/navigation/role-config"
 import type { RegisterAgentPayload } from "@/types/api-actors"
 import { useState } from "react"
 
@@ -35,8 +40,8 @@ export function MinistryManagement() {
     addAgent,
   } = useActors()
 
-  const { eudrReport, loadEUDRReport, isLoading: isLoadingAudit } = useTraceability()
   const [selectedLotHash, setSelectedLotHash] = useState<string | null>(null)
+  const { data: eudrReport, isLoading: isLoadingAudit } = useLotEUDR(selectedLotHash || "")
 
   useEffect(() => {
     loadUsers()
@@ -45,11 +50,15 @@ export function MinistryManagement() {
 
   const handleViewAudit = (lotHash: string) => {
     setSelectedLotHash(lotHash)
-    loadEUDRReport(lotHash)
   }
 
-  const handleAddAgent = (data: RegisterAgentPayload, onSuccess: () => void) => {
-    addAgent(data, onSuccess)
+  const handleAddAgent = async (data: RegisterAgentPayload, onSuccess: () => void) => {
+    try {
+      await addAgent(data)
+      onSuccess()
+    } catch (error) {
+      console.error("Add agent error:", error)
+    }
   }
 
   const validatedCount = users.filter((u) => u.blockchain_validated).length
@@ -111,8 +120,12 @@ export function MinistryManagement() {
       </div>
 
       {/* Onglets */}
-      <Tabs defaultValue="pending">
+      <Tabs defaultValue="reports">
         <TabsList>
+          <TabsTrigger value="reports" className="gap-2">
+            <LayoutDashboard className="size-4" />
+            Vue d'ensemble
+          </TabsTrigger>
           <TabsTrigger value="pending" className="gap-2">
             <ShieldAlert className="size-4" />
             En attente
@@ -130,11 +143,19 @@ export function MinistryManagement() {
             Producteurs
           </TabsTrigger>
           <TabsTrigger value="institutions" className="gap-2">
-            Institutions
+            Annuaire Blockchain
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="gap-2">
+            <Search className="size-4" />
+            Audit Avancé
           </TabsTrigger>
         </TabsList>
+ 
+        {/* Rapports / Vue d'ensemble */}
+        <TabsContent value="reports" className="mt-4">
+          <MinistryReportsTab />
+        </TabsContent>
 
-        {/* En attente de validation blockchain */}
         <TabsContent value="pending" className="mt-4">
           <Card>
             <CardHeader>
@@ -148,8 +169,6 @@ export function MinistryManagement() {
                 users={pendingUsers}
                 isLoading={isLoading}
                 showValidate
-                showAudit={true}
-                onAudit={handleViewAudit}
                 isSubmitting={isSubmitting}
                 onValidate={validateOnBlockchain}
                 emptyMessage="Aucune inscription en attente de validation."
@@ -172,8 +191,6 @@ export function MinistryManagement() {
                 users={users}
                 isLoading={isLoading}
                 showValidate
-                showAudit={true}
-                onAudit={handleViewAudit}
                 isSubmitting={isSubmitting}
                 onValidate={validateOnBlockchain}
               />
@@ -192,7 +209,7 @@ export function MinistryManagement() {
             </CardHeader>
             <CardContent>
               <ActorsTable
-                users={users.filter((u) => u.role === "PRODUCTEUR")}
+                users={users.filter((u) => normalizeRole(u.role) === "Agriculteur")}
                 isLoading={isLoading}
                 showValidate
                 isSubmitting={isSubmitting}
@@ -215,7 +232,7 @@ export function MinistryManagement() {
             <CardContent>
               <ActorsTable
                 users={users.filter((u) =>
-                  ["COOPERATIVE", "EXPORTATEUR", "TRANSFORMATEUR", "CERTIF"].includes(u.role)
+                  ["CoopManager", "Exporter", "Transformer", "Verifier"].includes(normalizeRole(u.role))
                 )}
                 isLoading={isLoading}
                 showValidate
@@ -225,6 +242,16 @@ export function MinistryManagement() {
               />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Audit Avancé */}
+        <TabsContent value="audit" className="mt-4">
+          <AuditQueryPanel />
+        </TabsContent>
+
+        {/* Rapports */}
+        <TabsContent value="reports" className="mt-4">
+          <MinistryReportsTab />
         </TabsContent>
       </Tabs>
 

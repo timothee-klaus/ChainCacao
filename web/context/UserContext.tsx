@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { User, UserRole } from "../types/types"
 import { useUsersStore } from "@/store/users"
-import { getRoleRoute } from "@/lib/navigation/role-config"
+import { getRoleRoute, normalizeRole } from "@/lib/navigation/role-config"
 
 export interface UserContextType {
   user: User | null
@@ -80,9 +80,10 @@ export function UserProvider({ children }: UserProviderProps) {
     setUserState(null)
     setActiveRole(null)
     setCurrentRole(null)
+    setCurrentUser(null)
     setToken(null)
     router.push("/auth")
-  }, [router, setCurrentRole, setToken])
+  }, [router, setCurrentRole, setCurrentUser, setToken])
 
   const switchAccount = useCallback(
     (userId: string, role: UserRole | null = null) => {
@@ -113,7 +114,10 @@ export function UserProvider({ children }: UserProviderProps) {
   const canAccess = useCallback(
     (requiredRole: UserRole) => {
       if (!user) return false
-      return user.roles.includes(requiredRole) || user.roles.includes("Admin")
+      const normalizedRequired = normalizeRole(requiredRole)
+      const normalizedUserRoles = user.roles.map(r => normalizeRole(r))
+      
+      return normalizedUserRoles.includes(normalizedRequired) || normalizedUserRoles.includes("Admin")
     },
     [user]
   )

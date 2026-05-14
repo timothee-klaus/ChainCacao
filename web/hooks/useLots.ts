@@ -1,46 +1,41 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { lotService, type CreateLotPayload } from "@/lib/services/lot.service"
 import { toast } from "sonner"
+import { queryKeys } from "@/lib/query-keys"
 
 export function useLots() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [serverLots, setServerLots] = useState<any[]>([])
+  const queryClient = useQueryClient()
 
-  const loadLots = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const data = await lotService.getLots()
-      setServerLots(data)
-    } catch (err: any) {
-      toast.error("Impossible de charger les lots du serveur")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  // Fetch lots
+  const { 
+    data: serverLots = [], 
+    isLoading, 
+    refetch: loadLots 
+  } = useQuery({
+    queryKey: [queryKeys.lots],
+    queryFn: () => lotService.getLots(),
+  })
 
-  const createLot = async (payload: CreateLotPayload, onSuccess?: (lot: any) => void) => {
-    setIsSubmitting(true)
-    try {
-      const response = await lotService.createLot(payload)
+  // Create lot mutation
+  const createLotMutation = useMutation({
+    mutationFn: (payload: CreateLotPayload) => lotService.createLot(payload),
+    onSuccess: (response, variables, context) => {
       toast.success("Lot de cacao créé et enregistré avec succès")
-      onSuccess?.(response)
-      return response
-    } catch (err: any) {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.lots] })
+    },
+    onError: (err: any) => {
       toast.error(err.message || "Erreur lors de la création du lot")
-      throw err
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    },
+  })
 
   return {
     serverLots,
     isLoading,
-    isSubmitting,
+    isSubmitting: createLotMutation.isPending,
     loadLots,
-    createLot,
+    createLot: createLotMutation.mutateAsync,
   }
 }
+

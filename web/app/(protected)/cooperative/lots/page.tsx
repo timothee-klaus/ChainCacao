@@ -74,7 +74,7 @@ export default function GestionLotsPage() {
   }, [serverLots])
 
   const groupedLotIds = useMemo(
-    () => new Set(allGroups.flatMap((group) => group.lotIds)),
+    () => new Set(allGroups.flatMap((group: any) => group.lotIds as string[])),
     [allGroups]
   )
   const coopLots = useMemo(
@@ -89,21 +89,21 @@ export default function GestionLotsPage() {
   const handleCreateGroup = () => {
     if (!user || selectedLots.length === 0 || !newGroupName) return
 
-    const sourceLots = lots.filter((lot) => selectedLots.includes(lot.lotId))
+    const sourceLots = allLots.filter((lot: any) => selectedLots.includes(lot.lotId || lot.id))
     if (sourceLots.length === 0) return
 
-    const alreadyGrouped = sourceLots.filter((lot) => groupedLotIds.has(lot.lotId))
+    const alreadyGrouped = sourceLots.filter((lot: any) => groupedLotIds.has(lot.lotId || lot.id))
     if (alreadyGrouped.length > 0) {
-      setStatusMessage(`Ce lot a déjà été regroupé: ${alreadyGrouped[0].lotId}`)
+      setStatusMessage(`Ce lot a déjà été regroupé: ${alreadyGrouped[0].lotId || alreadyGrouped[0].id}`)
       return
     }
 
-    const totalWeight = sourceLots.reduce((sum, lot) => sum + lot.poidsKg, 0)
+    const totalWeight = sourceLots.reduce((sum: number, lot: any) => sum + (lot.poidsKg || lot.poids_kg || 0), 0)
     const groupBase = averageCoordinates(sourceLots)
-    const sourceLotIds = sourceLots.map((lot) => lot.lotId)
-    const uniquePhotoUrls = Array.from(new Set(sourceLots.flatMap((lot) => lot.photoUrls)))
-    const uniquePhotoHashes = Array.from(new Set(sourceLots.flatMap((lot) => lot.photoHashes)))
-    const firstLot = sourceLots[0]
+    const sourceLotIds: string[] = sourceLots.map((lot: any) => (lot.lotId || lot.id) as string)
+    const uniquePhotoUrls: string[] = Array.from(new Set(sourceLots.flatMap((lot: any) => (lot.photoUrls || []) as string[])))
+    const uniquePhotoHashes: string[] = Array.from(new Set(sourceLots.flatMap((lot: any) => (lot.photoHashes || []) as string[])))
+    const firstLot = sourceLots[0] as any
 
     const groupRecord = createGroup(newGroupName, user.userId, sourceLotIds, totalWeight)
 

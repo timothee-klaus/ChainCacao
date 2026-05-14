@@ -1,0 +1,183 @@
+"use client"
+ 
+import { useLotsStore } from "@/store/lots"
+import { useActors } from "@/hooks/useActors"
+import { KPICard } from "@/components/reports/kpi-card"
+import { VolumeChart } from "@/components/reports/volume-chart"
+import { QualityChart } from "@/components/reports/quality-chart"
+import { 
+  Tractor, 
+  Scale, 
+  BadgeDollarSign, 
+  Users, 
+  Download,
+  Calendar as CalendarIcon,
+  Filter,
+  FileText
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { ChartConfig } from "@/components/ui/chart"
+ 
+export function CoopReportsTab() {
+  const { lots } = useLotsStore()
+  const { users } = useActors()
+ 
+  const producers = users.filter(u => u.role === "PRODUCTEUR")
+  const totalVolume = lots.reduce((sum, l) => sum + (l.poidsKg || 0), 0)
+  
+  // Mock monthly data (in a real app, this would come from an API or be aggregated by date)
+  const monthlyData = [
+    { month: "Jan", cacao: 1200, cafe: 800 },
+    { month: "Feb", cacao: 1400, cafe: 900 },
+    { month: "Mar", cacao: 1100, cafe: 1100 },
+    { month: "Apr", cacao: 1600, cafe: 700 },
+    { month: "May", cacao: 1900, cafe: 850 },
+    { month: "Jun", cacao: 1428, cafe: 1200 },
+  ]
+ 
+  const volumeConfig = {
+    cacao: { label: "Cacao", color: "hsl(var(--primary))" },
+    cafe: { label: "Café", color: "hsl(var(--muted-foreground))" },
+  } satisfies ChartConfig
+ 
+  const qualityData = [
+    { name: "gradeA", value: 68, fill: "var(--color-gradeA)" },
+    { name: "gradeB", value: 24, fill: "var(--color-gradeB)" },
+    { name: "gradeC", value: 8, fill: "var(--color-gradeC)" },
+  ]
+ 
+  const qualityConfig = {
+    gradeA: { label: "Grade A (Premium)", color: "#f59e0b" },
+    gradeB: { label: "Grade B (Standard)", color: "#94a3b8" },
+    gradeC: { label: "Grade C (Refus)", color: "#e2e8f0" },
+  } satisfies ChartConfig
+ 
+  const recentReports = [
+    { id: 1, name: "Rapport Annuel de Récolte 2023", type: "Production Summary", date: "12 Juin 2024", status: "VALIDÉ" },
+    { id: 2, name: "Analyse Qualité - Secteur Nord", type: "Quality Assurance", date: "08 Juin 2024", status: "VALIDÉ" },
+    { id: 3, name: "Exportation Trimestrielle Q2", type: "Logistics & Sales", date: "01 Juin 2024", status: "EN COURS" },
+  ]
+ 
+  return (
+    <div className="space-y-6 mt-4">
+      {/* Header Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2">
+            <CalendarIcon className="size-4" />
+            Jan 2024 - Jun 2024
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Filter className="size-4" />
+            Tous les produits
+          </Button>
+        </div>
+        <Button variant="default" size="sm" className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-none">
+          <Download className="size-4" />
+          Exporter le Rapport Global
+        </Button>
+      </div>
+ 
+      {/* KPI Grid */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <KPICard 
+          title="Total Volume Exported" 
+          value={(totalVolume / 1000).toFixed(1)} 
+          unit="t" 
+          icon={Tractor}
+          trend={{ value: "+12.5%", positive: true }}
+          colorVariant="emerald"
+        />
+        <KPICard 
+          title="Avg. Quality Grade" 
+          value="Grade A" 
+          icon={Scale}
+          trend={{ value: "Stable", stable: true }}
+          colorVariant="amber"
+        />
+        <KPICard 
+          title="Revenue Generated" 
+          value="3.2M" 
+          unit="$" 
+          icon={BadgeDollarSign}
+          trend={{ value: "+8.2%", positive: true }}
+          colorVariant="blue"
+        />
+        <KPICard 
+          title="Active Farmers" 
+          value={producers.length} 
+          icon={Users}
+          trend={{ value: "+42", positive: true }}
+          colorVariant="slate"
+        />
+      </div>
+ 
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <VolumeChart 
+          title="Volume de Réception" 
+          description="Tonnage mensuel consolidé (Cacao & Café)"
+          data={monthlyData}
+          config={volumeConfig}
+          dataKeys={["cacao", "cafe"]}
+        />
+        <QualityChart 
+          title="Qualité des Lots" 
+          description="Répartition par grade de certification"
+          data={qualityData}
+          config={qualityConfig}
+          centerValue="68%"
+          centerLabel="Grade A"
+        />
+      </div>
+ 
+      {/* Recent Reports Table */}
+      <div className="rounded-xl border shadow-sm bg-white overflow-hidden">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h3 className="font-bold">Rapports Récents</h3>
+          <Button variant="link" size="sm" className="text-amber-600">Voir tout l'historique</Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50/50">
+              <TableHead>REPORT NAME</TableHead>
+              <TableHead>TYPE</TableHead>
+              <TableHead>DATE</TableHead>
+              <TableHead>STATUS</TableHead>
+              <TableHead className="text-right">ACTION</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {recentReports.map((report) => (
+              <TableRow key={report.id}>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-rose-50 rounded-lg text-rose-500">
+                      <FileText className="size-4" />
+                    </div>
+                    {report.name}
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{report.type}</TableCell>
+                <TableCell>{report.date}</TableCell>
+                <TableCell>
+                  <Badge variant={report.status === "VALIDÉ" ? "default" : "secondary"} className={report.status === "VALIDÉ" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100" : "bg-amber-100 text-amber-700 hover:bg-amber-100"}>
+                    {report.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" className="gap-2 text-amber-700">
+                    <Download className="size-4" />
+                    Download PDF
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  )
+}

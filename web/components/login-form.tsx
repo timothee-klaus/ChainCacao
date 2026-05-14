@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -129,12 +130,12 @@ export function LoginForm({
         <Field>
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-            <a
-              href="#"
+            <Link
+              href="/auth/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Mot de passe oublié ?
-            </a>
+            </Link>
           </div>
           <Input
             id="password"
