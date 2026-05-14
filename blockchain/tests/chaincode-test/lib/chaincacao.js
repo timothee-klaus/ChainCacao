@@ -167,6 +167,12 @@ class ChainCacaoContract extends Contract {
         const result = await logic.queryCertifications(refHash);
         return JSON.stringify(result);
     }
+
+    async QueryLotsByFarmer(ctx, farmerId) {
+        const logic = new AuditLogic(ctx);
+        const result = await logic.queryLotsByFarmer(farmerId);
+        return JSON.stringify(result);
+    }
 }
 
 module.exports = ChainCacaoContract;

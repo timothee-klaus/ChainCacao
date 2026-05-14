@@ -21,6 +21,17 @@ class AuditLogic {
         const query = { selector: { docType: 'certification', referenceHash: refHash } };
         return await this.ledger.getQueryResultForQueryString(JSON.stringify(query));
     }
+
+    async queryLotsByFarmer(farmerId) {
+        // Recherche directe par farmerId puisque le champ est désormais public dans le lot
+        const lotQuery = {
+            selector: {
+                docType: 'lot',
+                farmerId: farmerId
+            }
+        };
+        return await this.ledger.getQueryResultForQueryString(JSON.stringify(lotQuery));
+    }
 }
 
 module.exports = AuditLogic;

@@ -49,12 +49,23 @@ docker exec cli_test ./scripts/deployCC.sh
 
 # 7. Setup Gateway Identity
 echo "### 7. Gateway will automatically enroll its root admin upon first request."
+
+# 7.5. Setup Permissions for Gateway
+echo "### 7.5. Granting write permissions to organizations folder for Gateway wallets..."
+chmod -R 777 organizations
+
 # 8. Restart Gateway
 echo "### 8. Restarting Gateway with PM2..."
-# On suppose que la gateway est dans le dossier frère 'gateway'
-if [ -d "../gateway" ]; then
-    cd ../gateway
-    pm2 restart all --update-env
+# On suppose que la gateway est dans blockchain/gateway
+if [ -d "../../gateway" ]; then
+    (cd "../../gateway" && pm2 restart all --update-env || pm2 start index.js --name "chaincacao-gateway")
+fi
+
+# 9. Start Monitoring
+echo "### 9. Starting Prometheus & Grafana Monitoring..."
+if [ -d "./monitoring" ]; then
+    docker-compose -f ./monitoring/docker-compose-monitoring.yaml up -d
+    echo "📊 Monitoring available at: http://localhost:3002 (Grafana) and http://localhost:9091 (Prometheus)"
 fi
 
 echo "### SUCCESS: MINI NETWORK IS FULLY OPERATIONAL! 🚀 ###"

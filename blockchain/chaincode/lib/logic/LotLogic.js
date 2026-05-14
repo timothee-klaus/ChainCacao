@@ -34,6 +34,7 @@ class LotLogic {
         const publicLot = {
             docType: 'lot',
             lotHash: lotHash,
+            farmerId: farmerId,
             parcelleId: parcelleId,
             espece: espece,
             poidsKg: parseFloat(poidsKg),
@@ -45,7 +46,6 @@ class LotLogic {
         // 3. Données Privées (GPS, Farmer ID, Coop ID, etc.)
         const privateDetails = {
             lotHash: lotHash,
-            farmerId: farmerId,
             coopId: coopId,
             gps: gps,
             mediaHash: mediaHash
