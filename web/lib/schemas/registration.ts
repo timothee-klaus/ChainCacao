@@ -19,8 +19,8 @@ export const registrationSchema = z
     confirmPassword: z.string(),
     roles: z
       .array(z.string())
-      .min(1, "Veuillez sélectionner au moins un rôle")
-      .max(3, "Vous pouvez sélectionner jusqu'à 3 rôles"),
+      .min(1, "Veuillez sélectionner votre rôle")
+      .max(1, "Veuillez sélectionner un seul rôle"),
     coopId: z.string().optional(),
     coopName: z.string().optional(),
     proofFile: z.any().optional(),
@@ -29,18 +29,7 @@ export const registrationSchema = z
     message: "Les mots de passe ne correspondent pas",
     path: ["confirmPassword"],
   })
-  .refine(
-    (data) => {
-      if (data.roles.includes("agriculteur") && !data.coopId) {
-        return false
-      }
-      return true
-    },
-    {
-      message: "Veuillez sélectionner une coopérative",
-      path: ["coopId"],
-    }
-  )
+ 
 
 export type RegistrationFormData = z.infer<typeof registrationSchema>
 
