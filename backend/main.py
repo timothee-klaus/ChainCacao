@@ -41,8 +41,8 @@ class SafeEncodingMiddleware(BaseHTTPMiddleware):
             )
 
 app = FastAPI(
-    title="ChainCacao API",
-    description="Backend API for Togo Cocoa & Coffee Traceability (Hyperledger Fabric)",
+    title="API ChainCacao",
+    description="API Backend pour la Traçabilité du Cacao et du Café au Togo (basée sur Hyperledger Fabric)",
     version="2.0.0"
 )
 
@@ -57,18 +57,18 @@ app.add_middleware(
 )
 
 
-# Include Routers
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
-app.include_router(actors.router, prefix="/api/v1/actors", tags=["Actors"])
+# Inclusion des Routeurs (Endpoints)
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentification"])
+app.include_router(actors.router, prefix="/api/v1/actors", tags=["Acteurs"])
 app.include_router(lots.router, prefix="/api/v1/lots", tags=["Lots"])
-app.include_router(traceability.router, prefix="/api/v1/traceability", tags=["Traceability"])
+app.include_router(traceability.router, prefix="/api/v1/traceability", tags=["Traçabilité"])
 app.include_router(parcelles.router, prefix="/api/v1/parcelles", tags=["Parcelles"])
-app.include_router(audit.router, prefix="/api/v1/audit", tags=["Audit & Queries"])
+app.include_router(audit.router, prefix="/api/v1/audit", tags=["Audit & Requêtes"])
 
 @app.get("/")
 async def root():
     return {
-        "message": "Welcome to ChainCacao API",
-        "status": "Running",
+        "message": "Bienvenue sur l'API ChainCacao",
+        "status": "En cours d'exécution",
         "docs": "/docs"
     }

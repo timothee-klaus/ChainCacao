@@ -162,7 +162,7 @@ async def refresh_token(
     """Utilise un refresh token valide pour obtenir un nouvel access token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate refresh token",
+        detail="Impossible de valider le token de rafraîchissement",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
@@ -227,7 +227,7 @@ async def setup_test_user(
     existing = storage.get_user_by_email(db, test_email)
     if existing:
         return {
-            "message": "Test user already exists",
+            "message": "L'utilisateur de test existe déjà",
             "blockchain_id": existing.blockchain_id,
         }
 
@@ -243,7 +243,7 @@ async def setup_test_user(
         blockchain_validated=True,
     )
     return {
-        "message": "Test user created: prod@test.com / password123",
+        "message": f"Utilisateur de test créé : {test_email} / password123",
         "blockchain_id": user.blockchain_id,
     }
 
