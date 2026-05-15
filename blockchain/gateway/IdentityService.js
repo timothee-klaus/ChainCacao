@@ -38,11 +38,14 @@ class IdentityService {
     }
 
     async getIdentity(orgName, userId) {
-        const identity = await this.getFromWallet(orgName, userId);
-        if (identity) return identity;
-
-        // On supprime le fallback admin pour garantir la traçabilité individuelle (EUDR)
-        throw new Error(`ACCES_REFUSE: L'identité '${userId}' est absente du portefeuille '${orgName}'. Veuillez d'abord valider/enrôler cet acteur.`);
+        // Le Ministère utilise l'identité admin du réseau
+        const effectiveUserId = (userId === 'MINISTERE-ROOT') ? 'admin' : userId;
+        
+        const identity = await this.getFromWallet(orgName, effectiveUserId);
+        if (!identity) {
+            throw new Error(`ACCES_REFUSE: L'identité '${effectiveUserId}' est absente du portefeuille '${orgName}'. Veuillez d'abord valider/enrôler cet acteur.`);
+        }
+        return identity;
     }
 
     async _getCACert(orgName) {

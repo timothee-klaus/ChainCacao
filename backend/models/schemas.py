@@ -181,8 +181,8 @@ ROLE_TO_ORG: Dict[str, str] = {
     "PRODUCTEUR": "producteurs",
     "COOPERATIVE": "cooperatives",
     "EXPORTATEUR": "exportateurs",
-    "CERTIF": "certifs",
-    "MINISTERE": "ministeres",
+    "CERTIF": "certificats",
+    "MINISTERE": "test",
     "TRANSFORMATEUR": "transformateurs",
 }
 
