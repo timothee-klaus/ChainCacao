@@ -8,9 +8,10 @@ from typing import Any, List, Optional
 
 import security
 from database import get_db, User
-from models.schemas import UserRegister, UserPublicResponse, ProducerRegisterDelegated, AgentRegister, ROLE_TO_ORG
+from models.schemas import UserRegister, UserPublicResponse, ProducerRegisterDelegated, AgentRegister, ROLE_TO_ORG, TokenRefresh
 from services.storage import StorageService, get_storage
 from services.blockchain_gateway import BlockchainGateway
+from jose import jwt, JWTError
 
 logger = logging.getLogger("auth")
 router = APIRouter()
@@ -134,11 +135,16 @@ async def login(
         data={"sub": user.blockchain_id},
         expires_delta=timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
+    
+    refresh_token = security.create_refresh_token(
+        data={"sub": user.blockchain_id}
+    )
 
     storage.log_action(db, user_id=user.blockchain_id, action="LOGIN")
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
         "user": {
             "full_name": user.full_name,
@@ -147,6 +153,43 @@ async def login(
             "blockchain_id": user.blockchain_id,
         },
     }
+
+@router.post("/refresh", summary="Rafraîchir le token d'accès")
+async def refresh_token(
+    payload: TokenRefresh,
+    db: Session = Depends(get_db)
+) -> Any:
+    """Utilise un refresh token valide pour obtenir un nouvel access token."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate refresh token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        # 1. Décoder et vérifier le type de token
+        decoded_payload = jwt.decode(payload.refresh_token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
+        user_id: str = decoded_payload.get("sub")
+        token_type: str = decoded_payload.get("type")
+        
+        if user_id is None or token_type != "refresh":
+            raise credentials_exception
+            
+        # 2. Vérifier que l'utilisateur existe toujours
+        user = db.query(User).filter(User.blockchain_id == user_id).first()
+        if user is None:
+            raise credentials_exception
+            
+        # 3. Générer un nouvel access token
+        new_access_token = security.create_access_token(data={"sub": user.blockchain_id})
+        
+        return {
+            "access_token": new_access_token,
+            "token_type": "bearer"
+        }
+        
+    except JWTError:
+        raise credentials_exception
 
 
 # ──────────────────────────────────────────────────────────────

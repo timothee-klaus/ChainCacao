@@ -235,3 +235,7 @@ class AgentRegister(BaseModel):
     numero_telephone: Optional[str] = Field(None, alias="numeroTelephone")
     password: str = Field(min_length=8)
     full_name: str = Field(..., min_length=2, alias="fullName")
+
+class TokenRefresh(BaseModel):
+    """Payload pour rafraîchir un token d'accès."""
+    refresh_token: str = Field(..., alias="refreshToken")
