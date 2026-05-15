@@ -145,4 +145,32 @@ async def create_shipment(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/transfers/{transfer_hash}")
+async def get_transfer(
+    transfer_hash: str,
+    current_user: User = Depends(security.get_validated_user)
+):
+    """
+    Retrieve details of a specific transfer from the blockchain.
+    """
+    return await gateway.query_ledger("GetTransfer", [transfer_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
+@router.get("/transformations/{transformation_hash}")
+async def get_transformation(
+    transformation_hash: str,
+    current_user: User = Depends(security.get_validated_user)
+):
+    """
+    Retrieve details of a specific transformation from the blockchain.
+    """
+    return await gateway.query_ledger("GetTransformation", [transformation_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
+
+@router.get("/shipments/{shipment_hash}")
+async def get_shipment(
+    shipment_hash: str,
+    current_user: User = Depends(security.get_validated_user)
+):
+    """
+    Retrieve details of a specific shipment from the blockchain.
+    """
+    return await gateway.query_ledger("GetShipment", [shipment_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
