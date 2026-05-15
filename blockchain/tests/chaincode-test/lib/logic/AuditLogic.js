@@ -43,6 +43,20 @@ class AuditLogic {
         };
         return await this.ledger.getQueryResultForQueryString(JSON.stringify(lotQuery));
     }
+
+    async queryTransfersByUser(userId) {
+        // Recherche tous les transferts où l'utilisateur est impliqué
+        const query = {
+            selector: {
+                docType: 'transfer',
+                $or: [
+                    { expediteurId: userId },
+                    { destinataireId: userId }
+                ]
+            }
+        };
+        return await this.ledger.getQueryResultForQueryString(JSON.stringify(query));
+    }
 }
 
 module.exports = AuditLogic;

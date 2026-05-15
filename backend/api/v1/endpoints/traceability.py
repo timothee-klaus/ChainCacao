@@ -174,3 +174,13 @@ async def get_shipment(
     Retrieve details of a specific shipment from the blockchain.
     """
     return await gateway.query_ledger("GetShipment", [shipment_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
+
+@router.get("/transfers/user/{user_id}")
+async def get_user_transfers(
+    user_id: str,
+    current_user: User = Depends(security.get_validated_user)
+):
+    """
+    Retrieve all transfers where the specified user is either sender or receiver.
+    """
+    return await gateway.query_ledger("QueryTransfersByUser", [user_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
