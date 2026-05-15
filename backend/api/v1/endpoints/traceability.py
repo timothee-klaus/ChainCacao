@@ -12,7 +12,6 @@ gateway = BlockchainGateway()
 
 @router.post("/transfers", status_code=status.HTTP_201_CREATED)
 async def create_transfer(
-    transfer_hash: str = Form(..., alias="transferHash"),
     lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
     expediteur_id: str = Form(..., alias="expediteurId"),
     destinataire_id: str = Form(..., alias="destinataireId"),
@@ -26,13 +25,19 @@ async def create_transfer(
     Record a ownership transfer between two actors.
     Requires uploading a proof document. Optionally associate a transporteur.
     """
+    import datetime, uuid
     try:
+        # Génération automatique du hash de transfert
+        today = datetime.datetime.now().strftime("%Y%m%d")
+        short_id = str(uuid.uuid4())[:8].upper()
+        generated_transfer_hash = f"TRANS-{today}-{short_id}"
+
         lot_hashes_list = json.loads(lot_hashes)
         content = await file.read()
-        media = storage.save_media(db, lot_hash=transfer_hash, filename=file.filename, content=content)
+        media = storage.save_media(db, lot_hash=generated_transfer_hash, filename=file.filename, content=content)
         
         data = {
-            "transfer_hash": transfer_hash,
+            "transfer_hash": generated_transfer_hash,
             "lot_hashes": lot_hashes_list,
             "expediteur_id": expediteur_id,
             "destinataire_id": destinataire_id,
@@ -50,7 +55,6 @@ async def create_transfer(
 
 @router.post("/transformations", status_code=status.HTTP_201_CREATED)
 async def create_transformation(
-    transformation_hash: str = Form(..., alias="transformationHash"),
     lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
     type_processus: str = Form(..., alias="typeProcessus"),
     file: UploadFile = File(...),
@@ -68,13 +72,19 @@ async def create_transformation(
             detail="Seuls les transformateurs et exportateurs peuvent enregistrer une transformation."
         )
 
+    import datetime, uuid
     try:
+        # Génération automatique du hash de transformation
+        today = datetime.datetime.now().strftime("%Y%m%d")
+        short_id = str(uuid.uuid4())[:8].upper()
+        generated_transformation_hash = f"TRSF-{today}-{short_id}"
+
         lot_hashes_list = json.loads(lot_hashes)
         content = await file.read()
-        media = storage.save_media(db, lot_hash=transformation_hash, filename=file.filename, content=content)
+        media = storage.save_media(db, lot_hash=generated_transformation_hash, filename=file.filename, content=content)
         
         args = [
-            transformation_hash, 
+            generated_transformation_hash, 
             json.dumps(lot_hashes_list), 
             type_processus, 
             media["sha256_hash"]
@@ -90,7 +100,6 @@ async def create_transformation(
 
 @router.post("/shipments", status_code=status.HTTP_201_CREATED)
 async def create_shipment(
-    shipment_hash: str = Form(..., alias="shipmentHash"),
     lot_hashes: str = Form(..., alias="lotHashes", description="JSON list of lot hashes"),
     exportateur_id: str = Form(..., alias="exportateurId"),
     destination: str = Form(...),
@@ -111,13 +120,19 @@ async def create_shipment(
             detail="Seuls les exportateurs peuvent enregistrer un envoi."
         )
 
+    import datetime, uuid
     try:
+        # Génération automatique du hash d'expédition
+        today = datetime.datetime.now().strftime("%Y%m%d")
+        short_id = str(uuid.uuid4())[:8].upper()
+        generated_shipment_hash = f"SHIP-{today}-{short_id}"
+
         lot_hashes_list = json.loads(lot_hashes)
         content = await file.read()
-        media = storage.save_media(db, lot_hash=shipment_hash, filename=file.filename, content=content)
+        media = storage.save_media(db, lot_hash=generated_shipment_hash, filename=file.filename, content=content)
         
         args = [
-            shipment_hash, json.dumps(lot_hashes_list), exportateur_id,
+            generated_shipment_hash, json.dumps(lot_hashes_list), exportateur_id,
             destination, media["sha256_hash"], date_depart_prevue,
             date_arrivee_prevue
         ]
