@@ -41,14 +41,8 @@ class IdentityService {
         const identity = await this.getFromWallet(orgName, userId);
         if (identity) return identity;
 
-        // Fallback automatique sur l'admin
-        console.warn(`Identité ${userId} absente, utilisation de l'admin...`);
-        let adminIdentity = await this.getFromWallet(orgName, 'admin');
-        if (!adminIdentity) {
-            await this.enrollAdminInWallet(orgName);
-            adminIdentity = await this.getFromWallet(orgName, 'admin');
-        }
-        return adminIdentity;
+        // On supprime le fallback admin pour garantir la traçabilité individuelle (EUDR)
+        throw new Error(`ACCES_REFUSE: L'identité '${userId}' est absente du portefeuille '${orgName}'. Veuillez d'abord valider/enrôler cet acteur.`);
     }
 
     async _getCACert(orgName) {

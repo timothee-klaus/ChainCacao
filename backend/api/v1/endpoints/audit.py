@@ -66,6 +66,16 @@ async def query_by_farmer(
     """
     return await gateway.query_ledger("QueryLotsByFarmer", [farmer_id], current_user.org_name, current_user.blockchain_id)
 
+@router.get("/query/owner/{owner_id}")
+async def query_by_owner(
+    owner_id: str,
+    current_user: User = Depends(security.get_current_user)
+):
+    """
+    Retrieve all lots currently owned by a specific actor (after transfer).
+    """
+    return await gateway.query_ledger("QueryLotsByOwner", [owner_id], current_user.org_name, current_user.blockchain_id)
+
 @router.get("/query/certifications/{ref_hash}")
 async def get_certifications(
     ref_hash: str,

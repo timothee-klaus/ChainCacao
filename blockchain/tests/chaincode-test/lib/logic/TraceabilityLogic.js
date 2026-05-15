@@ -19,30 +19,25 @@ class TraceabilityLogic {
 
         const timestamp = new Date(this.ctx.stub.getTxTimestamp().seconds.low * 1000).toISOString();
         
-        // 1. Données Publiques du Transfert
+        // 1. Données du Transfert (100% publiques)
         const publicTransfer = {
             docType: 'transfer',
             transferHash: transferHash,
             lotHashes: lotHashes,
             timestamp: timestamp,
-            transporteurId: transporteurId
-        };
-        await this.ledger.putState(transferHash, publicTransfer);
-
-        // 2. Données Privées du Transfert (Identités)
-        const privateTransfer = {
-            transferHash: transferHash,
+            transporteurId: transporteurId,
             expediteurId: expediteurId,
             destinataireId: destinataireId,
             preuveHash: preuveHash
         };
-        await this.ctx.stub.putPrivateData('collectionPrivateLots', transferHash, Buffer.from(JSON.stringify(privateTransfer)));
+        await this.ledger.putState(transferHash, publicTransfer);
         
-        // Update lots status (Public)
+        // Update lots status & ownership (Public)
         for (const hash of lotHashes) {
             const lot = await this.ledger.getState(hash);
             if (lot) {
                 lot.statut = `TRANSFERE`;
+                lot.ownerId = destinataireId; // Mutation de propriété
                 lot.dernierTransfertHash = transferHash;
                 await this.ledger.putState(hash, lot);
             }

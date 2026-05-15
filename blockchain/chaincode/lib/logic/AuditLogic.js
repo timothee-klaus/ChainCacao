@@ -32,6 +32,17 @@ class AuditLogic {
         };
         return await this.ledger.getQueryResultForQueryString(JSON.stringify(lotQuery));
     }
+
+    async queryLotsByOwner(ownerId) {
+        // Recherche par propriétaire actuel (celui qui a reçu le dernier transfert)
+        const lotQuery = {
+            selector: {
+                docType: 'lot',
+                ownerId: ownerId
+            }
+        };
+        return await this.ledger.getQueryResultForQueryString(JSON.stringify(lotQuery));
+    }
 }
 
 module.exports = AuditLogic;

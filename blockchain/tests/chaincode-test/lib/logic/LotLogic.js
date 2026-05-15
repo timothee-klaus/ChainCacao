@@ -30,50 +30,30 @@ class LotLogic {
         Validation.checkNumber(parseFloat(poidsKg), 'poidsKg');
         Validation.checkTimestamp(dateCollecte, 'dateCollecte');
 
-        // 2. Données Publiques (visibles par tous)
+        // 2. Données du Lot (Désormais 100% publiques pour une transparence totale EUDR)
         const publicLot = {
             docType: 'lot',
             lotHash: lotHash,
             farmerId: farmerId,
+            ownerId: farmerId, // Premier propriétaire
             parcelleId: parcelleId,
             espece: espece,
             poidsKg: parseFloat(poidsKg),
             dateCollecte: dateCollecte,
-            statut: 'COLLECTE'
-        };
-        await this.ledger.putState(lotHash, publicLot);
-
-        // 3. Données Privées (GPS, Farmer ID, Coop ID, etc.)
-        const privateDetails = {
-            lotHash: lotHash,
+            statut: 'COLLECTE',
             coopId: coopId,
             gps: gps,
             mediaHash: mediaHash
         };
-        
-        // Utilisation de la collection privée
-        await this.ctx.stub.putPrivateData('collectionPrivateLots', lotHash, Buffer.from(JSON.stringify(privateDetails)));
+        await this.ledger.putState(lotHash, publicLot);
 
         return publicLot;
     }
 
     async getLot(lotHash) {
-        const publicLot = await this.ledger.getState(lotHash);
-        if (!publicLot) throw new Error(`LOT_NON_TROUVE: ${lotHash}`);
-
-        // Tenter de récupérer les données privées
-        try {
-            const privateDataBuffer = await this.ctx.stub.getPrivateData('collectionPrivateLots', lotHash);
-            if (privateDataBuffer && privateDataBuffer.length > 0) {
-                const privateDetails = JSON.parse(privateDataBuffer.toString());
-                return { ...publicLot, ...privateDetails };
-            }
-        } catch (e) {
-            // Si l'organisation n'a pas accès, on ne renvoie que le public
-            console.log(`Accès privé refusé pour ${lotHash}`);
-        }
-
-        return publicLot;
+        const lot = await this.ledger.getState(lotHash);
+        if (!lot) throw new Error(`LOT_NON_TROUVE: ${lotHash}`);
+        return lot;
     }
 
 
