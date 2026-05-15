@@ -18,8 +18,8 @@ async def create_certification(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Submit a new compliance certification (EUDR, Bio, etc.) for a lot.
-    Role: CERTIF or MINISTERE
+    Soumettre une nouvelle certification de conformité (EUDR, Bio, Commerce Équitable, etc.) pour un lot spécifique.
+    Rôles autorisés : CERTIFICATEUR (CERTIF) ou MINISTÈRE.
     """
     if current_user.role not in ["CERTIF", "MINISTERE"]:
         raise HTTPException(
@@ -42,7 +42,8 @@ async def get_asset_history(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Fetch the complete immutable audit trail for any asset on the ledger.
+    Récupérer l'historique complet, chronologique et immuable d'un actif (lot, transfert, expédition) sur le registre blockchain.
+    Permet de remonter jusqu'à la genèse de l'actif.
     """
     return await gateway.get_history(asset_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -52,7 +53,8 @@ async def query_by_status(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Search for lots based on their current status (utilizes CouchDB indexes).
+    Rechercher tous les lots filtrés par leur statut actuel (ex: COLLECTE, TRANSFERE, TRANSFORME).
+    Utilise les index CouchDB pour une performance optimale.
     """
     return await gateway.query_lots_by_status(status, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -62,7 +64,7 @@ async def query_by_farmer(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Retrieve all lots associated with a specific farmer.
+    Récupérer la liste de tous les lots produits par un producteur spécifique via son identifiant unique.
     """
     return await gateway.query_ledger("QueryLotsByFarmer", [farmer_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -72,7 +74,7 @@ async def query_by_owner(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Retrieve all lots currently owned by a specific actor (after transfer).
+    Récupérer tous les lots dont un acteur est l'actuel détenteur légal (après transfert de propriété).
     """
     return await gateway.query_ledger("QueryLotsByOwner", [owner_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -82,7 +84,7 @@ async def get_certifications(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Get all certifications linked to a lot or a shipment.
+    Lister toutes les certifications et attestations de conformité liées à un lot ou à une expédition.
     """
     return await gateway.query_ledger("QueryCertifications", [ref_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -92,8 +94,8 @@ async def generate_eudr_report(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Generate a structured proof for EUDR compliance.
-    Includes origin, history, and certifications.
+    Générer un rapport de conformité structuré pour la règlementation EUDR.
+    Inclut les coordonnées GPS, l'historique complet et les preuves de non-déforestation.
     """
     result = await gateway.get_eudr_report(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not result.get("success"):
@@ -106,7 +108,8 @@ async def generate_eudr_report_pdf(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Generate a structured PDF proof for EUDR compliance.
+    Générer et télécharger un certificat de conformité EUDR officiel au format PDF.
+    Document prêt à être présenté aux autorités douanières.
     """
     result = await gateway.get_eudr_report(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not result.get("success"):
@@ -165,8 +168,8 @@ async def verify_lot_public(
     lot_hash: str,
 ):
     """
-    Public endpoint for QR Code verification.
-    Provides a simplified, consumer-friendly view of the lot's journey.
+    Endpoint public destiné à la vérification par scan de QR Code.
+    Fournit une vue simplifiée, transparente et rassurante du voyage du cacao pour le consommateur final.
     """
     try:
         # 1. Get the latest state of the lot
@@ -204,7 +207,8 @@ async def generate_shipment_report(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Rapport de conformité agrégé pour une expédition entière.
+    Générer un rapport de conformité agrégé pour une expédition internationale entière.
+    Analyse la conformité de chaque lot inclus dans l'envoi.
     """
     if current_user.role != "EXPORTATEUR" and current_user.role != "MINISTERE":
         raise HTTPException(status_code=403, detail="Accès réservé aux exportateurs et au ministère.")
@@ -217,7 +221,8 @@ async def generate_shipment_report_pdf(
     current_user: User = Depends(security.get_current_user)
 ):
     """
-    Génère un PDF récapitulatif de conformité pour l'exportation.
+    Générer le manifeste de conformité export au format PDF pour une expédition.
+    Récapitule les points GPS et le statut global de conformité EUDR pour le lot d'exportation.
     """
     report = await gateway.get_shipment_eudr_report(shipment_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not report.get("success"):

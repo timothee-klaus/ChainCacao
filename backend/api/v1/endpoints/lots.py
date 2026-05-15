@@ -30,11 +30,11 @@ async def create_new_lot(
     current_user: User = Depends(security.get_validated_user),
 ):
     """
-    Crée un nouveau lot de récolte (opération unifiée) :
-    - Génère un ID unique (LOT-YYYYMMDD-XXXXXXXX)
-    - Utilise la parcelle sélectionnée pour les coordonnées GPS
-    - Sauvegarde l'image via StorageService
-    - Inscrit le lot sur le ledger Fabric
+    Créer un nouveau lot de cacao dès la récolte. Cette opération unifiée :
+    1. Génère un identifiant unique (LOT-YYYYMMDD-XXXXXXXX).
+    2. Récupère les coordonnées GPS de la parcelle associée.
+    3. Sauvegarde la photo de preuve via le StorageService (Hash SHA-256).
+    4. Inscrit le lot de manière immuable sur la blockchain Fabric.
     """
     # 0. Contrôle d'accès : rôle PRODUCTEUR ou COOPERATIVE requis
     if current_user.role not in ["PRODUCTEUR", "COOPERATIVE"]:
@@ -139,7 +139,7 @@ async def get_lot_details(
     current_user: User = Depends(security.get_current_user),
 ):
     """
-    Récupère l'état actuel d'un lot depuis le ledger Fabric.
+    Récupérer les détails complets d'un lot spécifique (poids, origine, statut actuel) depuis le registre blockchain.
     """
     result = await gateway.get_lot(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if result is None or (isinstance(result, dict) and result.get("success") is False):
@@ -159,7 +159,8 @@ async def update_lot_status(
     current_user: User = Depends(security.get_current_user),
 ):
     """
-    Met à jour le statut d'un lot existant sur la blockchain.
+    Mettre à jour le statut d'un lot existant (ex: passage de 'COLLECTE' à 'TRANSFORME' ou 'EN_EXPEDITION').
+    Toute modification est tracée et horodatée sur la blockchain.
     """
     result = await gateway.update_lot_status(
         lot_hash,
@@ -181,7 +182,7 @@ async def get_lot_media(
     storage: StorageService = Depends(get_storage),
 ):
     """
-    Retourne le fichier image associé à un hash SHA-256.
+    Récupérer le fichier image (preuve visuelle de la récolte ou du transport) associé à un hash unique.
     """
     media = storage.get_media_by_hash(db, media_hash)
     if not media:

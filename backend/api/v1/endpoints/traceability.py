@@ -22,8 +22,8 @@ async def create_transfer(
     current_user: User = Depends(security.get_validated_user)
 ):
     """
-    Record a ownership transfer between two actors.
-    Requires uploading a proof document. Optionally associate a transporteur.
+    Enregistrer un transfert de propriété entre deux acteurs de la chaîne (ex: Producteur vers Coopérative).
+    Nécessite le téléchargement d'une preuve documentaire (bordereau de livraison).
     """
     import datetime, uuid
     try:
@@ -151,7 +151,7 @@ async def get_transfer(
     current_user: User = Depends(security.get_validated_user)
 ):
     """
-    Retrieve details of a specific transfer from the blockchain.
+    Récupérer les détails complets d'un transfert spécifique depuis la blockchain via son hash.
     """
     return await gateway.query_ledger("GetTransfer", [transfer_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -161,7 +161,7 @@ async def get_transformation(
     current_user: User = Depends(security.get_validated_user)
 ):
     """
-    Retrieve details of a specific transformation from the blockchain.
+    Récupérer les détails d'une opération de transformation industrielle via son hash.
     """
     return await gateway.query_ledger("GetTransformation", [transformation_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -171,7 +171,7 @@ async def get_shipment(
     current_user: User = Depends(security.get_validated_user)
 ):
     """
-    Retrieve details of a specific shipment from the blockchain.
+    Récupérer les informations détaillées d'une expédition internationale via son hash.
     """
     return await gateway.query_ledger("GetShipment", [shipment_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
@@ -181,6 +181,6 @@ async def get_user_transfers(
     current_user: User = Depends(security.get_validated_user)
 ):
     """
-    Retrieve all transfers where the specified user is either sender or receiver.
+    Récupérer tous les transferts dans lesquels l'utilisateur spécifié est impliqué (en tant qu'expéditeur ou destinataire).
     """
     return await gateway.query_ledger("QueryTransfersByUser", [user_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)

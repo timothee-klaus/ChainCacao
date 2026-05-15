@@ -17,8 +17,8 @@ async def list_pending_producers(
     storage: StorageService = Depends(get_storage)
 ):
     """
-    Retourne la liste des producteurs qui ont choisi cette coopérative 
-    mais qui n'ont pas encore été enregistrés sur la blockchain.
+    Retourne la liste des producteurs ayant choisi cette coopérative lors de leur inscription,
+    mais n'ayant pas encore reçu leur identité numérique blockchain officielle.
     """
     if current_user.role != "COOPERATIVE":
         raise HTTPException(
@@ -36,8 +36,9 @@ async def register_actor(
     storage: StorageService = Depends(get_storage)
 ):
     """
-    1. Registers the identity in Fabric CA (Certificates)
-    2. Registers the business metadata in the Smart Contract
+    Finaliser l'enrôlement d'un acteur sur la blockchain :
+    1. Enregistre l'identité numérique auprès de l'Autorité de Certification (Fabric CA).
+    2. Inscrit le profil métier et les métadonnées de légalité dans le Smart Contract.
     """
     # Hiérarchie : Ministère -> Coopérative -> Producteur
     if current_user.role == "MINISTERE":
@@ -104,7 +105,7 @@ async def register_actor(
         
         return {
             "success": True,
-            "message": "Actor fully registered in CA and Blockchain",
+            "message": "Acteur entièrement enregistré (Identité CA + Profil Blockchain)",
             "ca_details": ca_result,
             "chaincode_details": cc_result
         }
