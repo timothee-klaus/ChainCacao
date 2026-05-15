@@ -5,6 +5,7 @@ from services.storage import StorageService, get_storage
 from services.blockchain_gateway import BlockchainGateway
 import security
 import json
+from models.schemas import ROLE_TO_ORG
 
 router = APIRouter()
 gateway = BlockchainGateway()
@@ -41,7 +42,7 @@ async def create_transfer(
         
         return await gateway.create_transfer(
             data, 
-            current_user.org_name, 
+            ROLE_TO_ORG.get(current_user.role, "test"), 
             current_user.blockchain_id
         )
     except Exception as e:
@@ -81,7 +82,7 @@ async def create_transformation(
         return await gateway.invoke_transaction(
             "CreateTransformation", 
             args, 
-            current_user.org_name, 
+            ROLE_TO_ORG.get(current_user.role, "test"), 
             current_user.blockchain_id
         )
     except Exception as e:
@@ -123,7 +124,7 @@ async def create_shipment(
         return await gateway.invoke_transaction(
             "CreateShipment", 
             args, 
-            current_user.org_name, 
+            ROLE_TO_ORG.get(current_user.role, "test"), 
             current_user.blockchain_id
         )
     except Exception as e:

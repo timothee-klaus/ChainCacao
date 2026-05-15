@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from services.blockchain_gateway import BlockchainGateway
-from models.schemas import CertificationCreate
+from models.schemas import CertificationCreate, ROLE_TO_ORG
 from database import User
 import security
 import uuid
@@ -30,7 +30,7 @@ async def create_certification(
     try:
         return await gateway.add_certification(
             cert.model_dump(), 
-            current_user.org_name, 
+            ROLE_TO_ORG.get(current_user.role, "test"), 
             current_user.blockchain_id
         )
     except Exception as e:
@@ -44,7 +44,7 @@ async def get_asset_history(
     """
     Fetch the complete immutable audit trail for any asset on the ledger.
     """
-    return await gateway.get_history(asset_hash, current_user.org_name, current_user.blockchain_id)
+    return await gateway.get_history(asset_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/query/status/{status}")
 async def query_by_status(
@@ -54,7 +54,7 @@ async def query_by_status(
     """
     Search for lots based on their current status (utilizes CouchDB indexes).
     """
-    return await gateway.query_lots_by_status(status, current_user.org_name, current_user.blockchain_id)
+    return await gateway.query_lots_by_status(status, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/query/farmer/{farmer_id}")
 async def query_by_farmer(
@@ -64,7 +64,7 @@ async def query_by_farmer(
     """
     Retrieve all lots associated with a specific farmer.
     """
-    return await gateway.query_ledger("QueryLotsByFarmer", [farmer_id], current_user.org_name, current_user.blockchain_id)
+    return await gateway.query_ledger("QueryLotsByFarmer", [farmer_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/query/owner/{owner_id}")
 async def query_by_owner(
@@ -74,7 +74,7 @@ async def query_by_owner(
     """
     Retrieve all lots currently owned by a specific actor (after transfer).
     """
-    return await gateway.query_ledger("QueryLotsByOwner", [owner_id], current_user.org_name, current_user.blockchain_id)
+    return await gateway.query_ledger("QueryLotsByOwner", [owner_id], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/query/certifications/{ref_hash}")
 async def get_certifications(
@@ -84,7 +84,7 @@ async def get_certifications(
     """
     Get all certifications linked to a lot or a shipment.
     """
-    return await gateway.query_ledger("QueryCertifications", [ref_hash], current_user.org_name, current_user.blockchain_id)
+    return await gateway.query_ledger("QueryCertifications", [ref_hash], ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/eudr-report/{lot_hash}")
 async def generate_eudr_report(
@@ -95,7 +95,7 @@ async def generate_eudr_report(
     Generate a structured proof for EUDR compliance.
     Includes origin, history, and certifications.
     """
-    result = await gateway.get_eudr_report(lot_hash, current_user.org_name, current_user.blockchain_id)
+    result = await gateway.get_eudr_report(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not result.get("success"):
         raise HTTPException(status_code=404, detail=result.get("error"))
     return result
@@ -108,7 +108,7 @@ async def generate_eudr_report_pdf(
     """
     Generate a structured PDF proof for EUDR compliance.
     """
-    result = await gateway.get_eudr_report(lot_hash, current_user.org_name, current_user.blockchain_id)
+    result = await gateway.get_eudr_report(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not result.get("success"):
         raise HTTPException(status_code=404, detail=result.get("error"))
     
@@ -209,7 +209,7 @@ async def generate_shipment_report(
     if current_user.role != "EXPORTATEUR" and current_user.role != "MINISTERE":
         raise HTTPException(status_code=403, detail="Accès réservé aux exportateurs et au ministère.")
     
-    return await gateway.get_shipment_eudr_report(shipment_hash, current_user.org_name, current_user.blockchain_id)
+    return await gateway.get_shipment_eudr_report(shipment_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
 
 @router.get("/shipment-report/{shipment_hash}/pdf")
 async def generate_shipment_report_pdf(
@@ -219,7 +219,7 @@ async def generate_shipment_report_pdf(
     """
     Génère un PDF récapitulatif de conformité pour l'exportation.
     """
-    report = await gateway.get_shipment_eudr_report(shipment_hash, current_user.org_name, current_user.blockchain_id)
+    report = await gateway.get_shipment_eudr_report(shipment_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if not report.get("success"):
         raise HTTPException(status_code=404, detail=report.get("error"))
     

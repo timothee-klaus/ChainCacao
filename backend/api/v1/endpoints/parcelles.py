@@ -5,6 +5,7 @@ from database import User
 import security
 import uuid
 from services.blockchain_gateway import BlockchainGateway
+from models.schemas import ROLE_TO_ORG
 
 router = APIRouter()
 blockchain = BlockchainGateway()
@@ -34,7 +35,7 @@ async def register_parcelle(
 
     result = await blockchain.register_parcelle(
         parcelle_data, 
-        current_user.org_name, 
+        ROLE_TO_ORG.get(current_user.role, "test"), 
         current_user.blockchain_id
     )
 
@@ -60,7 +61,7 @@ async def get_my_parcelles(current_user: User = Depends(security.get_validated_u
 
     result = await blockchain.get_farmer_parcelles(
         current_user.blockchain_id,
-        current_user.org_name,
+        ROLE_TO_ORG.get(current_user.role, "test"),
         current_user.blockchain_id
     )
     
@@ -80,7 +81,7 @@ async def get_parcelle(
     """
     result = await blockchain.get_parcelle(
         parcelle_id,
-        current_user.org_name,
+        ROLE_TO_ORG.get(current_user.role, "test"),
         current_user.blockchain_id
     )
     

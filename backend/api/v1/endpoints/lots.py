@@ -7,7 +7,7 @@ from services.storage import StorageService, get_storage
 import datetime
 import security
 import uuid
-from models.schemas import GPSModel, BundleCreate
+from models.schemas import GPSModel, BundleCreate, ROLE_TO_ORG
 from pydantic import BaseModel
 
 class LotStatusUpdate(BaseModel):
@@ -82,7 +82,7 @@ async def create_new_lot(
 
     blockchain_result = await gateway.create_lot(
         lot_data,
-        current_user.org_name,
+        ROLE_TO_ORG.get(current_user.role, "test"),
         current_user.blockchain_id,
     )
     
@@ -126,7 +126,7 @@ async def regroup_lots(
             bundle.bundle_hash,
             bundle.lot_hashes,
             bundle.coop_id,
-            current_user.org_name,
+            ROLE_TO_ORG.get(current_user.role, "test"),
             current_user.blockchain_id
         )
         return {"success": True, "bundle": result}
@@ -141,7 +141,7 @@ async def get_lot_details(
     """
     Récupère l'état actuel d'un lot depuis le ledger Fabric.
     """
-    result = await gateway.get_lot(lot_hash, current_user.org_name, current_user.blockchain_id)
+    result = await gateway.get_lot(lot_hash, ROLE_TO_ORG.get(current_user.role, "test"), current_user.blockchain_id)
     if result is None or (isinstance(result, dict) and result.get("success") is False):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -164,7 +164,7 @@ async def update_lot_status(
     result = await gateway.update_lot_status(
         lot_hash,
         payload.nouveau_statut,
-        current_user.org_name,
+        ROLE_TO_ORG.get(current_user.role, "test"),
         current_user.blockchain_id
     )
     if not result or (isinstance(result, dict) and result.get("success") is False):

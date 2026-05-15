@@ -62,7 +62,8 @@ async def register_actor(
         )
 
     try:
-        # 0. Récupération des métadonnées locales (ex: Hash du document de légalité)
+        # 0. Récupération des métadonnées locales
+        from models.schemas import ROLE_TO_ORG
         target_user = storage.get_user_by_blockchain_id(db, actor.actor_id_hash)
         metadata = "{}"
         if target_user and target_user.document_legalite_hash:
@@ -72,17 +73,20 @@ async def register_actor(
                 "full_name": target_user.full_name
             })
 
-        # 1. CA Registration (Identity)
-        ca_result = await gateway.register_user(actor.actor_id_hash, actor.org_name)
+        # 1. CA Registration (Identity) - On force le dossier selon le rôle
+        target_org = ROLE_TO_ORG.get(actor.type_acteur, "test")
+        ca_result = await gateway.register_user(actor.actor_id_hash, target_org)
         if not ca_result.get("success"):
             raise HTTPException(status_code=500, detail=f"CA Registration failed: {ca_result.get('error')}")
 
         # 2. Chaincode Registration (Business Logic)
+        # On utilise aussi le mapping pour l'utilisateur qui signe (current_user)
+        signer_org = ROLE_TO_ORG.get(current_user.role, "test")
         args = [actor.actor_id_hash, actor.type_acteur, actor.cle_publique, metadata]
         cc_result = await gateway.invoke_transaction(
             "RegisterActor", 
             args, 
-            current_user.org_name, 
+            signer_org, 
             current_user.blockchain_id
         )
         
