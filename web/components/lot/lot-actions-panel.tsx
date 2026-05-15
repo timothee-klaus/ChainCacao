@@ -269,38 +269,44 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
       switch (template.action) {
         case "transferred":
           const transferPayload: TransferPayload = {
+            transfer_hash: `TRF-${Date.now()}`,
             lot_hashes: [lot.lotId],
-            recipient_id: "0x...", // Normalement sélectionné via un dialogue, ici on met un placeholder ou on utilise un dialogue
-            metadata: { action: "transferred", phase: "transfert" }
+            expediteur_id: user.userId,
+            destinataire_id: "0x...", // Placeholder
+            preuve_hash: `PRV-${Date.now()}`
           }
           await createTransfer(transferPayload)
           break
         
         case "transformed":
           const transformPayload: TransformationPayload = {
+            transformation_hash: `TSF-${Date.now()}`,
             lot_hashes: [lot.lotId],
-            new_espece: lot.espece,
-            new_weight: lot.poidsKg,
-            metadata: { action: "transformed", phase: "transformation" }
+            type_processus: "Fermentation & Séchage",
+            preuve_hash: `PRV-${Date.now()}`
           }
           await createTransformation(transformPayload)
           break
 
         case "exported":
           const shipmentPayload: ShipmentPayload = {
+            shipmentHash: `SHP-${Date.now()}`,
             lotHashes: [lot.lotId],
-            recipientId: "0x...",
-            vesselName: "MV ChainCacao",
-            metadata: { action: "exported", phase: "controle" }
+            exportateurId: user.userId,
+            destination: "Europe",
+            documentsHash: `DOC-${Date.now()}`,
+            dateDepartPrevue: new Date().toISOString(),
+            dateArriveePrevue: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
           }
           await createShipment(shipmentPayload)
           break
 
         case "verified":
           const certPayload: CertificationPayload = {
-            refHash: lot.lotId,
-            certType: "EUDR",
-            issuerId: user.userId,
+            lot_hash: lot.lotId,
+            certifier_id: user.userId,
+            type: "EUDR_COMPLIANCE",
+            ref_hash: `CERT-${Date.now()}`,
             metadata: { action: "verified", phase: "controle" }
           }
           await createCertification(certPayload)

@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import { Controller } from "react-hook-form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTraceability } from "@/hooks/useTraceability"
@@ -72,46 +72,38 @@ export function CreateCertificationDialog() {
             Enregistrez une preuve de certification sur la blockchain pour un lot spécifique.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="lot_hash"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ID du Lot (Hash)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: 0x..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="certifier_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ID Certificateur</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: CERT-001" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type de Certification</FormLabel>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="lot_hash">ID du Lot (Hash)</FieldLabel>
+              <Input 
+                id="lot_hash"
+                placeholder="Ex: 0x..." 
+                {...form.register("lot_hash")} 
+              />
+              <FieldError errors={[form.formState.errors.lot_hash]} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="certifier_id">ID Certificateur</FieldLabel>
+              <Input 
+                id="certifier_id"
+                placeholder="Ex: CERT-001" 
+                {...form.register("certifier_id")} 
+              />
+              <FieldError errors={[form.formState.errors.certifier_id]} />
+            </Field>
+
+            <Field>
+              <FieldLabel>Type de Certification</FieldLabel>
+              <Controller
+                control={form.control}
+                name="type"
+                render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un type" />
-                      </SelectTrigger>
-                    </FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez un type" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="EUDR_COMPLIANCE">Conformité EUDR</SelectItem>
                       <SelectItem value="RAINFOREST_ALLIANCE">Rainforest Alliance</SelectItem>
@@ -119,28 +111,25 @@ export function CreateCertificationDialog() {
                       <SelectItem value="BIO">Biologique</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ref_hash"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Référence (Cert Hash)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: REF-12345" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Enregistrement..." : "Confirmer sur Blockchain"}
-            </Button>
-          </form>
-        </Form>
+                )}
+              />
+              <FieldError errors={[form.formState.errors.type]} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="ref_hash">Référence (Cert Hash)</FieldLabel>
+              <Input 
+                id="ref_hash"
+                placeholder="Ex: REF-12345" 
+                {...form.register("ref_hash")} 
+              />
+              <FieldError errors={[form.formState.errors.ref_hash]} />
+            </Field>
+          </FieldGroup>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Enregistrement..." : "Confirmer sur Blockchain"}
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   )

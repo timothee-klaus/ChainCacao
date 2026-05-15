@@ -47,7 +47,7 @@ export function AuditQueryPanel() {
       ? certData
       : shipmentData
 
-  const results = responseData?.success ? responseData.data : []
+  const results = responseData?.success && 'data' in responseData ? responseData.data : []
 
   return (
     <Card>
