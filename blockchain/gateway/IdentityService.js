@@ -87,10 +87,18 @@ class IdentityService {
 
     async registerAndEnrollUser(orgName, userId, role = 'client') {
         const orgConfig = networkConfig.getOrgConfig(orgName);
-        const tlsCert = await this._getCACert(orgName);
-        const caService = new FabricCAServices(orgConfig.caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
+        
+        // Auto-enrôlement de l'admin s'il manque
+        if (!(await this.getFromWallet(orgName, 'admin'))) {
+            console.log(`[Identity] Admin manquant pour ${orgName}, tentative d'enrôlement automatique...`);
+            await this.enrollAdminInWallet(orgName);
+        }
 
         const adminIdentity = await this.getIdentity(orgName, 'admin');
+        
+        const tlsCert = await this._getCACert(orgName);
+        const caService = new FabricCAServices(orgConfig.caUrl, { trustedRoots: [tlsCert], verify: false }, orgConfig.caName);
+        
         const adminUser = new User('admin');
         const cryptoSuite = FabricCAServices.newCryptoSuite();
         cryptoSuite.setCryptoKeyStore(FabricCAServices.newCryptoKeyStore());
