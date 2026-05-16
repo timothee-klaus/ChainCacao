@@ -28,6 +28,34 @@ async def list_pending_producers(
     
     return storage.get_users(db, role="PRODUCTEUR", parent_id=current_user.blockchain_id, validated=False)
 
+@router.get("/recipients", response_model=List[UserPublicResponse], summary="Lister les destinataires autorisés pour un transfert")
+async def list_available_recipients(
+    current_user: User = Depends(security.get_current_user),
+    db: Session = Depends(get_db),
+    storage: StorageService = Depends(get_storage)
+):
+    """
+    Filtre les acteurs de la blockchain pouvant recevoir un transfert :
+    - PRODUCTEUR -> COOPERATIVE
+    - COOPERATIVE -> EXPORTATEUR / TRANSFORMATEUR
+    - EXPORTATEUR -> TRANSFORMATEUR
+    """
+    if current_user.role == "PRODUCTEUR":
+        return storage.get_users(db, role="COOPERATIVE", validated=True)
+    
+    elif current_user.role == "COOPERATIVE":
+        exportateurs = storage.get_users(db, role="EXPORTATEUR", validated=True)
+        transfos = storage.get_users(db, role="TRANSFORMATEUR", validated=True)
+        return exportateurs + transfos
+        
+    elif current_user.role == "EXPORTATEUR":
+        return storage.get_users(db, role="TRANSFORMATEUR", validated=True)
+        
+    else:
+        # Pour les autres rôles (Audit, Ministère), on liste tous les acteurs validés
+        return storage.get_users(db, validated=True)
+
+
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_actor(
     actor: ActorRegister,
