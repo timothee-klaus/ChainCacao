@@ -161,7 +161,9 @@ export function LotDetailModal({
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Vue d’ensemble</TabsTrigger>
             <TabsTrigger value="qr">QR Code</TabsTrigger>
-            <TabsTrigger value="timeline">Historique ({timeline.length})</TabsTrigger>
+            {["COOPERATIVE", "EXPORTATEUR", "TRANSFORMATEUR", "MINISTERE"].includes(activeRole || "") ? (
+              <TabsTrigger value="timeline">Historique ({timeline.length})</TabsTrigger>
+            ) : null}
             <TabsTrigger value="actions">Actions</TabsTrigger>
             {showComplianceTab ? <TabsTrigger value="conformite">Conformité</TabsTrigger> : null}
           </TabsList>
@@ -420,9 +422,11 @@ export function LotDetailModal({
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="mt-4">
-            <LotWorkflowTimeline lot={lot} timeline={timeline} />
-          </TabsContent>
+          {["COOPERATIVE", "EXPORTATEUR", "TRANSFORMATEUR", "MINISTERE"].includes(activeRole || "") ? (
+            <TabsContent value="timeline" className="mt-4">
+              <LotWorkflowTimeline lot={lot} timeline={timeline} />
+            </TabsContent>
+          ) : null}
 
           <TabsContent value="actions" className="mt-4 space-y-3">
             <div className="rounded-2xl border bg-muted/20 p-4 text-sm text-muted-foreground">

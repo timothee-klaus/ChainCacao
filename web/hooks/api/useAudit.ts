@@ -51,6 +51,19 @@ export function useQueryByFarmer(farmerId?: string) {
 }
 
 // ============================================================================
+// QUERY BY OWNER
+// ============================================================================
+
+export function useQueryByOwner(ownerId?: string) {
+  return useQuery({
+    queryKey: ["audit", "query", "owner", ownerId],
+    queryFn: () => api.get<QueryByFarmerResponse>(`/api/v1/audit/query/owner/${ownerId}`),
+    enabled: !!ownerId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+// ============================================================================
 // GET CERTIFICATIONS
 // ============================================================================
 

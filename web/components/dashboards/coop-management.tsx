@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Users, UserCheck, ShieldCheck, UserPlus, ArrowRightLeft, Search, FileText, LayoutDashboard } from "lucide-react"
 import { useActors } from "@/hooks/useActors"
 import { useTraceability } from "@/hooks/useTraceability"
-import { useLots } from "@/hooks/useLots"
+import { useOwnedLots } from "@/hooks/useLots"
+import { useUser } from "@/context/useUser"
 import { ActorsTable } from "@/components/actors/actors-table"
 import { RegisterProducerDialog } from "@/components/actors/register-producer-dialog"
 import { RegisterAgentDialog } from "@/components/actors/register-agent-dialog"
@@ -30,31 +31,39 @@ const COOP_AGENT_ROLES = [
 ]
 
 export function CoopManagement() {
+  const { user } = useUser()
   const {
     users,
-    isLoading,
+    pendingUsers,
+    isLoading: isLoadingActors,
     isSubmitting: isSubmittingActor,
     loadUsers,
+    loadPendingRegistrations,
     validateOnBlockchain,
     addProducer,
     addAgent,
   } = useActors()
 
   const { createTransfer, isSubmitting: isSubmittingTransfer } = useTraceability()
-  const { serverLots: lots } = useLots()
+  const { data: lots = [], isLoading: isLoadingLots } = useOwnedLots(user?.blockchainId || "")
   const [selectedLots, setSelectedLots] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState("reports")
+  const [searchFarmerId, setSearchFarmerId] = useState("")
 
   useEffect(() => {
     loadUsers()
-  }, [loadUsers])
+    loadPendingRegistrations()
+  }, [loadUsers, loadPendingRegistrations])
+
+  const isLoading = isLoadingActors || isLoadingLots
 
   const producers = users.filter((u) => normalizeRole(u.role) === "Agriculteur")
   const delegates = users.filter((u) => normalizeRole(u.role) !== "Agriculteur")
-  const pendingCount = producers.filter((u) => !u.blockchain_validated).length
+  const pendingCount = pendingUsers.length
   const validatedCount = producers.filter((u) => u.blockchain_validated).length
 
   // Filtrer les lots de la coopérative qui ne sont pas encore transférés
-  const availableLots = lots.filter(l => l.statut === "pending" || l.statut === "verified")
+  const availableLots = lots.filter((l: any) => l.statut === "pending" || l.statut === "verified")
 
   const handleTransfer = async (data: TransferPayload, onSuccess: () => void) => {
     try {
@@ -88,6 +97,11 @@ export function CoopManagement() {
     } catch (error) {
       console.error("Add agent error:", error)
     }
+  }
+
+  const handleViewLots = (userId: string) => {
+    setSearchFarmerId(userId)
+    setActiveTab("audit")
   }
 
   return (
@@ -129,21 +143,21 @@ export function CoopManagement() {
 
         <Card>
           <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
-            <ShieldCheck className="size-4 text-emerald-600" />
+            <ShieldCheck className="size-4 text-emerald-600 dark:text-emerald-500" />
             <CardDescription>Validés Blockchain</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-emerald-600">{validatedCount}</div>
+            <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">{validatedCount}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
-            <UserCheck className="size-4 text-amber-500" />
+            <UserCheck className="size-4 text-amber-500 dark:text-amber-400" />
             <CardDescription>En attente de validation</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-2">
-            <div className="text-3xl font-bold text-amber-600">{pendingCount}</div>
+            <div className="text-3xl font-bold text-amber-600 dark:text-amber-500">{pendingCount}</div>
             {pendingCount > 0 && (
               <Badge variant="destructive" className="text-xs">
                 À valider
@@ -154,7 +168,7 @@ export function CoopManagement() {
       </div>
 
       {/* Onglets */}
-      <Tabs defaultValue="reports">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="reports" className="gap-2">
             <LayoutDashboard className="size-4" />
@@ -224,7 +238,7 @@ export function CoopManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {availableLots.map((lot) => (
+                  {availableLots.map((lot: any) => (
                     <TableRow key={lot.lotId}>
                       <TableCell>
                         <Checkbox 
@@ -269,6 +283,8 @@ export function CoopManagement() {
                 users={producers}
                 isLoading={isLoading}
                 showValidate
+                showLots
+                onViewLots={handleViewLots}
                 isSubmitting={isSubmittingActor}
                 onValidate={validateOnBlockchain}
                 emptyMessage="Aucun producteur inscrit. Utilisez le bouton ci-dessus pour en ajouter un."
@@ -289,9 +305,11 @@ export function CoopManagement() {
             </CardHeader>
             <CardContent>
               <ActorsTable
-                users={producers.filter((u) => !u.blockchain_validated)}
+                users={pendingUsers}
                 isLoading={isLoading}
                 showValidate
+                showLots
+                onViewLots={handleViewLots}
                 isSubmitting={isSubmittingActor}
                 onValidate={validateOnBlockchain}
                 emptyMessage="Tous vos producteurs sont validés sur la Blockchain ✓"
@@ -322,12 +340,7 @@ export function CoopManagement() {
  
         {/* Audit Avancé */}
         <TabsContent value="audit" className="mt-4">
-          <AuditQueryPanel />
-        </TabsContent>
-
-        {/* Rapports */}
-        <TabsContent value="reports" className="mt-4">
-          <CoopReportsTab />
+          <AuditQueryPanel initialSearch={{ type: "farmer", value: searchFarmerId }} />
         </TabsContent>
       </Tabs>
     </div>

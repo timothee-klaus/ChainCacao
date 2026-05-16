@@ -125,3 +125,15 @@ export function useRegisterAgentMutation() {
     },
   })
 }
+
+// ============================================================================
+// REFRESH TOKEN
+// ============================================================================
+
+export function useRefreshTokenMutation() {
+  return useMutation({
+    mutationFn: async () => {
+      return api.post<LoginResponse>("/api/v1/auth/refresh", {})
+    },
+  })
+}

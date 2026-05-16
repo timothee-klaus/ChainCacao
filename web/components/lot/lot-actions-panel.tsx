@@ -2,6 +2,7 @@
 
 import { useUser } from "@/context/useUser"
 import { useTraceability } from "@/hooks/useTraceability"
+import { usePermission } from "@/hooks/usePermission"
 import type { Lot, UserRole } from "@/types/types"
 import type { 
   TransferPayload, 
@@ -12,7 +13,10 @@ import type {
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Lock, CheckCircle2, Truck, PackageOpen, ShieldCheck, FileCheck2, ClipboardList } from "lucide-react"
+import { Lock, CheckCircle2, Truck, PackageOpen, ShieldCheck, FileCheck2, ClipboardList, ArrowRightLeft } from "lucide-react"
+
+import { TransferRoleDialog } from "./transfer-role-dialog"
+import { useState } from "react"
 
 interface LotActionsPanelProps {
   lot: Lot
@@ -37,15 +41,23 @@ const roleActions: Partial<Record<UserRole, ActionTemplate[]>> = {
       status: "draft",
       description: "Création du lot directement depuis la parcelle avec preuves visuelles.",
     },
+    {
+      label: "Transférer à la coopérative",
+      icon: ArrowRightLeft,
+      action: "transferred",
+      phase: "transfert",
+      status: "pending",
+      description: "Initier le transfert de propriété vers votre coopérative.",
+    },
   ],
   CoopManager: [
     {
-      label: "Signer le transfert",
-      icon: Truck,
+      label: "Transférer le lot",
+      icon: ArrowRightLeft,
       action: "transferred",
       phase: "transfert",
       status: "transferred",
-      description: "Transfert de propriété signé entre l'agriculteur et la coopérative.",
+      description: "Transfert de propriété vers un exportateur ou un transformateur.",
     },
     {
       label: "Créer le regroupement",
@@ -162,6 +174,8 @@ const roleActions: Partial<Record<UserRole, ActionTemplate[]>> = {
 
 export function LotActionsPanel({ lot }: LotActionsPanelProps) {
   const { user, activeRole } = useUser()
+  const can = usePermission()
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
   const { 
     createTransfer, 
     createTransformation, 
@@ -268,14 +282,7 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
     try {
       switch (template.action) {
         case "transferred":
-          const transferPayload: TransferPayload = {
-            transfer_hash: `TRF-${Date.now()}`,
-            lot_hashes: [lot.lotId],
-            expediteur_id: user.userId,
-            destinataire_id: "0x...", // Placeholder
-            preuve_hash: `PRV-${Date.now()}`
-          }
-          await createTransfer(transferPayload)
+          setTransferDialogOpen(true)
           break
         
         case "transformed":
@@ -350,7 +357,13 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
               onClick={() => handleAction(action)}
               variant="outline"
               className="w-full justify-start rounded-xl"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting || 
+                (action.action === "transferred" && !can.canCreateTransfer()) ||
+                (action.action === "transformed" && !can.check("traceability:create_transformation")) ||
+                (action.action === "exported" && !can.check("traceability:create_shipment")) ||
+                (action.action === "verified" && !can.check("audit:create_certification"))
+              }
             >
               <Icon className="mr-2 h-4 w-4" />
               {isSubmitting ? "En cours..." : action.label}
@@ -358,6 +371,13 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
           )
         })}
       </CardContent>
+      <TransferRoleDialog 
+        lot={lot} 
+        open={transferDialogOpen} 
+        onOpenChange={setTransferDialogOpen} 
+        activeRole={activeRole}
+        currentUserId={user.userId}
+      />
     </Card>
   )
 }

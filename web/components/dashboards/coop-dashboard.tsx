@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useLots } from "@/hooks/useLots"
+import { useOwnedLots } from "@/hooks/useLots"
 import { useCooperativeStore } from "@/store/cooperative"
 import { useUser } from "@/context/useUser"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,15 +13,18 @@ import Link from "next/link"
 
 export function CoopDashboard() {
   const { user } = useUser()
-  const { serverLots, loadLots, isLoading } = useLots()
+  const { data: _serverLots = [], isLoading } = useOwnedLots(user?.blockchainId || "")
+  const serverLots: any[] = _serverLots
+
   const { getGroupsByManager } = useCooperativeStore()
 
-  useEffect(() => {
-    loadLots()
-  }, [loadLots])
-
   const groups = user ? getGroupsByManager(user.userId) : []
-  const coopLots = serverLots.filter((lot) => lot.coopName || lot.coop_name)
+  const coopLots = serverLots.filter((lot) => {
+    const coopName = lot.coopName || lot.coop_name
+    if (!coopName) return false
+    // Si l'utilisateur est un CoopManager, on filtre par son nom de coop (nomAffiche ou orgName)
+    return coopName === user?.nomAffiche || coopName === user?.orgName
+  })
   const totalCoopWeight = coopLots.reduce((sum, lot) => sum + (lot.poidsKg || lot.poids_kg || 0), 0)
   
   const pendingCount = coopLots.filter((l) => l.statut?.toLowerCase() === "pending").length

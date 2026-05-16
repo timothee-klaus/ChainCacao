@@ -83,43 +83,6 @@ export function MinistryManagement() {
         />
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
-            <Users className="size-4 text-muted-foreground" />
-            <CardDescription>Acteurs enregistrés</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{users.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
-            <CheckCircle2 className="size-4 text-emerald-600" />
-            <CardDescription>Validés Blockchain</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-emerald-600">{validatedCount}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2 flex-row items-center gap-2 space-y-0">
-            <Clock className="size-4 text-amber-500" />
-            <CardDescription>En attente de validation</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center gap-2">
-            <div className="text-3xl font-bold text-amber-600">{pendingCount}</div>
-            {pendingCount > 0 && (
-              <Badge variant="destructive" className="text-xs">
-                Action requise
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Onglets */}
       <Tabs defaultValue="reports">
         <TabsList>
           <TabsTrigger value="reports" className="gap-2">
@@ -249,10 +212,6 @@ export function MinistryManagement() {
           <AuditQueryPanel />
         </TabsContent>
 
-        {/* Rapports */}
-        <TabsContent value="reports" className="mt-4">
-          <MinistryReportsTab />
-        </TabsContent>
       </Tabs>
 
       {/* Section Audit EUDR (Si un lot est sélectionné) */}

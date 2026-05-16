@@ -142,10 +142,11 @@ export default function MinistryRapportsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <ReportItem title="Rapport de Conformité National EUDR" date="Mai 2026" />
+              <p className="text-center py-8 text-muted-foreground">Aucune donnée disponible</p>
+              {/* <ReportItem title="Rapport de Conformité National EUDR" date="Mai 2026" />
               <ReportItem title="Analyse de Déforestation - Zone Ouest" date="Mai 2026" />
               <ReportItem title="Statistiques d'Exportation - T2 2026" date="Avril 2026" />
-              <ReportItem title="Audit de Traçabilité Transfrontalière" date="Mars 2026" />
+              <ReportItem title="Audit de Traçabilité Transfrontalière" date="Mars 2026" /> */}
             </div>
           </CardContent>
         </Card>

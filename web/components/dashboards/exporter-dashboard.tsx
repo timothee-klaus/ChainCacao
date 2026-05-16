@@ -70,49 +70,6 @@ export function ExporterDashboard() {
         onOpenChange={(open) => !open && setDetailLot(null)} 
       />
 
-      {/* KPI Section */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-green-700">Prêts à Exporter</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-900">{readyToExport.length}</div>
-            <p className="text-xs text-green-700 mt-1">lots</p>
-          </CardContent>
-        </Card>
- 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-blue-700">Conformité EUDR</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{complianceRate}%</div>
-            <p className="text-xs text-blue-700 mt-1">lots vérifiés</p>
-          </CardContent>
-        </Card>
- 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>En Attente de Vérification</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-600">{pendingEudr}</div>
-            <p className="text-xs text-muted-foreground mt-1">lots</p>
-          </CardContent>
-        </Card>
- 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Confirmé</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{confirmedCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">lots</p>
-          </CardContent>
-        </Card>
-      </div>
- 
       <Tabs defaultValue="reports">
         <TabsList>
           <TabsTrigger value="reports" className="gap-2">
@@ -323,10 +280,6 @@ export function ExporterDashboard() {
 
         <TabsContent value="audit" className="mt-4">
           <AuditQueryPanel />
-        </TabsContent>
-
-        <TabsContent value="reports" className="mt-4">
-          <ExporterReportsTab />
         </TabsContent>
       </Tabs>
  

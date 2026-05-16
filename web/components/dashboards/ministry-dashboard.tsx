@@ -84,7 +84,7 @@ export function MinistryDashboard() {
           icon={ShieldCheck} 
           isLoading={isLoading} 
           description="taux de conformité EUDR"
-          color="text-emerald-600"
+          color="text-emerald-600 dark:text-emerald-500"
         />
         <KPICard 
           title="Acteurs" 
@@ -205,8 +205,8 @@ function KPICard({ title, value, icon: Icon, isLoading, description, color = "te
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardDescription className="text-[10px] uppercase font-bold tracking-widest">{title}</CardDescription>
-          <div className="size-8 rounded-xl bg-primary/5 flex items-center justify-center">
-            <Icon className="size-4 text-primary" />
+          <div className="size-8 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
+            <Icon className="size-4 text-primary dark:text-primary-foreground" />
           </div>
         </div>
       </CardHeader>

@@ -27,6 +27,9 @@ export const traceabilityService = {
   queryByFarmer: (farmerId: string) =>
     api.get<AuditQueryResponse>(`/api/v1/audit/query/farmer/${farmerId}`),
 
+  queryByOwner: (ownerId: string) =>
+    api.get<AuditQueryResponse>(`/api/v1/audit/query/owner/${ownerId}`),
+
   queryCertifications: (refHash: string) =>
     api.get<AuditQueryResponse>(`/api/v1/audit/query/certifications/${refHash}`),
     

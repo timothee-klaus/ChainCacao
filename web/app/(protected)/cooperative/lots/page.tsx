@@ -78,8 +78,13 @@ export default function GestionLotsPage() {
     [allGroups]
   )
   const coopLots = useMemo(
-    () => allLots.filter((lot) => (lot.coopName || lot.coop_name) && !lot.isGroup && !groupedLotIds.has(lot.lotId || lot.id)),
-    [groupedLotIds, allLots]
+    () => allLots.filter((lot) => {
+      const coopName = lot.coopName || lot.coop_name
+      const lotId = lot.lotId || lot.id
+      const isThisCoop = coopName === user?.nomAffiche || coopName === user?.orgName
+      return isThisCoop && !lot.isGroup && !groupedLotIds.has(lotId)
+    }),
+    [groupedLotIds, allLots, user]
   )
   const selectedLot = selectedLotId
     ? allLots.find((lot) => (lot.lotId || lot.id) === selectedLotId) ?? null

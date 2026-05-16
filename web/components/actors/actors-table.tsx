@@ -23,6 +23,9 @@ interface ActorsTableProps {
   showValidate?: boolean
   isSubmitting?: boolean
   onValidate?: (user: ApiUser) => void
+  /** Afficher le bouton pour voir les lots d'un producteur */
+  showLots?: boolean
+  onViewLots?: (userId: string) => void
   /** Afficher le bouton d'audit EUDR */
   showAudit?: boolean
   onAudit?: (lotHash: string) => void
@@ -48,9 +51,11 @@ export function ActorsTable({
   isLoading,
   showValidate = false,
   showAudit = false,
+  showLots = false,
   isSubmitting = false,
   onValidate,
   onAudit,
+  onViewLots,
   emptyMessage = "Aucun utilisateur trouvé.",
 }: ActorsTableProps) {
   if (isLoading) {
@@ -82,12 +87,12 @@ export function ActorsTable({
           <TableHead>Organisation</TableHead>
           <TableHead>Statut Blockchain</TableHead>
           <TableHead>Inscrit le</TableHead>
-          {(showValidate || showAudit) && <TableHead className="text-right">Actions</TableHead>}
+          {(showValidate || showAudit || showLots) && <TableHead className="text-right">Actions</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users.map((user) => (
-          <TableRow key={user.id}>
+        {users.map((user, idx) => (
+          <TableRow key={user.blockchain_id || user.email || `user-${idx}`}>
             <TableCell className="font-medium">{user.full_name}</TableCell>
             <TableCell className="text-sm text-muted-foreground">
               {user.email || user.numero_telephone || "—"}
@@ -102,9 +107,11 @@ export function ActorsTable({
               <StatusBadge validated={user.blockchain_validated} />
             </TableCell>
             <TableCell className="text-sm text-muted-foreground">
-              {format(new Date(user.created_at), "d MMM yyyy", { locale: fr })}
+              {user.created_at 
+                ? format(new Date(user.created_at), "d MMM yyyy", { locale: fr })
+                : "—"}
             </TableCell>
-            {(showValidate || showAudit) && (
+            {(showValidate || showAudit || showLots) && (
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   {showAudit && (
@@ -128,6 +135,17 @@ export function ActorsTable({
                     >
                       <ShieldCheck className="size-3.5" />
                       Valider
+                    </Button>
+                  )}
+                  {showLots && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1 text-xs"
+                      onClick={() => onViewLots?.(user.blockchain_id || String(user.id))}
+                    >
+                      <Clock className="size-3.5" />
+                      Voir Lots
                     </Button>
                   )}
                 </div>

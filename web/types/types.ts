@@ -34,6 +34,7 @@ export interface User {
   token?: string;
   orgName?: string;
   blockchainId?: string;
+  coopId?: string;
 }
 
 export interface Lot {

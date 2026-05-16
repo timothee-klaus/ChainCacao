@@ -53,10 +53,9 @@ export interface ActorRegisterResponse {
 
 /** Corps de POST /api/v1/auth/register-producer (Coopérative → Producteur) */
 export interface RegisterProducerPayload {
-  full_name: string
-  numero_telephone?: string
-  email?: string
-  password: string
+  fullName: string
+  numeroTelephone: string
+  location?: string
 }
 
 /** Corps de POST /api/v1/auth/register-agent (Admin org → Agent) */

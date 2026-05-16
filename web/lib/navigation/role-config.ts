@@ -59,6 +59,7 @@ const roleConfigMap: Partial<Record<UserRole, RoleConfig>> = {
     items: [
       { title: "Accueil", href: "/agriculteur", icon: Home },
       { title: "Mes lots", href: "/agriculteur/lots", icon: PackageOpen },
+      { title: "Mes parcelles", href: "/agriculteur/parcelles", icon: MapPin },
       { title: "Nouveau lot", href: "/agriculteur/nouveau-lot", icon: FolderTree },
       { title: "Historique", href: "/agriculteur/historique", icon: FolderTree },
       { title: "Expéditions", href: "/agriculteur/expedition", icon: Truck },

@@ -23,34 +23,27 @@ interface RegisterProducerDialogProps {
 }
 
 type FormValues = {
-  full_name: string
-  numero_telephone: string
-  email: string
-  password: string
+  fullName: string
+  numeroTelephone: string
+  location: string
 }
-
+ 
 export function RegisterProducerDialog({
   isSubmitting,
   onSubmit,
 }: RegisterProducerDialogProps) {
   const [open, setOpen] = useState(false)
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
-    defaultValues: { full_name: "", numero_telephone: "", email: "", password: "" },
+    defaultValues: { fullName: "", numeroTelephone: "", location: "" },
   })
-
+ 
   const handleFormSubmit = (values: FormValues) => {
-    const payload: RegisterProducerPayload = {
-      full_name: values.full_name,
-      password: values.password,
-      ...(values.email && { email: values.email }),
-      ...(values.numero_telephone && { numero_telephone: values.numero_telephone }),
-    }
-    onSubmit(payload, () => {
+    onSubmit(values, () => {
       reset()
       setOpen(false)
     })
   }
-
+ 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -61,10 +54,9 @@ export function RegisterProducerDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Inscrire un Producteur</DialogTitle>
+          <DialogTitle>Inscrire un Producteur (Délégué)</DialogTitle>
           <DialogDescription>
-            Créez un compte producteur directement depuis votre coopérative.
-            L'email n'est pas obligatoire si vous renseignez un téléphone.
+            Inscrivez directement un producteur. Le mot de passe par défaut sera son numéro de téléphone.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-2">
@@ -73,43 +65,30 @@ export function RegisterProducerDialog({
             <Input
               id="prod-fullname"
               placeholder="Kofi Amavi"
-              {...register("full_name", { required: "Le nom est obligatoire" })}
+              {...register("fullName", { required: "Le nom est obligatoire" })}
             />
-            {errors.full_name && (
-              <p className="text-xs text-destructive">{errors.full_name.message}</p>
+            {errors.fullName && (
+              <p className="text-xs text-destructive">{errors.fullName.message}</p>
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="prod-phone">Téléphone</Label>
+            <Label htmlFor="prod-phone">Téléphone *</Label>
             <Input
               id="prod-phone"
               placeholder="+228 90 00 00 00"
-              {...register("numero_telephone")}
+              {...register("numeroTelephone", { required: "Le téléphone est obligatoire" })}
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="prod-email">Email</Label>
-            <Input
-              id="prod-email"
-              type="email"
-              placeholder="producteur@example.com"
-              {...register("email")}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="prod-password">Mot de passe *</Label>
-            <Input
-              id="prod-password"
-              type="password"
-              placeholder="Min. 8 caractères"
-              {...register("password", {
-                required: "Le mot de passe est obligatoire",
-                minLength: { value: 8, message: "Min. 8 caractères" },
-              })}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
+            {errors.numeroTelephone && (
+              <p className="text-xs text-destructive">{errors.numeroTelephone.message}</p>
             )}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="prod-location">Localisation / Région</Label>
+            <Input
+              id="prod-location"
+              placeholder="Plateaux, Kpalimé"
+              {...register("location")}
+            />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

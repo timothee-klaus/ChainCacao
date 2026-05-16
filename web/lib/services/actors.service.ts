@@ -30,6 +30,14 @@ export async function fetchPendingRegistrations(): Promise<ApiUser[]> {
 }
 
 /**
+ * GET /api/v1/actors/producers/pending
+ * Coopérative uniquement — producteurs en attente de validation
+ */
+export async function fetchPendingProducers(): Promise<ApiUser[]> {
+  return api.get<ApiUser[]>("/api/v1/actors/producers/pending")
+}
+
+/**
  * POST /api/v1/actors/register
  * Valide et enregistre un acteur sur la Blockchain + CA Fabric
  * - Ministère : peut valider n'importe quel acteur

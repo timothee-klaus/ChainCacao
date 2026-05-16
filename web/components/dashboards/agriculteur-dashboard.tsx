@@ -1,6 +1,6 @@
 "use client"
 
-import { useLots } from "@/hooks/useLots"
+import { useFarmerLots } from "@/hooks/useLots"
 import { useUser } from "@/context/useUser"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,13 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function AgriculteurDashboard() {
   const { user } = useUser()
-  const { serverLots, loadLots, isLoading } = useLots()
+  const farmerId = user?.blockchainId || user?.userId || ""
+  const { data: _farmerLots = [], isLoading } = useFarmerLots(farmerId)
+  const farmerLots: any[] = _farmerLots
 
-  useEffect(() => {
-    loadLots()
-  }, [loadLots])
 
-  const farmerLots = user ? serverLots.filter(l => l.farmer_id === user.userId || l.farmerId === user.userId) : []
   const totalWeight = farmerLots.reduce((sum, lot) => sum + (lot.poidsKg || lot.poids_kg || 0), 0)
   const recentLots = farmerLots.slice(0, 3)
 
@@ -102,13 +100,13 @@ export function AgriculteurDashboard() {
             {recentLots.length > 0 ? (
               recentLots.map((lot) => (
                 <div
-                  key={lot.lotId || lot.id}
+                  key={lot.lotId || lot.lotHash || lot.id}
                   className="flex items-center justify-between border-b pb-3 last:border-0"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-sm">{lot.lotId || lot.id}</p>
+                    <p className="font-medium text-sm">{lot.lotId || lot.lotHash || lot.id}</p>
                     <p className="text-xs text-muted-foreground">
-                      {lot.poidsKg} kg • {lot.espece}
+                      {lot.poidsKg || lot.poids_kg} kg • {lot.espece}
                     </p>
                   </div>
                   <Badge variant={statusLabels[lot.statut]?.variant || "outline"}>

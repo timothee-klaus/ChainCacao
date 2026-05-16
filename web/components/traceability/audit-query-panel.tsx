@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,13 +11,33 @@ import { Badge } from "@/components/ui/badge"
 import { useAuditQueryStatus, useAuditQueryFarmer, useAuditQueryCertifications, useShipmentReport } from "@/hooks/useTraceability"
 import { Download } from "lucide-react"
 import { traceabilityService } from "@/lib/services/traceability.service"
+import { usePermission } from "@/hooks/usePermission"
 
 type SearchType = "status" | "farmer" | "certifications" | "shipment"
 
-export function AuditQueryPanel() {
-  const [searchType, setSearchType] = useState<SearchType>("status")
-  const [inputValue, setInputValue] = useState("")
-  const [activeSearch, setActiveSearch] = useState<{ type: SearchType; value: string } | null>(null)
+interface AuditQueryPanelProps {
+  initialSearch?: {
+    type: SearchType
+    value: string
+  }
+}
+
+export function AuditQueryPanel({ initialSearch }: AuditQueryPanelProps) {
+  const can = usePermission()
+  const [searchType, setSearchType] = useState<SearchType>(initialSearch?.type || "status")
+  const [inputValue, setInputValue] = useState(initialSearch?.value || "")
+  const [activeSearch, setActiveSearch] = useState<{ type: SearchType; value: string } | null>(
+    initialSearch?.value ? { type: initialSearch.type, value: initialSearch.value } : null
+  )
+
+  // Trigger search if initialSearch changes
+  useEffect(() => {
+    if (initialSearch?.value) {
+      setSearchType(initialSearch.type)
+      setInputValue(initialSearch.value)
+      setActiveSearch({ type: initialSearch.type, value: initialSearch.value })
+    }
+  }, [initialSearch])
 
   const handleSearch = () => {
     if (!inputValue) return
@@ -72,7 +92,9 @@ export function AuditQueryPanel() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="status">Par Statut</SelectItem>
-              <SelectItem value="farmer">Par ID Producteur</SelectItem>
+              {can.check("audit:query_farmer") && (
+                <SelectItem value="farmer">Par ID Producteur</SelectItem>
+              )}
               <SelectItem value="certifications">Par Réf. Certification</SelectItem>
               <SelectItem value="shipment">Rapport d'Expédition (ID)</SelectItem>
             </SelectContent>

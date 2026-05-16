@@ -10,7 +10,8 @@ import {
   ShieldCheck, 
   Users, 
   Landmark,
-  FileBarChart
+  FileBarChart,
+  CheckCircle2
 } from "lucide-react"
 import { ChartConfig } from "@/components/ui/chart"
  
@@ -59,7 +60,7 @@ export function MinistryReportsTab() {
   return (
     <div className="space-y-6 mt-4">
       {/* KPI Grid */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard 
           title="Volume National Tracé" 
           value={(totalVolume / 1000).toFixed(1)} 
@@ -77,17 +78,17 @@ export function MinistryReportsTab() {
           colorVariant="emerald"
         />
         <KPICard 
-          title="Coopératives Actives" 
-          value={coopsCount} 
-          icon={Landmark}
-          trend={{ value: "Stable", stable: true }}
-          colorVariant="amber"
+          title="Acteurs Validés" 
+          value={users.filter(u => u.blockchain_validated).length} 
+          icon={CheckCircle2}
+          trend={{ value: "Blockchain", positive: true }}
+          colorVariant="emerald"
         />
         <KPICard 
           title="Total Acteurs" 
           value={users.length} 
           icon={Users}
-          trend={{ value: `+${users.filter(u => !u.blockchain_validated).length}`, positive: true }}
+          trend={{ value: `En attente: ${users.filter(u => !u.blockchain_validated).length}`, warning: true }}
           colorVariant="slate"
         />
       </div>

@@ -274,7 +274,7 @@ export function MultiStepSignupForm({ className }: { className?: string }) {
       formData.append("org_name", orgName)
 
       if (data.coopId) {
-        formData.append("coopId", data.coopId)
+        formData.append("coop_id", data.coopId)
       }
 
       if (data.proofFile?.[0]) {
@@ -310,6 +310,7 @@ export function MultiStepSignupForm({ className }: { className?: string }) {
         ) as UserRole[],
         orgName: response.org_name,
         blockchainId: response.blockchain_id,
+        coopId: data.coopId,
         statut: "actif",
         dateCreation: Date.now(),
         derniereConnexion: Date.now(),

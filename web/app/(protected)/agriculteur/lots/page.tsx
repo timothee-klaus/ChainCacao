@@ -1,11 +1,10 @@
 "use client"
 
 import { useUser } from "@/context/useUser"
-import { useLots } from "@/hooks/useLots"
+import { useFarmerLots } from "@/hooks/useLots"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -20,14 +19,8 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 
 export default function MesLotsPage() {
   const { user } = useUser()
-  const { serverLots, loadLots, isLoading } = useLots()
-
-  useEffect(() => {
-    loadLots()
-  }, [loadLots])
-
-  // On filtre par l'ID de l'agriculteur (si l'API ne le fait pas déjà)
-  const lots = user ? serverLots.filter(l => l.farmer_id === user.userId || l.farmerId === user.userId) : []
+  const farmerId = user?.blockchainId || user?.userId || ""
+  const { data: lots = [], isLoading } = useFarmerLots(farmerId)
 
   return (
     <div className="space-y-6 p-6">
@@ -70,7 +63,7 @@ export default function MesLotsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {lots.map((lot) => (
+                  {lots.map((lot: any) => (
                     <tr key={lot.lotId || lot.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4 font-mono text-xs">{lot.lotId || lot.id}</td>
                       <td className="py-3 px-4">{lot.espece}</td>

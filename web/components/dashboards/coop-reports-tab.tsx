@@ -19,12 +19,13 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { ChartConfig } from "@/components/ui/chart"
+import { normalizeRole } from "@/lib/navigation/role-config"
  
 export function CoopReportsTab() {
   const { lots } = useLotsStore()
   const { users } = useActors()
  
-  const producers = users.filter(u => u.role === "PRODUCTEUR")
+  const producers = users.filter(u => normalizeRole(u.role) === "Agriculteur")
   const totalVolume = lots.reduce((sum, l) => sum + (l.poidsKg || 0), 0)
   
   // Mock monthly data (in a real app, this would come from an API or be aggregated by date)
@@ -68,7 +69,7 @@ export function CoopReportsTab() {
       {/* KPI Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <KPICard 
-          title="Total Volume Exported" 
+          title="Volume Total Exporté" 
           value={(totalVolume / 1000).toFixed(1)} 
           unit="t" 
           icon={Tractor}
@@ -76,25 +77,24 @@ export function CoopReportsTab() {
           colorVariant="emerald"
         />
         <KPICard 
-          title="Avg. Quality Grade" 
+          title="Qualité Moyenne" 
           value="Grade A" 
           icon={Scale}
           trend={{ value: "Stable", stable: true }}
           colorVariant="amber"
         />
         <KPICard 
-          title="Revenue Generated" 
-          value="3.2M" 
-          unit="$" 
+          title="Revenue Genéré" 
+          value="0FCFA" 
           icon={BadgeDollarSign}
-          trend={{ value: "+8.2%", positive: true }}
+          trend={{ value: " 0 FCFA", positive: true }}
           colorVariant="blue"
         />
         <KPICard 
-          title="Active Farmers" 
+          title="Producteurs Actifs" 
           value={producers.length} 
           icon={Users}
-          trend={{ value: "+42", positive: true }}
+          trend={{ value: "0", positive: true }}
           colorVariant="slate"
         />
       </div>
@@ -127,10 +127,10 @@ export function CoopReportsTab() {
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/50">
-              <TableHead>REPORT NAME</TableHead>
+              <TableHead>NOM DU RAPPORT</TableHead>
               <TableHead>TYPE</TableHead>
               <TableHead>DATE</TableHead>
-              <TableHead>STATUS</TableHead>
+              <TableHead>STATUT</TableHead>
               <TableHead className="text-right">ACTION</TableHead>
             </TableRow>
           </TableHeader>
@@ -155,7 +155,7 @@ export function CoopReportsTab() {
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" className="gap-2 text-amber-700">
                     <Download className="size-4" />
-                    Download PDF
+                    Télécharger PDF
                   </Button>
                 </TableCell>
               </TableRow>

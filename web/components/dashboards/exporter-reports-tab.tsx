@@ -93,10 +93,10 @@ export function ExporterReportsTab() {
         />
         <KPICard 
           title="Valeur Estimée" 
-          value="1.8M" 
+          value="0" 
           unit="$" 
           icon={TrendingUp}
-          trend={{ value: "+12%", positive: true }}
+          trend={{ value: "+0%", positive: false }}
           colorVariant="amber"
         />
       </div>

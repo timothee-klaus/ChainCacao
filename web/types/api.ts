@@ -56,10 +56,9 @@ export interface CooperativePublic {
 }
 
 export interface ProducerRegisterDelegated {
-  email?: string
-  numero_telephone: string
-  full_name: string
-  coop_id: string
+  fullName: string
+  numeroTelephone: string
+  location?: string
 }
 
 export interface AgentRegister {
@@ -171,23 +170,15 @@ export interface BundleCreate {
 // ============================================================================
 
 export interface ParcelleCreate {
-  parcelle_id: string
-  latitude: number
-  longitude: number
-  superficie_ha: number
-  espece_principale: string
-  region: string
+  parcelleId?: string
+  farmerId?: string
+  gps: GPSModel[]
+  culture: string
+  surface: number
 }
 
-export interface ParcelleDetail {
-  parcelle_id: string
-  farmer_id: string
-  latitude: number
-  longitude: number
-  superficie_ha: number
-  espece_principale: string
-  region: string
-  created_at: string
+export interface ParcelleDetail extends ParcelleCreate {
+  dateEnregistrement?: string
 }
 
 export interface GPSModel {

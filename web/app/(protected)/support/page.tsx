@@ -62,7 +62,7 @@ export default function SupportPage() {
                 </div>
                 <div>
                   <p className="font-bold">Appelez-nous</p>
-                  <p className="text-sm text-muted-foreground">+225 XX XX XX XX XX</p>
+                  <p className="text-sm text-muted-foreground">+229 96 28 68 68</p>
                   <p className="text-xs text-muted-foreground">Lun - Ven, 8h - 18h</p>
                 </div>
               </div>

@@ -23,6 +23,13 @@ const allowedRoles = [
   "Importer",
   "MinistryAnalyst",
   "Admin",
+  // New API roles
+  "PRODUCTEUR",
+  "COOPERATIVE",
+  "EXPORTATEUR",
+  "TRANSFORMATEUR",
+  "CERTIF",
+  "MINISTERE",
 ] as const
 
 export default function AllLotsPage() {

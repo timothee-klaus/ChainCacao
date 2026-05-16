@@ -46,11 +46,9 @@ export function AddLotDialog() {
               await createLot({
                 espece: values.espece,
                 poidsKg: values.poidsKg,
-                dateCollecte: values.dateCollecte.toISOString(),
-                region: values.region,
-                gpsLatitude: values.gpsLatitude,
-                gpsLongitude: values.gpsLongitude,
-                coopName: values.coopName ?? "",
+                dateCollecte: values.dateCollecte.toISOString().split("T")[0],
+                parcelleId: values.parcelleId,
+                coopId: values.coopId ?? "",
                 photos: [] // Pour l'instant on ne gère pas les uploads réels ici, ou on envoie une liste vide
               })
               setOpen(false)

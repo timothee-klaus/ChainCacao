@@ -6,4 +6,5 @@ export const queryKeys = {
   history: (assetHash: string) => ["history", assetHash] as const,
   eudr: (lotHash: string) => ["eudr", lotHash] as const,
   verification: (lotHash: string) => ["verification", lotHash] as const,
+  parcelles: "parcelles",
 } as const

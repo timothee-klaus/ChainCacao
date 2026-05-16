@@ -19,13 +19,11 @@ export default function NouveauLotPage() {
 
     try {
       const lot = await createLot({
+        parcelleId: values.parcelleId,
         espece: values.espece,
         poidsKg: values.poidsKg,
-        dateCollecte: values.dateCollecte.toISOString(),
-        region: values.region,
-        gpsLatitude: values.gpsLatitude,
-        gpsLongitude: values.gpsLongitude,
-        coopName: values.coopName,
+        dateCollecte: values.dateCollecte.toISOString().split("T")[0], // YYYY-MM-DD
+        coopId: values.coopId,
         photos: files,
       })
 
@@ -40,8 +38,7 @@ export default function NouveauLotPage() {
         status: "draft",
         description: "Enregistrement de récolte créé avec succès sur la blockchain.",
         metadata: {
-          gps: { latitude: values.gpsLatitude, longitude: values.gpsLongitude },
-          region: values.region,
+          parcelleId: values.parcelleId,
           photos: files.length,
         },
       })
@@ -55,7 +52,7 @@ export default function NouveauLotPage() {
     <div className="space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold">Ajouter un Nouveau Lot</h1>
-        <p className="text-muted-foreground mt-1">Remplissez les informations de votre lot agricole. La géolocalisation est détectée automatiquement.</p>
+        <p className="text-muted-foreground mt-1">Remplissez les informations de votre lot agricole et associez-le à l'une de vos parcelles.</p>
       </div>
 
       <Card className="p-6">
@@ -65,10 +62,8 @@ export default function NouveauLotPage() {
           defaultValues={{
             espece: "",
             poidsKg: 0,
-            region: "",
-            coopName: "",
-            gpsLatitude: 0,
-            gpsLongitude: 0,
+            parcelleId: "",
+            coopId: user?.coopId || "",
             dateCollecte: new Date(),
           }}
         />
