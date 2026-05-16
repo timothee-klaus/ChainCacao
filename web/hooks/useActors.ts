@@ -20,10 +20,12 @@ import type {
 import { roleToOrg as roleToOrgMap } from "@/types/api-actors"
 import { queryKeys } from "@/lib/query-keys"
 import { useUser } from "@/context/useUser"
+import { normalizeRole } from "@/lib/navigation/role-config"
 
 export function useActors() {
   const queryClient = useQueryClient()
   const { activeRole } = useUser()
+  const normalizedRole = normalizeRole(activeRole || "")
 
   // Queries
   const usersQuery = useQuery({
@@ -32,16 +34,16 @@ export function useActors() {
   })
 
   const pendingUsersQuery = useQuery({
-    queryKey: [queryKeys.pendingActors, activeRole],
+    queryKey: [queryKeys.pendingActors, normalizedRole],
     queryFn: () => {
-      if (activeRole === "CoopManager") {
+      if (normalizedRole === "CoopManager") {
         return fetchPendingProducers()
       }
       // Par défaut (Ministère)
       return fetchPendingRegistrations()
     },
     // Désactiver si le rôle n'est ni Admin ni Coop ni Ministry (évite les erreurs 403 inutiles)
-    enabled: ["Admin", "CoopManager", "MinistryAnalyst"].includes(activeRole || ""),
+    enabled: ["Admin", "CoopManager", "MinistryAnalyst"].includes(normalizedRole),
   })
 
   // Mutations
