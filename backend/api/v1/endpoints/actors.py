@@ -41,16 +41,18 @@ async def list_available_recipients(
     - EXPORTATEUR -> TRANSFORMATEUR
     """
     if current_user.role == "PRODUCTEUR":
+        # Producteur -> Coopérative uniquement
         return storage.get_users(db, role="COOPERATIVE", validated=True)
     
     elif current_user.role == "COOPERATIVE":
-        exportateurs = storage.get_users(db, role="EXPORTATEUR", validated=True)
-        transfos = storage.get_users(db, role="TRANSFORMATEUR", validated=True)
-        return exportateurs + transfos
-        
-    elif current_user.role == "EXPORTATEUR":
+        # Coopérative -> Transformateur uniquement
         return storage.get_users(db, role="TRANSFORMATEUR", validated=True)
         
+    elif current_user.role == "TRANSFORMATEUR":
+        # Transformateur -> Exportateur uniquement
+        return storage.get_users(db, role="EXPORTATEUR", validated=True)
+        
+    
     else:
         # Pour les autres rôles (Audit, Ministère), on liste tous les acteurs validés
         return storage.get_users(db, validated=True)

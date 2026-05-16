@@ -34,6 +34,13 @@ Contrairement aux applications blockchain classiques, ChainCacao utilise une app
 -   **Base SQL (PostgreSQL/SQLite)** : Stocke les données "lourdes" et les relations complexes (profils utilisateurs, images, PDF de conformité). Cela permet des recherches instantanées et des tris impossibles sur une blockchain.
 -   **Blockchain (Hyperledger Fabric)** : Stocke uniquement le **Hash (l'empreinte numérique)** des données. Si une photo est modifiée en base SQL, son hash ne correspondra plus à celui stocké sur le Ledger, révélant la fraude.
 
+### 📐 Flux de Transfert Autorisé
+Pour garantir la cohérence EUDR, le backend impose un ordre strict via l'endpoint `/recipients` :
+1.  **Producteur** ➔ peut envoyer à ➔ **Coopérative**
+2.  **Coopérative** ➔ peut envoyer à ➔ **Transformateur**
+3.  **Transformateur** ➔ peut envoyer à ➔ **Exportateur**
+4.  **Exportateur** ➔ peut envoyer à ➔ **Acheteur Final / Exportateur**
+
 ### ⚙️ Cycle de vie d'une transaction type
 1.  **Validation** : Le backend vérifie via Pydantic (`schemas.py`) que les données sont conformes.
 2.  **Persistance locale** : Les métadonnées sont sauvées en base SQL.
