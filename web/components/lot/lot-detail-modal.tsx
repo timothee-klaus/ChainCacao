@@ -85,7 +85,7 @@ export function LotDetailModal({
   }))
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
-  const qrValue = `${baseUrl}/inventory/${lot.lotId}`
+  const qrValue = `${baseUrl}/inventory/${blockchainHash}`
   const metaActions = timeline.flatMap((action) => {
     const metadata = action.metadata
     if (!metadata || typeof metadata !== "object") return []

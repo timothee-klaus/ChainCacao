@@ -45,9 +45,13 @@ export function TransformerDashboard() {
     ? serverLots.find((lot) => (lot.lotId || lot.id) === selectedLotId) ?? null
     : null
 
-  const pendingLots = transformerLots.filter((lot) => lot.statut?.toLowerCase() === "pending")
+  const pendingLots = transformerLots.filter((lot) => 
+    lot.statut?.toLowerCase() === "pending" || lot.statut?.toLowerCase() === "en_transit"
+  )
   const transferredLots = transformerLots.filter((lot) => lot.statut?.toLowerCase() === "transferred")
-  const transformedLots = transformerLots.filter((lot) => ["transformed", "transforme", "verified"].includes(lot.statut?.toLowerCase()))
+  const transformedLots = transformerLots.filter((lot) => 
+    ["transformed", "transforme", "verified", "exported", "exporte"].includes(lot.statut?.toLowerCase())
+  )
   const totalWeight = transformerLots.reduce((sum, lot) => sum + lot.poidsKg, 0)
   const totalSourceActions = transformerLots.reduce(
     (sum, lot) => sum + getLotTimeline(lot.lotId, getLotHistoryIds(lot, groups)).length,

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ArrowRightLeft, ShieldCheck, User } from "lucide-react"
-import { usePublicCooperatives, useListUsers } from "@/hooks/api/useAuth"
+import { useRecipients } from "@/hooks/api/useAuth"
 import { useTraceability } from "@/hooks/useTraceability"
 import type { Lot, UserRole } from "@/types/types"
 import type { TransferPayload } from "@/types/api-traceability"
@@ -45,8 +45,7 @@ export function TransferRoleDialog({
   currentUserId,
 }: TransferRoleDialogProps) {
   const { createTransfer, isSubmitting } = useTraceability()
-  const { data: publicCoops } = usePublicCooperatives()
-  const { data: allUsers } = useListUsers()
+  const { data: recipients } = useRecipients()
   const { handleSubmit, setValue, watch, reset } = useForm<FormValues>()
 
   const [destinations, setDestinations] = useState<{ id: string; name: string; role: string }[]>([])
@@ -54,37 +53,14 @@ export function TransferRoleDialog({
   useEffect(() => {
     if (!open) return
 
-    let list: { id: string; name: string; role: string }[] = []
-
-    if (activeRole === "PRODUCTEUR") {
-      // Un producteur transfère à une coopérative
-      list = (publicCoops || []).map(coop => ({
-        id: coop.blockchain_id,
-        name: coop.full_name,
-        role: "COOPERATIVE"
-      }))
-    } else if (activeRole === "COOPERATIVE") {
-      // Une coopérative transfère à un exportateur ou un transformateur
-      list = (allUsers || [])
-        .filter(u => u.role === "EXPORTATEUR" || u.role === "TRANSFORMATEUR")
-        .map(u => ({
-          id: u.blockchain_id,
-          name: u.full_name,
-          role: u.role
-        }))
-    } else if (activeRole === "TRANSFORMATEUR") {
-      // Un transformateur transfère à un exportateur
-      list = (allUsers || [])
-        .filter(u => u.role === "EXPORTATEUR")
-        .map(u => ({
-          id: u.blockchain_id,
-          name: u.full_name,
-          role: u.role
-        }))
-    }
+    const list = (recipients || []).map((u: any) => ({
+      id: u.blockchain_id || u.id?.toString() || "",
+      name: u.full_name || u.org_name || "",
+      role: u.role
+    }))
 
     setDestinations(list)
-  }, [open, activeRole, publicCoops, allUsers])
+  }, [open, recipients])
 
   const handleFormSubmit = async (values: FormValues) => {
     const payload: TransferPayload = {
