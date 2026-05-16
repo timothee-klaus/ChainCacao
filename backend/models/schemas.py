@@ -178,12 +178,12 @@ class ActorResponse(ActorRegister):
     revoque: bool
 
 ROLE_TO_ORG: Dict[str, str] = {
-    "PRODUCTEUR": "producteurs",
-    "COOPERATIVE": "cooperatives",
-    "EXPORTATEUR": "exportateurs",
-    "CERTIF": "certif",
+    "PRODUCTEUR": "test",
+    "COOPERATIVE": "test",
+    "EXPORTATEUR": "test",
+    "CERTIF": "test",
     "MINISTERE": "test",
-    "TRANSFORMATEUR": "transformateurs",
+    "TRANSFORMATEUR": "test",
 }
 
 class UserRegister(BaseModel):

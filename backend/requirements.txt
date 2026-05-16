@@ -17,3 +17,4 @@ pytest-asyncio==0.25.0
 # However, many modern architectures use a separate 'Fabric Gateway' or 'API Gateway' container.
 # We will simulate the connection via a service class.
 fpdf2
+qrcode[pil]==8.0

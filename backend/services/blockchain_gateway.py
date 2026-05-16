@@ -229,3 +229,33 @@ class BlockchainGateway:
             "lot_reports": lot_reports,
             "compliance_summary": "ALL_COMPLIANT" if all(r.get("compliance_status") == "COMPLIANT" for r in lot_reports) else "ACTION_REQUIRED"
         }
+
+    async def get_bundle_eudr_report(self, bundle_hash: str, org_name: str, user_id: str) -> Dict[str, Any]:
+        """
+        Génère un rapport de conformité agrégé pour un regroupement de lots (Bundle).
+        """
+        # 1. Récupérer les détails du bundle (on utilise GetLot car c'est la même collection sur le ledger)
+        bundle = await self.query_ledger("GetLot", [bundle_hash], org_name, user_id)
+        if not bundle or "error" in bundle:
+            return {"success": False, "error": "BUNDLE_NOT_FOUND"}
+            
+        lot_hashes = bundle.get("lotHashes", [])
+        lot_reports = []
+        
+        # 2. Récupérer le rapport individuel pour chaque lot enfant
+        for lot_hash in lot_hashes:
+            report = await self.get_eudr_report(lot_hash, org_name, user_id)
+            lot_reports.append(report)
+            
+        # 3. Calculer un statut de conformité global
+        is_all_compliant = all(r.get("compliance_status") == "COMPLIANT" for r in lot_reports)
+        
+        return {
+            "success": True,
+            "bundle_hash": bundle_hash,
+            "total_poids": bundle.get("totalPoids"),
+            "timestamp": bundle.get("timestamp"),
+            "lots_count": len(lot_hashes),
+            "lot_reports": lot_reports,
+            "compliance_summary": "ALL_COMPLIANT" if is_all_compliant else "ACTION_REQUIRED"
+        }

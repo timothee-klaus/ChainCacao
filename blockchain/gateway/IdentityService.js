@@ -10,7 +10,8 @@ class IdentityService {
     }
 
     async getWalletPath(orgName) {
-        const walletPath = path.join(this.orgsRoot, 'wallets', orgName);
+        // SUR LA VM 1Go: On force le dossier 'test' pour simplifier la gestion des identités
+        const walletPath = path.join(this.orgsRoot, 'wallets', 'test');
         await fs.mkdir(walletPath, { recursive: true });
         return walletPath;
     }

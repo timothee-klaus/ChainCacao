@@ -8,6 +8,8 @@ import uuid
 import os
 import tempfile
 from fpdf import FPDF
+import qrcode
+from io import BytesIO
 
 router = APIRouter()
 gateway = BlockchainGateway()
@@ -120,6 +122,22 @@ async def generate_eudr_report_pdf(
     pdf.add_page()
     pdf.set_font("helvetica", "B", 16)
     pdf.cell(w=0, h=10, txt="Certificat de Conformite EUDR", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    # --- AJOUT QR CODE ---
+    # URL de vérification publique (à adapter selon le domaine final)
+    verify_url = f"https://chaincacao.app/verify/{lot_hash}"
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(verify_url)
+    qr.make(fit=True)
+    img_qr = qr.make_image(fill_color="black", back_color="white")
+    
+    qr_buffer = BytesIO()
+    img_qr.save(qr_buffer, format="PNG")
+    qr_buffer.seek(0)
+    
+    # Positionnement en haut à droite
+    pdf.image(qr_buffer, x=165, y=10, w=35)
+    # ---------------------
     
     pdf.set_font("helvetica", size=12)
     pdf.ln(10)
@@ -260,3 +278,61 @@ async def generate_shipment_report_pdf(
     pdf.output(path)
     
     return FileResponse(path, media_type="application/pdf", filename=f"Shipment_EUDR_{shipment_hash}.pdf")
+
+@router.get("/bundle-report/{bundle_hash}")
+async def generate_bundle_report(
+    bundle_hash: str,
+    current_user: User = Depends(security.get_current_user)
+):
+    """
+    Générer un rapport de conformité agrégé pour un regroupement de lots (Bundle).
+    """
+    return await gateway.get_bundle_eudr_report(
+        bundle_hash, 
+        ROLE_TO_ORG.get(current_user.role, "test"), 
+        current_user.blockchain_id
+    )
+
+@router.get("/bundle-report/{bundle_hash}/pdf")
+async def generate_bundle_report_pdf(
+    bundle_hash: str,
+    current_user: User = Depends(security.get_current_user)
+):
+    """
+    Générer le rapport d'audit PDF pour un regroupement de lots (Bundle).
+    """
+    report = await gateway.get_bundle_eudr_report(
+        bundle_hash, 
+        ROLE_TO_ORG.get(current_user.role, "test"), 
+        current_user.blockchain_id
+    )
+    if not report.get("success"):
+        raise HTTPException(status_code=404, detail=report.get("error"))
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("helvetica", "B", 16)
+    pdf.cell(w=0, h=10, txt=f"Rapport de Regroupement - {bundle_hash}", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font("helvetica", size=12)
+    pdf.ln(10)
+    pdf.cell(w=0, h=8, txt=f"Poids Total: {report.get('total_poids')} kg", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(w=0, h=8, txt=f"Nombre de Lots: {report.get('lots_count')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(w=0, h=8, txt=f"Statut Global: {report.get('compliance_summary')}", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.ln(10)
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(w=0, h=10, txt="Detail des lots inclus:", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("helvetica", size=10)
+    
+    for lot_rep in report.get("lot_reports", []):
+        lot_data = lot_rep.get("data", {}).get("lot", {})
+        gps = lot_data.get("gps", {})
+        txt = f"- Lot {lot_data.get('lotHash')}: {lot_data.get('poidsKg')}kg | GPS: {gps.get('latitude')}, {gps.get('longitude')} | {lot_rep.get('compliance_status')}"
+        pdf.cell(w=0, h=7, txt=txt, new_x="LMARGIN", new_y="NEXT")
+    
+    fd, path = tempfile.mkstemp(suffix=".pdf")
+    os.close(fd)
+    pdf.output(path)
+    
+    return FileResponse(path, media_type="application/pdf", filename=f"Bundle_Report_{bundle_hash}.pdf")
