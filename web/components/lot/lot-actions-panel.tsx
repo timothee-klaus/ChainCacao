@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Lock, CheckCircle2, Truck, PackageOpen, ShieldCheck, FileCheck2, ClipboardList, ArrowRightLeft } from "lucide-react"
 
 import { TransferRoleDialog } from "./transfer-role-dialog"
+import { CreateShipmentDialog } from "@/components/traceability/create-shipment-dialog"
 import { useState } from "react"
 
 interface LotActionsPanelProps {
@@ -176,12 +177,13 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
   const { user, activeRole } = useUser()
   const can = usePermission()
   const [transferDialogOpen, setTransferDialogOpen] = useState(false)
-  const { 
-    createTransfer, 
-    createTransformation, 
-    createShipment, 
+  const [shipmentDialogOpen, setShipmentDialogOpen] = useState(false)
+  const {
+    createTransfer,
+    createTransformation,
     createCertification,
-    isSubmitting 
+    createShipment,
+    isSubmitting
   } = useTraceability()
 
   if (!user || !activeRole) return null
@@ -296,21 +298,13 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
           break
 
         case "exported":
-          const shipmentPayload: ShipmentPayload = {
-            shipmentHash: `SHP-${Date.now()}`,
-            lotHashes: [lot.lotId],
-            exportateurId: user.userId,
-            destination: "Europe",
-            dateDepartPrevue: new Date().toISOString(),
-            dateArriveePrevue: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-            file: new File([""], "bill_of_lading.pdf", { type: "application/pdf" })
-          }
-          await createShipment(shipmentPayload)
+          setShipmentDialogOpen(true)
           break
 
         case "verified":
+          const blockchainHash = (lot as any).lotHash || lot.lotId
           const certPayload: CertificationPayload = {
-            lot_hash: lot.lotId,
+            lot_hash: blockchainHash,
             certifier_id: user.userId,
             type: "EUDR_COMPLIANCE",
             ref_hash: `CERT-${Date.now()}`,
@@ -371,12 +365,26 @@ export function LotActionsPanel({ lot }: LotActionsPanelProps) {
           )
         })}
       </CardContent>
-      <TransferRoleDialog 
-        lot={lot} 
-        open={transferDialogOpen} 
-        onOpenChange={setTransferDialogOpen} 
+      <TransferRoleDialog
+        lot={lot}
+        open={transferDialogOpen}
+        onOpenChange={setTransferDialogOpen}
         activeRole={activeRole}
         currentUserId={user.userId}
+      />
+      <CreateShipmentDialog
+        lotHashes={[(lot as any).lotHash || lot.lotId]}
+        isSubmitting={isSubmitting}
+        open={shipmentDialogOpen}
+        onOpenChange={setShipmentDialogOpen}
+        onSubmit={async (payload, onSuccess) => {
+          try {
+            await createShipment(payload)
+            onSuccess()
+          } catch (e) {
+            console.error("Shipment error:", e)
+          }
+        }}
       />
     </Card>
   )

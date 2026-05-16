@@ -53,9 +53,11 @@ export function LotDetailModal({
 }: LotDetailModalProps) {
   const { activeRole } = useUser()
   const { Canvas } = useQRCode()
-  const { data: serverTimeline } = useLotHistory(lot?.lotId || "")
+  // Priorité au hash blockchain (lotHash) pour les requêtes API, fallback sur lotId local
+  const blockchainHash = (lot as any)?.lotHash || lot?.lotId || ""
+  const { data: serverTimeline } = useLotHistory(blockchainHash)
   const { data: serverEUDR, isLoading: isLoadingEUDR } = useLotEUDR(
-    lot?.lotId || ""
+    blockchainHash
   )
   const qrBoxRef = useRef<HTMLDivElement>(null)
   const [copyLabel, setCopyLabel] = useState("Copier l'ID")

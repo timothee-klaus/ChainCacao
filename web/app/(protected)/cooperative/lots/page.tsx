@@ -482,7 +482,7 @@ export default function GestionLotsPage() {
       </Card>
 
       <LotDetailModal
-        lot={(selectedLotId ? allLots.find((l: any) => (l.lotId || l.lotHash || l.id) === selectedLotId) ?? null : null) as any}
+        lot={(selectedLotId ? allLots.find((l: any) => (l.lotId || l.lotHash || l.id) === selectedLotId) ?? getLotById(selectedLotId) ?? null : null) as any}
         open={lotDetailOpen}
         onOpenChange={setLotDetailOpen}
       />
