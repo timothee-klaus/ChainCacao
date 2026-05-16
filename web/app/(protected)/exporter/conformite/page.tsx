@@ -18,7 +18,7 @@ import { useUser } from "@/context/useUser"
 import { useEUDRStore } from "@/store/eudr"
 import { useLotActionsStore } from "@/store/lot-actions"
 import { useLotsStore } from "@/store/lots"
-import { getLotLineageIds } from "@/lib/lot-lineage"
+import { getLotLineageIds, getLotTraceabilityIds } from "@/lib/lot-lineage"
 import { useTraceability } from "@/hooks/useTraceability"
 import { useLots } from "@/hooks/useLots"
 import { CreateShipmentDialog } from "@/components/traceability/create-shipment-dialog"
@@ -139,24 +139,30 @@ export default function ConformitePage() {
     }
 
     const shipmentId = `EUDR-${lot.lotId}-${Date.now()}`
-    const lineageLotIds = getLotLineageIds(lot)
-    const blockchainHash = (lot as any).lotHash || lot.lotId
+    const lineageLotIds = getLotLineageIds(lot, getLotById)
+    const traceabilityLotIds = getLotTraceabilityIds(lot, getLotById)
 
     // Appel API blockchain — certification EUDR
     try {
-      await createCertification({
-        lot_hash: blockchainHash,
-        certifier_id: user.blockchainId || user.userId,
-        type: "EUDR_COMPLIANCE",
-        ref_hash: shipmentId,
-        metadata: {
-          confirmedLotIds: lineageLotIds,
-          eudrStatus: "conformante",
-          esgScore: "98",
-          countryRisk: "low",
-          diligenceDate: new Date().toISOString(),
-        },
-      })
+      await Promise.all(
+        traceabilityLotIds.map((lotHash, index) =>
+          createCertification({
+            certHash: `${shipmentId}-${index}`,
+            refHash: lotHash,
+            verificateurId: user.blockchainId || user.userId,
+            statut: "CONFORME",
+            rapportHash: `RAP-${shipmentId}-${index}`,
+            metadata: {
+              confirmedLotIds: lineageLotIds,
+              groupLotId: lot.isGroup ? (lot as any).lotHash || lot.lotId : undefined,
+              eudrStatus: "conformante",
+              esgScore: "98",
+              countryRisk: "low",
+              diligenceDate: new Date().toISOString(),
+            },
+          })
+        )
+      )
     } catch (e) {
       console.warn("[EUDR] Blockchain certification failed, recording locally:", e)
     }
@@ -197,8 +203,10 @@ export default function ConformitePage() {
       })
     })
 
-    updateLotStatus(lot.lotId, "exported")
-    updateLotSyncStatus(lot.lotId, "synced")
+    lineageLotIds.forEach((lotId) => {
+      updateLotStatus(lotId, "exported")
+      updateLotSyncStatus(lotId, "synced")
+    })
 
     setStatusMessage(`✅ Conformité EUDR confirmée pour ${lot.lotId} et enregistrée sur la blockchain.`)
   }
@@ -371,7 +379,7 @@ export default function ConformitePage() {
               {/* Étape 2 : Créer une expédition (disponible après confirmation EUDR) */}
               {selectedLot && hasLotAction(selectedLot.lotId, "verified", "controle") && canConfirmEUDR && (
                 <CreateShipmentDialog
-                  lotHashes={[(selectedLot as any).lotHash || selectedLot.lotId]}
+                  lotHashes={getLotTraceabilityIds(selectedLot, getLotById)}
                   isSubmitting={isSubmitting}
                   onSubmit={(payload, onSuccess) => {
                     createShipment(payload)

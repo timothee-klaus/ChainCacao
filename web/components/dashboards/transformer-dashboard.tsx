@@ -39,14 +39,16 @@ export function TransformerDashboard() {
   }
 
   const transformerLots = serverLots.filter((lot) =>
-    ["pending", "transferred", "transformed", "verified", "exported", "en_transit", "transforme", "exporte"].includes(lot.statut?.toLowerCase())
+    ["pending", "transferred", "transformed", "verified", "exported", "en_transit", "transforme", "exporte", "collecte"].includes(lot.statut?.toLowerCase())
   )
   const selectedLot = selectedLotId
     ? serverLots.find((lot) => (lot.lotId || lot.id) === selectedLotId) ?? null
     : null
 
   const pendingLots = transformerLots.filter((lot) => 
-    lot.statut?.toLowerCase() === "pending" || lot.statut?.toLowerCase() === "en_transit"
+    lot.statut?.toLowerCase() === "pending" || 
+    lot.statut?.toLowerCase() === "en_transit" ||
+    lot.statut?.toLowerCase() === "collecte"
   )
   const transferredLots = transformerLots.filter((lot) => lot.statut?.toLowerCase() === "transferred")
   const transformedLots = transformerLots.filter((lot) => 

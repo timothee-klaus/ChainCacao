@@ -36,7 +36,7 @@ function TransformerLotsContent() {
   const transformerLots = useMemo(
     () =>
       lots.filter((lot: any) =>
-        ["pending", "transferred", "verified", "transformed", "exported", "en_transit", "transforme", "exporte"].includes(lot.statut?.toLowerCase())
+        ["pending", "transferred", "verified", "transformed", "exported", "en_transit", "transforme", "exporte", "collecte"].includes(lot.statut?.toLowerCase())
       ),
     [lots]
   )
@@ -69,7 +69,10 @@ function TransformerLotsContent() {
     },
     {
       label: "À réceptionner",
-      value: transformerLots.filter((lot) => lot.statut?.toLowerCase() === "pending").length,
+      value: transformerLots.filter((lot) => 
+        lot.statut?.toLowerCase() === "pending" || 
+        lot.statut?.toLowerCase() === "collecte"
+      ).length,
       note: "Entrées en attente",
     },
     {
@@ -93,7 +96,11 @@ function TransformerLotsContent() {
       title: "À réceptionner",
       subtitle: "Lots en attente de prise en charge",
       color: "bg-yellow-100 text-yellow-800",
-      lots: filteredLots.filter((lot: any) => lot.statut?.toLowerCase() === "pending" || lot.statut?.toLowerCase() === "en_transit"),
+      lots: filteredLots.filter((lot: any) => 
+        lot.statut?.toLowerCase() === "pending" || 
+        lot.statut?.toLowerCase() === "en_transit" || 
+        lot.statut?.toLowerCase() === "collecte"
+      ),
     },
     {
       key: "transferred",

@@ -21,7 +21,9 @@ import {
 } from "@/components/ui/select"
 import { ArrowRightLeft, ShieldCheck, User } from "lucide-react"
 import { useRecipients } from "@/hooks/api/useAuth"
+import { useUser } from "@/context/useUser"
 import { useTraceability } from "@/hooks/useTraceability"
+import { getLotTraceabilityIds } from "@/lib/lot-lineage"
 import type { Lot, UserRole } from "@/types/types"
 import type { TransferPayload } from "@/types/api-traceability"
 
@@ -44,6 +46,7 @@ export function TransferRoleDialog({
   activeRole,
   currentUserId,
 }: TransferRoleDialogProps) {
+  const { user } = useUser()
   const { createTransfer, isSubmitting } = useTraceability()
   const { data: recipients } = useRecipients()
   const { handleSubmit, setValue, watch, reset } = useForm<FormValues>()
@@ -63,11 +66,15 @@ export function TransferRoleDialog({
   }, [open, recipients])
 
   const handleFormSubmit = async (values: FormValues) => {
-    const payload: TransferPayload = {
+    const selectedRecipient = destinations.find(d => d.id === values.destinataire_id)
+    
+    const payload: any = {
       transferHash: `TRF-${Date.now()}`,
-      lotHashes: [lot.lotId],
+      lotHashes: getLotTraceabilityIds(lot),
       expediteurId: currentUserId,
+      expediteurName: user?.nomAffiche || "",
       destinataireId: values.destinataire_id,
+      destinataireName: selectedRecipient?.name || "",
       file: new File([""], "transfer_proof.pdf", { type: "application/pdf" })
     }
 
