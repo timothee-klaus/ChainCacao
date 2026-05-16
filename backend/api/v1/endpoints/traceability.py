@@ -27,7 +27,23 @@ async def create_transfer(
     """
     import datetime, uuid
     try:
-        # Génération automatique du hash de transfert
+        # 1. Validation de l'ordre de la chaîne (Business Logic)
+        destinataire = storage.get_user_by_blockchain_id(db, destinataire_id)
+        if not destinataire:
+            raise HTTPException(status_code=404, detail="Destinataire inconnu en base locale.")
+        
+        logic_error = None
+        if current_user.role == "PRODUCTEUR" and destinataire.role != "COOPERATIVE":
+            logic_error = "Un producteur ne peut transférer qu'à une coopérative."
+        elif current_user.role == "COOPERATIVE" and destinataire.role != "TRANSFORMATEUR":
+            logic_error = "Une coopérative ne peut transférer qu'à un transformateur."
+        elif current_user.role == "TRANSFORMATEUR" and destinataire.role != "EXPORTATEUR":
+            logic_error = "Un transformateur ne peut transférer qu'à un exportateur."
+        
+        if logic_error:
+            raise HTTPException(status_code=400, detail=logic_error)
+
+        # 2. Génération automatique du hash de transfert
         today = datetime.datetime.now().strftime("%Y%m%d")
         short_id = str(uuid.uuid4())[:8].upper()
         generated_transfer_hash = f"TRANS-{today}-{short_id}"
