@@ -19,7 +19,7 @@ class ChainCacaoContract extends Contract {
     // ACTEURS
     // =========================================================================
 
-    async RegisterActor(ctx, actorIdHash, typeActeur, clePublique, metadata = '{}') {
+    async RegisterActor(ctx, actorIdHash, typeActeur, clePublique, metadata) {
         const callerMSP = ctx.clientIdentity.getMSPID();
         const callerId = AccessControl.getCallerId(ctx);
 
@@ -114,7 +114,7 @@ class ChainCacaoContract extends Contract {
     // TRANSFERTS / TRANSFORMATIONS / EXPEDITIONS
     // =========================================================================
 
-    async CreateTransfer(ctx, transferHash, lotHashesStr, expediteurId, destinataireId, preuveHash, transporteurId = "") {
+    async CreateTransfer(ctx, transferHash, lotHashesStr, expediteurId, destinataireId, preuveHash, transporteurId) {
         AccessControl.checkRole(ctx, [AccessControl.ROLES.PRODUCTEUR, AccessControl.ROLES.EXPORTATEUR, AccessControl.ROLES.TRANSFORMATEUR]);
         const logic = new TraceabilityLogic(ctx);
         const result = await logic.createTransfer(transferHash, JSON.parse(lotHashesStr), expediteurId, destinataireId, preuveHash, transporteurId);

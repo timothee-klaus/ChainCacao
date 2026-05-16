@@ -43,11 +43,14 @@ class BlockchainGateway:
                         # Fallback to safe text decoding
                         return {"success": False, "error": response.content.decode('utf-8', errors='replace')}
                 
-                return response.json()
+                data = response.json()
+                if not data.get("success", True):
+                    raise Exception(data.get("error", "Unknown blockchain error"))
+                return data
         except Exception as e:
             error_msg = str(e).encode('utf-8', 'replace').decode('utf-8')
             self.logger.error(f"Error invoking transaction: {error_msg}")
-            return {"success": False, "error": error_msg}
+            raise Exception(error_msg)
 
     async def query_ledger(self, function_name: str, args: List[str], org_name: str, user_id: str) -> Any:
         """
@@ -75,8 +78,8 @@ class BlockchainGateway:
                         return {"success": False, "error": response.content.decode('utf-8', errors='replace')}
                 
                 data = response.json()
-                if not data.get("success"):
-                    return data
+                if not data.get("success", True):
+                    raise Exception(data.get("error", "Unknown blockchain error"))
                 
                 result = data.get("result")
                 # Si le résultat est une chaîne JSON, on la parse automatiquement
